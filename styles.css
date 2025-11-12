@@ -26,6 +26,23 @@
     --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
+/* Modo Oscuro */
+body.dark-mode {
+    --text-dark: #f1f5f9;
+    --text-light: #cbd5e1;
+    --text-lighter: #94a3b8;
+    --bg-light: #0f172a;
+    --white: #1e293b;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode {
+    background: #0f172a;
+    color: #f1f5f9;
+}
+
 body {
     font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     line-height: 1.6;
@@ -56,6 +73,11 @@ code, pre {
     top: 0;
     z-index: 1000;
     transition: all 0.3s ease;
+}
+
+body.dark-mode .navbar {
+    background: rgba(30, 41, 59, 0.95);
+    border-bottom: 1px solid rgba(14, 165, 233, 0.2);
 }
 
 .navbar .container {
@@ -114,6 +136,46 @@ code, pre {
 
 .nav-menu a:hover::after {
     width: 100%;
+}
+
+/* Botón de cambio de tema */
+.theme-toggle {
+    background: var(--gradient-primary);
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    margin-left: 1.5rem;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1) rotate(15deg);
+    box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5);
+}
+
+.theme-toggle i {
+    font-size: 1.2rem;
+    color: white;
+    transition: transform 0.3s;
+}
+
+.theme-toggle:active {
+    transform: scale(0.95);
+}
+
+body.dark-mode .theme-toggle {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+body.dark-mode .theme-toggle:hover {
+    box-shadow: 0 6px 20px rgba(251, 191, 36, 0.5);
 }
 
 .hamburger {
@@ -988,6 +1050,16 @@ section {
         display: flex;
     }
 
+    .theme-toggle {
+        margin-left: 1rem;
+        width: 40px;
+        height: 40px;
+    }
+
+    .theme-toggle i {
+        font-size: 1rem;
+    }
+
     .nav-menu {
         position: fixed;
         left: -100%;
@@ -999,6 +1071,10 @@ section {
         transition: 0.3s;
         box-shadow: var(--shadow);
         padding: 2rem 0;
+    }
+
+    body.dark-mode .nav-menu {
+        background: #1e293b;
     }
 
     .nav-menu.active {
@@ -2010,4 +2086,68 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--secondary-color);
+}
+
+/* Estilos adicionales para modo oscuro */
+body.dark-mode .service-card,
+body.dark-mode .project-card,
+body.dark-mode .value-card,
+body.dark-mode .team-member,
+body.dark-mode .pricing-card {
+    background: #1e293b;
+    border-color: rgba(14, 165, 233, 0.2);
+}
+
+body.dark-mode .service-card:hover,
+body.dark-mode .project-card:hover,
+body.dark-mode .value-card:hover,
+body.dark-mode .team-member:hover,
+body.dark-mode .pricing-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 12px 40px rgba(6, 182, 212, 0.3);
+}
+
+body.dark-mode .section-title,
+body.dark-mode .hero-content h1,
+body.dark-mode h2,
+body.dark-mode h3 {
+    color: #f1f5f9;
+}
+
+body.dark-mode .section-subtitle,
+body.dark-mode .hero-content p {
+    color: #cbd5e1;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea {
+    background: #1e293b;
+    border-color: rgba(14, 165, 233, 0.2);
+    color: #f1f5f9;
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group textarea:focus {
+    border-color: var(--primary-color);
+    background: #0f172a;
+}
+
+body.dark-mode .footer {
+    background: #0f172a;
+    border-top-color: rgba(14, 165, 233, 0.2);
+}
+
+body.dark-mode .tech-item {
+    background: #1e293b;
+    border-color: rgba(14, 165, 233, 0.2);
+}
+
+body.dark-mode .tech-item:hover {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+}
+
+body.dark-mode code {
+    background: #1e293b;
+    color: #06b6d4;
 }
