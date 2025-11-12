@@ -1,0 +1,25 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Triángulo A con brillo -->
+  <path d="M 15 45 L 30 15 L 45 45 L 38 45 L 30 28 L 22 45 Z" fill="url(#logoGradient)"/>
+  
+  <!-- Brillo estrella -->
+  <circle cx="32" cy="18" r="1.5" fill="#fff" opacity="0.9">
+    <animate attributeName="opacity" values="0.9;0.3;0.9" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <line x1="32" y1="13" x2="32" y2="23" stroke="#fff" stroke-width="0.5" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="2s" repeatCount="indefinite"/>
+  </line>
+  <line x1="27" y1="18" x2="37" y2="18" stroke="#fff" stroke-width="0.5" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="2s" repeatCount="indefinite"/>
+  </line>
+  
+  <!-- Texto AURABYTE -->
+  <text x="55" y="38" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#0ea5e9" letter-spacing="1">AURABYTE</text>
+</svg>

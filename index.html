@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurabyte - Enterprise Software Development</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="byteo.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <img src="logo.svg" alt="Aurabyte Logo" class="logo-img">
+                <span>Aurabyte</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#servicios">Servicios</a></li>
+                <li><a href="#tecnologias">Tecnologías</a></li>
+                <li><a href="#precios">Precios</a></li>
+                <li><a href="#proyectos">Proyectos</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="inicio" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-code"></i>
+                    <span>Enterprise Software Solutions</span>
+                </div>
+                <h1 class="animate-fade-in">Desarrollo de Software Remoto</h1>
+                <p class="hero-slogan">El Futuro no se Improvisa, se Programa</p>
+                <p class="animate-fade-in-delay">Empresa de desarrollo remoto con equipo multidisciplinario. Creamos soluciones tecnológicas personalizadas con enfoque estético, funcional y estratégico para clientes nacionales e internacionales.</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">150+</div>
+                        <div class="stat-label">Proyectos Completados</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">98%</div>
+                        <div class="stat-label">Satisfacción Cliente</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Soporte Técnico</div>
+                    </div>
+                </div>
+                <div class="cta-buttons animate-fade-in-delay-2">
+                    <a href="#contacto" class="btn btn-primary">
+                        <i class="fas fa-rocket"></i> Iniciar Proyecto
+                    </a>
+                    <a href="#servicios" class="btn btn-secondary">
+                        <i class="fas fa-terminal"></i> Ver Servicios
+                    </a>
+                </div>
+            </div>
+            <div class="hero-code">
+                <div class="code-window">
+                    <div class="code-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                        <span class="code-title">main.py</span>
+                    </div>
+                    <pre class="code-content"><code><span class="code-keyword">from</span> flask <span class="code-keyword">import</span> Flask
+<span class="code-keyword">import</span> asyncio
+
+app = Flask(__name__)
+
+<span class="code-decorator">@app.route</span>(<span class="code-string">'/api/deploy'</span>)
+<span class="code-keyword">async def</span> <span class="code-function">deploy_solution</span>():
+    <span class="code-comment"># Enterprise-grade deployment</span>
+    <span class="code-keyword">return</span> {
+        <span class="code-string">'status'</span>: <span class="code-string">'success'</span>,
+        <span class="code-string">'uptime'</span>: <span class="code-string">'99.9%'</span>
+    }</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sobre Nosotros -->
+    <section class="about-us">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Sobre Aurabyte</h2>
+                    <p class="about-intro">Aurabyte es una <strong>empresa de desarrollo de software remoto</strong> conformada por un equipo multidisciplinario de profesionales en programación, diseño y gestión empresarial.</p>
+                    
+                    <p>Creamos soluciones tecnológicas personalizadas para <strong>clientes nacionales e internacionales</strong>, enfocándonos en el desarrollo web y de aplicaciones de escritorio.</p>
+                    
+                    <p>Nuestro compromiso es entregar <strong>productos de alta calidad</strong>, diseñados con enfoque estético, funcional y estratégico.</p>
+                    
+                    <div class="about-highlights">
+                        <div class="highlight-item">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <h4>Equipo Multidisciplinario</h4>
+                                <p>Programadores, diseñadores y gestores empresariales</p>
+                            </div>
+                        </div>
+                        <div class="highlight-item">
+                            <i class="fas fa-globe-americas"></i>
+                            <div>
+                                <h4>Alcance Global</h4>
+                                <p>Trabajo remoto para clientes nacionales e internacionales</p>
+                            </div>
+                        </div>
+                        <div class="highlight-item">
+                            <i class="fas fa-laptop-code"></i>
+                            <div>
+                                <h4>Desarrollo Integral</h4>
+                                <p>Aplicaciones web y de escritorio personalizadas</p>
+                            </div>
+                        </div>
+                        <div class="highlight-item">
+                            <i class="fas fa-award"></i>
+                            <div>
+                                <h4>Alta Calidad</h4>
+                                <p>Enfoque estético, funcional y estratégico</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="about-features">
+                    <div class="feature-card">
+                        <i class="fas fa-paint-brush"></i>
+                        <h4>Diseño Estético</h4>
+                        <p>Interfaces modernas y atractivas que cautivan</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-cogs"></i>
+                        <h4>Funcionalidad</h4>
+                        <p>Soluciones prácticas que resuelven problemas reales</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chess-knight"></i>
+                        <h4>Estrategia</h4>
+                        <p>Visión empresarial orientada a resultados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Expertise Section -->
+    <section class="expertise">
+        <div class="container">
+            <h2 class="section-title">Nuestras Fortalezas</h2>
+            <div class="expertise-grid">
+                <div class="expertise-item">
+                    <div class="expertise-icon">
+                        <i class="fas fa-laptop-house"></i>
+                    </div>
+                    <h3>Trabajo Remoto</h3>
+                    <p>Flexibilidad y eficiencia desde cualquier ubicación con comunicación constante</p>
+                </div>
+                <div class="expertise-item">
+                    <div class="expertise-icon">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <h3>Equipo Multidisciplinario</h3>
+                    <p>Programación, diseño y gestión empresarial trabajando en conjunto</p>
+                </div>
+                <div class="expertise-item">
+                    <div class="expertise-icon">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <h3>Precios Accesibles</h3>
+                    <p>Calidad profesional con costos competitivos y negociables</p>
+                </div>
+                <div class="expertise-item">
+                    <div class="expertise-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>Soporte Continuo</h3>
+                    <p>Acompañamiento durante todo el proyecto y después del lanzamiento</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Servicios -->
+    <section id="servicios" class="services">
+        <div class="container">
+            <h2 class="section-title">Servicios de Desarrollo</h2>
+            <p class="section-subtitle">Soluciones técnicas de nivel empresarial</p>
+            
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Desarrollo Web</h3>
+                    <p>Aplicaciones web modernas y responsivas con tecnologías de vanguardia. Desde landing pages hasta plataformas complejas.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Sitios web corporativos</li>
+                        <li><i class="fas fa-check"></i> E-commerce</li>
+                        <li><i class="fas fa-check"></i> Aplicaciones web SaaS</li>
+                        <li><i class="fas fa-check"></i> Portales personalizados</li>
+                    </ul>
+                    <div class="service-tech">
+                        <code>Python</code>
+                        <code>Django</code>
+                        <code>React</code>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                    <h3>Aplicaciones de Escritorio</h3>
+                    <p>Software nativo para Windows, macOS y Linux. Aplicaciones robustas y eficientes para gestión empresarial.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Sistemas de gestión</li>
+                        <li><i class="fas fa-check"></i> Aplicaciones empresariales</li>
+                        <li><i class="fas fa-check"></i> Software a medida</li>
+                        <li><i class="fas fa-check"></i> Integración con hardware</li>
+                    </ul>
+                    <div class="service-tech">
+                        <code>Python</code>
+                        <code>PyQt</code>
+                        <code>Electron</code>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fab fa-python"></i>
+                    </div>
+                    <h3>Python Backend Development</h3>
+                    <p>Arquitecturas escalables con Django, Flask y FastAPI. Microservicios, APIs RESTful y GraphQL para aplicaciones enterprise.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Django & FastAPI</li>
+                        <li><i class="fas fa-check"></i> Microservicios</li>
+                        <li><i class="fas fa-check"></i> GraphQL & REST APIs</li>
+                        <li><i class="fas fa-check"></i> Async Programming</li>
+                    </ul>
+                    <div class="service-tech">
+                        <code>Django</code>
+                        <code>Flask</code>
+                        <code>FastAPI</code>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3>Arquitectura de Software</h3>
+                    <p>Diseño de sistemas escalables, patrones de diseño, arquitectura hexagonal y event-driven architecture.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Microservicios</li>
+                        <li><i class="fas fa-check"></i> Event-Driven</li>
+                        <li><i class="fas fa-check"></i> Clean Architecture</li>
+                        <li><i class="fas fa-check"></i> DDD & CQRS</li>
+                    </ul>
+                    <div class="service-tech">
+                        <code>Design Patterns</code>
+                        <code>SOLID</code>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>Database Engineering</h3>
+                    <p>Diseño, optimización y administración de bases de datos SQL y NoSQL. Sharding, replicación y alta disponibilidad.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> PostgreSQL & MySQL</li>
+                        <li><i class="fas fa-check"></i> MongoDB & Redis</li>
+                        <li><i class="fas fa-check"></i> Query Optimization</li>
+                        <li><i class="fas fa-check"></i> Database Sharding</li>
+                    </ul>
+                    <div class="service-tech">
+                        <code>PostgreSQL</code>
+                        <code>MongoDB</code>
+                        <code>Redis</code>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h3>DevOps & Cloud</h3>
+                    <p>Infraestructura como código, CI/CD pipelines, contenedorización y despliegues automatizados en AWS, Azure y GCP.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> Docker & Kubernetes</li>
+                        <li><i class="fas fa-check"></i> CI/CD Pipelines</li>
+                        <li><i class="fas fa-check"></i> AWS/Azure/GCP</li>
+                        <li><i class="fas fa-check"></i> Terraform & Ansible</li>
+                    </ul>
+                    <div class="service-tech">
+                        <code>Docker</code>
+                        <code>K8s</code>
+                        <code>AWS</code>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Security & Testing</h3>
+                    <p>Implementación de mejores prácticas de seguridad, testing automatizado, TDD y cobertura completa de código.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> OWASP Compliance</li>
+                        <li><i class="fas fa-check"></i> Unit & Integration Tests</li>
+                        <li><i class="fas fa-check"></i> TDD & BDD</li>
+                        <li><i class="fas fa-check"></i> Security Audits</li>
+                    </ul>
+                    <div class="service-tech">
+                        <code>PyTest</code>
+                        <code>Selenium</code>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Data Engineering & ML</h3>
+                    <p>Pipelines de datos, procesamiento ETL, análisis avanzado y modelos de machine learning en producción.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> ETL Pipelines</li>
+                        <li><i class="fas fa-check"></i> Big Data Processing</li>
+                        <li><i class="fas fa-check"></i> ML Model Deploy</li>
+                        <li><i class="fas fa-check"></i> Real-time Analytics</li>
+                    </ul>
+                    <div class="service-tech">
+                        <code>Pandas</code>
+                        <code>Spark</code>
+                        <code>TensorFlow</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tecnologías -->
+    <section id="tecnologias" class="technologies">
+        <div class="container">
+            <h2 class="section-title">Stack Tecnológico Enterprise</h2>
+            <p class="section-subtitle">Herramientas y frameworks de nivel profesional</p>
+            
+            <div class="tech-categories">
+                <div class="tech-category">
+                    <h3><i class="fas fa-server"></i> Backend</h3>
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <i class="fab fa-python"></i>
+                            <span>Python 3.11+</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-code"></i>
+                            <span>Django</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-bolt"></i>
+                            <span>FastAPI</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-flask"></i>
+                            <span>Flask</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tech-category">
+                    <h3><i class="fas fa-database"></i> Databases</h3>
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <i class="fas fa-database"></i>
+                            <span>PostgreSQL</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-leaf"></i>
+                            <span>MongoDB</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-memory"></i>
+                            <span>Redis</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-table"></i>
+                            <span>MySQL</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tech-category">
+                    <h3><i class="fas fa-cloud"></i> DevOps & Cloud</h3>
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <i class="fab fa-docker"></i>
+                            <span>Docker</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-dharmachakra"></i>
+                            <span>Kubernetes</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fab fa-aws"></i>
+                            <span>AWS</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fab fa-git-alt"></i>
+                            <span>Git & CI/CD</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tech-category">
+                    <h3><i class="fas fa-code-branch"></i> Frontend & Tools</h3>
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <i class="fab fa-react"></i>
+                            <span>React</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fab fa-vuejs"></i>
+                            <span>Vue.js</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fab fa-node"></i>
+                            <span>Node.js</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-vial"></i>
+                            <span>Testing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Precios -->
+    <section id="precios" class="pricing">
+        <div class="container">
+            <h2 class="section-title">Planes y Precios Flexibles</h2>
+            <p class="section-subtitle">Soluciones adaptadas a tu presupuesto - Precios competitivos desde Colombia 🇨🇴</p>
+            
+            <div class="pricing-note">
+                <i class="fas fa-info-circle"></i>
+                <p><strong>Todos nuestros precios son negociables.</strong> Nos adaptamos a tu presupuesto sin comprometer la calidad. Calidad profesional a precios accesibles.</p>
+            </div>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Starter</h3>
+                        <div class="pricing-badge">Para Emprendedores</div>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount">Desde $2M</span>
+                        <span class="price-currency">COP</span>
+                        <span class="price-period">por proyecto</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Sitio web profesional</li>
+                        <li><i class="fas fa-check"></i> Diseño responsive</li>
+                        <li><i class="fas fa-check"></i> Backend básico Python</li>
+                        <li><i class="fas fa-check"></i> Base de datos PostgreSQL</li>
+                        <li><i class="fas fa-check"></i> Hosting configurado</li>
+                        <li><i class="fas fa-check"></i> 3 meses soporte</li>
+                        <li><i class="fas fa-check"></i> Entrega en 2-3 semanas</li>
+                    </ul>
+                    <a href="#contacto" class="btn btn-secondary btn-pricing">
+                        <i class="fas fa-comments"></i> Consultar Precio
+                    </a>
+                </div>
+
+                <div class="pricing-card pricing-featured">
+                    <div class="pricing-ribbon">Más Popular</div>
+                    <div class="pricing-header">
+                        <h3>Professional</h3>
+                        <div class="pricing-badge">Para Empresas</div>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount">Desde $8M</span>
+                        <span class="price-currency">COP</span>
+                        <span class="price-period">por proyecto</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Aplicación web completa</li>
+                        <li><i class="fas fa-check"></i> APIs REST/GraphQL</li>
+                        <li><i class="fas fa-check"></i> Arquitectura escalable</li>
+                        <li><i class="fas fa-check"></i> Autenticación avanzada</li>
+                        <li><i class="fas fa-check"></i> Dashboard administrativo</li>
+                        <li><i class="fas fa-check"></i> Testing automatizado</li>
+                        <li><i class="fas fa-check"></i> CI/CD Pipeline</li>
+                        <li><i class="fas fa-check"></i> 6 meses soporte</li>
+                        <li><i class="fas fa-check"></i> Documentación técnica</li>
+                    </ul>
+                    <a href="#contacto" class="btn btn-primary btn-pricing">
+                        <i class="fas fa-rocket"></i> Solicitar Cotización
+                    </a>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Enterprise</h3>
+                        <div class="pricing-badge">Proyectos Grandes</div>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount">Desde $20M</span>
+                        <span class="price-currency">COP</span>
+                        <span class="price-period">por proyecto</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Arquitectura microservicios</li>
+                        <li><i class="fas fa-check"></i> Alta disponibilidad</li>
+                        <li><i class="fas fa-check"></i> Docker + Kubernetes</li>
+                        <li><i class="fas fa-check"></i> Cloud AWS/Azure/GCP</li>
+                        <li><i class="fas fa-check"></i> Monitoreo 24/7</li>
+                        <li><i class="fas fa-check"></i> Security audits</li>
+                        <li><i class="fas fa-check"></i> Machine Learning integration</li>
+                        <li><i class="fas fa-check"></i> 12 meses soporte</li>
+                        <li><i class="fas fa-check"></i> Equipo dedicado</li>
+                        <li><i class="fas fa-check"></i> SLA garantizado</li>
+                    </ul>
+                    <a href="#contacto" class="btn btn-secondary btn-pricing">
+                        <i class="fas fa-handshake"></i> Agendar Reunión
+                    </a>
+                </div>
+            </div>
+            
+            <div class="pricing-cta">
+                <div class="pricing-cta-content">
+                    <div class="pricing-cta-text">
+                        <h3>¿Proyecto personalizado?</h3>
+                        <p>Contáctanos para un plan a tu medida. <strong>Precios 100% negociables</strong> según alcance y plazos.</p>
+                    </div>
+                    <a href="#contacto" class="btn btn-primary btn-large">
+                        <i class="fas fa-calculator"></i> Cotizar Proyecto Personalizado
+                    </a>
+                </div>
+            </div>
+            
+            <div class="pricing-benefits">
+                <h3>¿Por qué elegir Aurabyte?</h3>
+                <div class="benefits-grid">
+                    <div class="benefit-item">
+                        <i class="fas fa-trophy"></i>
+                        <h4>Calidad Profesional</h4>
+                        <p>Código limpio, bien documentado y siguiendo mejores prácticas internacionales</p>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-dollar-sign"></i>
+                        <h4>Precios Justos</h4>
+                        <p>Costos competitivos desde Colombia sin sacrificar calidad</p>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-comments"></i>
+                        <h4>Comunicación Directa</h4>
+                        <p>Contacto permanente, sin intermediarios, en tu mismo horario</p>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-clock"></i>
+                        <h4>Entrega a Tiempo</h4>
+                        <p>Cumplimos plazos con metodologías ágiles y seguimiento continuo</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Proyectos -->
+    <section id="proyectos" class="projects">
+        <div class="container">
+            <h2 class="section-title">Casos de Éxito</h2>
+            <p class="section-subtitle">Proyectos enterprise que demuestran nuestra experiencia técnica</p>
+            
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-image">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-badge">E-Commerce</div>
+                        <h3>Plataforma Multi-vendor</h3>
+                        <p>Sistema de comercio electrónico escalable con arquitectura de microservicios, procesamiento de pagos, gestión de inventario en tiempo real y analytics avanzados.</p>
+                        <div class="project-metrics">
+                            <div class="metric">
+                                <span class="metric-value">10K+</span>
+                                <span class="metric-label">Transacciones/día</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-value">99.9%</span>
+                                <span class="metric-label">Uptime</span>
+                            </div>
+                        </div>
+                        <div class="project-tags">
+                            <span><i class="fab fa-python"></i> Django</span>
+                            <span><i class="fas fa-database"></i> PostgreSQL</span>
+                            <span><i class="fab fa-docker"></i> Docker</span>
+                            <span><i class="fas fa-memory"></i> Redis</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-image">
+                        <i class="fas fa-chart-network"></i>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-badge">FinTech</div>
+                        <h3>API Banking Gateway</h3>
+                        <p>Gateway de APIs para integración bancaria con alta disponibilidad, procesamiento asíncrono, encriptación end-to-end y compliance con PCI DSS.</p>
+                        <div class="project-metrics">
+                            <div class="metric">
+                                <span class="metric-value">50ms</span>
+                                <span class="metric-label">Latencia promedio</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-value">1M+</span>
+                                <span class="metric-label">Requests/día</span>
+                            </div>
+                        </div>
+                        <div class="project-tags">
+                            <span><i class="fas fa-bolt"></i> FastAPI</span>
+                            <span><i class="fab fa-aws"></i> AWS</span>
+                            <span><i class="fas fa-dharmachakra"></i> Kubernetes</span>
+                            <span><i class="fas fa-shield-alt"></i> OAuth2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-image">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-badge">Machine Learning</div>
+                        <h3>Sistema de Recomendaciones</h3>
+                        <p>Plataforma de ML con pipelines de datos en tiempo real, modelos predictivos, A/B testing y monitoreo de performance en producción.</p>
+                        <div class="project-metrics">
+                            <div class="metric">
+                                <span class="metric-value">85%</span>
+                                <span class="metric-label">Accuracy</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-value">Real-time</span>
+                                <span class="metric-label">Predictions</span>
+                            </div>
+                        </div>
+                        <div class="project-tags">
+                            <span><i class="fab fa-python"></i> Python</span>
+                            <span><i class="fas fa-project-diagram"></i> TensorFlow</span>
+                            <span><i class="fas fa-leaf"></i> MongoDB</span>
+                            <span><i class="fas fa-chart-line"></i> Apache Spark</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contacto -->
+    <section id="contacto" class="contact">
+        <div class="container">
+            <h2 class="section-title">Contáctanos</h2>
+            <p class="section-subtitle">¿Listo para iniciar tu proyecto? Hablemos</p>
+            
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>Email</h4>
+                            <p>info@aurabyte.com</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Teléfono</h4>
+                            <p>+34 123 456 789</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h4>Ubicación</h4>
+                            <p>Colombia 🇨🇴</p>
+                        </div>
+                    </div>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <form class="contact-form" id="contactForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Nombre Completo *</label>
+                            <input type="text" id="name" name="name" placeholder="Tu nombre" required minlength="3">
+                            <span class="form-error" id="nameError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Teléfono</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+57 300 123 4567">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" placeholder="tu@email.com" required>
+                        <span class="form-error" id="emailError"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service">Servicio de Interés</label>
+                        <select id="service" name="service">
+                            <option value="">Selecciona un servicio</option>
+                            <option value="backend">Python Backend Development</option>
+                            <option value="arquitectura">Arquitectura de Software</option>
+                            <option value="devops">DevOps & Cloud</option>
+                            <option value="database">Database Engineering</option>
+                            <option value="security">Security & Testing</option>
+                            <option value="data">Data Engineering & ML</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="budget">Presupuesto Estimado (COP)</label>
+                        <select id="budget" name="budget">
+                            <option value="">Selecciona un rango</option>
+                            <option value="1-5">$1M - $5M COP</option>
+                            <option value="5-10">$5M - $10M COP</option>
+                            <option value="10-20">$10M - $20M COP</option>
+                            <option value="20+">Más de $20M COP</option>
+                            <option value="negociable">A negociar</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Cuéntanos sobre tu proyecto *</label>
+                        <textarea id="message" name="message" rows="5" placeholder="Describe tu proyecto, objetivos, plazos, etc." required minlength="20"></textarea>
+                        <span class="form-error" id="messageError"></span>
+                    </div>
+                    
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">Acepto la <a href="#privacidad">política de privacidad</a> y el tratamiento de mis datos *</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-form" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> Enviar Mensaje
+                    </button>
+                    
+                    <div class="form-message" id="formMessage"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section footer-about">
+                    <h3><img src="logo.svg" alt="Aurabyte" class="footer-logo"> Aurabyte</h3>
+                    <p class="footer-slogan">El Futuro no se Improvisa, se Programa</p>
+                    <p>Empresa de desarrollo de software remoto con equipo multidisciplinario. Soluciones tecnológicas personalizadas con enfoque estético, funcional y estratégico para clientes nacionales e internacionales.</p>
+                    <div class="footer-certifications">
+                        <span><i class="fas fa-shield-alt"></i> ISO 27001</span>
+                        <span><i class="fas fa-certificate"></i> AWS Certified</span>
+                    </div>
+                    <div class="footer-contact-info">
+                        <p><i class="fas fa-map-marker-alt"></i> Colombia 🇨🇴</p>
+                        <p><i class="fas fa-envelope"></i> info@aurabyte.com</p>
+                        <p><i class="fas fa-phone"></i> +57 300 123 4567</p>
+                        <p><i class="fab fa-whatsapp"></i> WhatsApp: +57 300 123 4567</p>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#servicios">Servicios</a></li>
+                        <li><a href="#tecnologias">Tecnologías</a></li>
+                        <li><a href="#proyectos">Portfolio</a></li>
+                        <li><a href="#contacto">Contacto</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Servicios</h4>
+                    <ul>
+                        <li><a href="#servicios">Python Backend Development</a></li>
+                        <li><a href="#servicios">Arquitectura de Software</a></li>
+                        <li><a href="#servicios">DevOps & Cloud</a></li>
+                        <li><a href="#servicios">Database Engineering</a></li>
+                        <li><a href="#servicios">Security & Testing</a></li>
+                        <li><a href="#servicios">Data Engineering & ML</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#privacidad">Política de Privacidad</a></li>
+                        <li><a href="#terminos">Términos y Condiciones</a></li>
+                        <li><a href="#cookies">Política de Cookies</a></li>
+                        <li><a href="#legal">Aviso Legal</a></li>
+                        <li><a href="#gdpr">Protección de Datos (GDPR)</a></li>
+                    </ul>
+                    <div class="footer-legal-info">
+                        <p><strong>Aurabyte S.A.S.</strong></p>
+                        <p>NIT: 900.123.456-7</p>
+                        <p>Colombia 🇨🇴</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-divider"></div>
+            
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p>&copy; 2025 Aurabyte S.L. Todos los derechos reservados.</p>
+                    <div class="footer-bottom-links">
+                        <a href="#privacidad">Privacidad</a>
+                        <span>|</span>
+                        <a href="#terminos">Términos</a>
+                        <span>|</span>
+                        <a href="#cookies">Cookies</a>
+                        <span>|</span>
+                        <a href="#sitemap">Mapa del Sitio</a>
+                    </div>
+                    <div class="social-links-footer">
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="byteo.js"></script>
+</body>
+</html>

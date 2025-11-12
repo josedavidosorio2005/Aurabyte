@@ -1,0 +1,356 @@
+/* Byteo - Robot Mascota de Aurabyte */
+
+#byteo-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.byteo-robot {
+    position: absolute;
+    width: 60px;
+    height: 80px;
+    pointer-events: auto;
+    cursor: pointer;
+    transition: transform 0.1s ease-out;
+    animation: byteo-float 3s ease-in-out infinite;
+}
+
+@keyframes byteo-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Antena */
+.byteo-antenna {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 12px;
+    background: linear-gradient(180deg, #0ea5e9, #06b6d4);
+    animation: byteo-antenna-wave 2s ease-in-out infinite;
+}
+
+.byteo-antenna-ball {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: #06b6d4;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #06b6d4;
+    animation: byteo-antenna-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes byteo-antenna-wave {
+    0%, 100% { transform: translateX(-50%) rotate(-5deg); }
+    50% { transform: translateX(-50%) rotate(5deg); }
+}
+
+@keyframes byteo-antenna-glow {
+    0%, 100% { box-shadow: 0 0 10px #06b6d4; }
+    50% { box-shadow: 0 0 20px #06b6d4, 0 0 30px #0ea5e9; }
+}
+
+/* Cabeza */
+.byteo-head {
+    position: relative;
+    width: 40px;
+    height: 35px;
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+    border-radius: 8px 8px 5px 5px;
+    margin: 0 auto;
+    box-shadow: 0 4px 8px rgba(14, 165, 233, 0.3);
+}
+
+/* Ojos */
+.byteo-eyes {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+}
+
+.byteo-eye {
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+}
+
+.byteo-pupil {
+    width: 5px;
+    height: 5px;
+    background: #0f172a;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease;
+}
+
+/* Boca */
+.byteo-mouth {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 8px;
+    background: white;
+    border-radius: 0 0 20px 20px;
+    transition: all 0.3s ease;
+}
+
+/* Cuerpo */
+.byteo-body {
+    position: relative;
+    width: 35px;
+    height: 25px;
+    background: linear-gradient(135deg, #0284c7, #0ea5e9);
+    margin: 2px auto 0;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
+}
+
+.byteo-chest {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 15px;
+    height: 15px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Brazos */
+.byteo-arms {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.byteo-arm {
+    width: 6px;
+    height: 20px;
+    background: linear-gradient(180deg, #0ea5e9, #0284c7);
+    border-radius: 3px;
+    animation: byteo-arm-wave 2s ease-in-out infinite;
+}
+
+.byteo-arm.left {
+    animation-delay: 0s;
+}
+
+.byteo-arm.right {
+    animation-delay: 1s;
+}
+
+@keyframes byteo-arm-wave {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(15deg); }
+}
+
+/* Piernas */
+.byteo-legs {
+    position: absolute;
+    top: 65px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 25px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.byteo-leg {
+    width: 8px;
+    height: 15px;
+    background: linear-gradient(180deg, #0ea5e9, #0284c7);
+    border-radius: 0 0 4px 4px;
+}
+
+/* Estados de Byteo */
+.byteo-robot.happy .byteo-eye {
+    animation: byteo-blink 3s ease-in-out infinite;
+}
+
+@keyframes byteo-blink {
+    0%, 48%, 52%, 100% { height: 10px; }
+    50% { height: 2px; }
+}
+
+.byteo-robot.excited {
+    animation: byteo-bounce 0.5s ease-in-out infinite;
+}
+
+@keyframes byteo-bounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-15px) scale(1.1); }
+}
+
+.byteo-robot.sad .byteo-antenna {
+    animation: byteo-antenna-droop 1s ease-in-out;
+}
+
+@keyframes byteo-antenna-droop {
+    0% { transform: translateX(-50%) rotate(0deg); }
+    100% { transform: translateX(-50%) rotate(-20deg); }
+}
+
+/* Agarrando cursor */
+.byteo-robot.grabbing .byteo-arm {
+    animation: byteo-grab 0.5s ease-in-out infinite;
+}
+
+@keyframes byteo-grab {
+    0%, 100% { transform: rotate(-30deg); }
+    50% { transform: rotate(-60deg); }
+}
+
+/* Bailando */
+.byteo-robot.dancing {
+    animation: byteo-dance 0.5s ease-in-out infinite;
+}
+
+@keyframes byteo-dance {
+    0%, 100% { transform: rotate(-10deg); }
+    50% { transform: rotate(10deg); }
+}
+
+/* Caminando */
+.byteo-robot.walking .byteo-leg {
+    animation: byteo-walk 0.4s ease-in-out infinite;
+}
+
+.byteo-robot.walking .byteo-leg.left {
+    animation-delay: 0s;
+}
+
+.byteo-robot.walking .byteo-leg.right {
+    animation-delay: 0.2s;
+}
+
+@keyframes byteo-walk {
+    0%, 100% { 
+        transform: translateY(0) scaleY(1);
+    }
+    50% { 
+        transform: translateY(-3px) scaleY(1.1);
+    }
+}
+
+.byteo-robot.walking .byteo-body {
+    animation: byteo-body-walk 0.4s ease-in-out infinite;
+}
+
+@keyframes byteo-body-walk {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+}
+
+.byteo-robot.walking .byteo-arm {
+    animation: byteo-arm-walk 0.4s ease-in-out infinite;
+}
+
+.byteo-robot.walking .byteo-arm.left {
+    animation-delay: 0.2s;
+}
+
+.byteo-robot.walking .byteo-arm.right {
+    animation-delay: 0s;
+}
+
+@keyframes byteo-arm-walk {
+    0%, 100% { transform: rotate(20deg); }
+    50% { transform: rotate(-20deg); }
+}
+
+/* Cursor capturado */
+.byteo-cursor {
+    position: absolute;
+    display: none;
+    pointer-events: none;
+    transition: transform 0.1s ease-out;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Mensaje de Byteo */
+.byteo-message {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(14, 165, 233, 0.95);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+}
+
+.byteo-message.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.byteo-message::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid rgba(14, 165, 233, 0.95);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .byteo-robot {
+        width: 50px;
+        height: 70px;
+    }
+    
+    .byteo-head {
+        width: 35px;
+        height: 30px;
+    }
+    
+    .byteo-body {
+        width: 30px;
+        height: 22px;
+    }
+}
+
+/* Ocultar en móviles pequeños */
+@media (max-width: 480px) {
+    #byteo-container {
+        display: none;
+    }
+}
