@@ -22,7 +22,9 @@
             <ul class="nav-menu" id="navMenu">
                 <li><a href="#inicio">Inicio</a></li>
                 <li><a href="#mision-vision">Misión y Visión</a></li>
+                <li><a href="#valores">Valores</a></li>
                 <li><a href="#servicios">Servicios</a></li>
+                <li><a href="#equipo">Equipo</a></li>
                 <li><a href="#tecnologias">Tecnologías</a></li>
                 <li><a href="#precios">Precios</a></li>
                 <li><a href="#proyectos">Proyectos</a></li>
@@ -219,6 +221,72 @@ app = Flask(__name__)
         </div>
     </section>
 
+    <!-- Valores Corporativos -->
+    <section id="valores" class="values">
+        <div class="container">
+            <h2 class="section-title">Valores Corporativos</h2>
+            <p class="section-subtitle">Los principios que guían cada decisión en Aurabyte</p>
+            
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3>Innovación</h3>
+                    <p>Promovemos la curiosidad, la creatividad y la búsqueda constante de nuevas ideas. Creemos que innovar no solo es crear algo nuevo, sino mejorar cada proceso, diseño y línea de código para generar un impacto real en nuestros clientes.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Seguridad</h3>
+                    <p>Garantizamos la protección de la información y la confianza de nuestros clientes a través de prácticas sólidas de ciberseguridad y desarrollo responsable. La seguridad es un principio transversal en cada uno de nuestros proyectos.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h3>Calidad</h3>
+                    <p>Nos comprometemos a ofrecer soluciones estables, funcionales y estéticamente cuidadas. La calidad se refleja en cada detalle: desde la planificación y el diseño hasta la entrega y soporte del producto final.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3>Flexibilidad</h3>
+                    <p>Entendemos que cada cliente es único. Adaptamos nuestros procesos, herramientas y metodologías para ofrecer soluciones personalizadas, efectivas y alineadas con los objetivos específicos de cada proyecto.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Colaboración</h3>
+                    <p>Creemos en el trabajo en equipo y en la comunicación constante. Nuestra fortaleza está en la unión de distintas disciplinas que aportan valor, creatividad y perspectiva a cada desarrollo.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3>Creatividad</h3>
+                    <p>El diseño y la programación son espacios de expresión. En Aurabyte combinamos el arte y la lógica para transformar ideas en experiencias digitales funcionales, atractivas y memorables.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3>Compromiso</h3>
+                    <p>Asumimos cada proyecto como propio. Cumplimos con los plazos, escuchamos activamente y mantenemos un compromiso genuino con el éxito de nuestros clientes, creciendo junto a ellos.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Servicios -->
     <section id="servicios" class="services">
         <div class="container">
@@ -266,57 +334,58 @@ app = Flask(__name__)
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <i class="fab fa-python"></i>
+                        <i class="fas fa-robot"></i>
                     </div>
-                    <h3>Python Backend Development</h3>
-                    <p>Arquitecturas escalables con Django, Flask y FastAPI. Microservicios, APIs RESTful y GraphQL para aplicaciones enterprise.</p>
+                    <h3>Automatización de Procesos</h3>
+                    <p>Scripts y herramientas para optimizar tareas empresariales. Automatizamos procesos repetitivos para aumentar la eficiencia.</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Django & FastAPI</li>
-                        <li><i class="fas fa-check"></i> Microservicios</li>
-                        <li><i class="fas fa-check"></i> GraphQL & REST APIs</li>
-                        <li><i class="fas fa-check"></i> Async Programming</li>
+                        <li><i class="fas fa-check"></i> Scripts de automatización</li>
+                        <li><i class="fas fa-check"></i> Procesamiento de datos</li>
+                        <li><i class="fas fa-check"></i> Integración de sistemas</li>
+                        <li><i class="fas fa-check"></i> Web scraping</li>
                     </ul>
                     <div class="service-tech">
-                        <code>Django</code>
-                        <code>Flask</code>
-                        <code>FastAPI</code>
+                        <code>Python</code>
+                        <code>Selenium</code>
+                        <code>APIs</code>
                     </div>
                 </div>
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <i class="fas fa-project-diagram"></i>
+                        <i class="fas fa-tools"></i>
                     </div>
-                    <h3>Arquitectura de Software</h3>
-                    <p>Diseño de sistemas escalables, patrones de diseño, arquitectura hexagonal y event-driven architecture.</p>
+                    <h3>Mantenimiento y Soporte Técnico</h3>
+                    <p>Actualización, mejora y optimización de proyectos existentes. Acompañamiento continuo para garantizar el éxito de tu software.</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Microservicios</li>
-                        <li><i class="fas fa-check"></i> Event-Driven</li>
-                        <li><i class="fas fa-check"></i> Clean Architecture</li>
-                        <li><i class="fas fa-check"></i> DDD & CQRS</li>
+                        <li><i class="fas fa-check"></i> Actualización de sistemas</li>
+                        <li><i class="fas fa-check"></i> Corrección de errores</li>
+                        <li><i class="fas fa-check"></i> Optimización de rendimiento</li>
+                        <li><i class="fas fa-check"></i> Soporte técnico continuo</li>
                     </ul>
                     <div class="service-tech">
-                        <code>Design Patterns</code>
-                        <code>SOLID</code>
+                        <code>Monitoring</code>
+                        <code>DevOps</code>
+                        <code>Debugging</code>
                     </div>
                 </div>
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <i class="fas fa-database"></i>
+                        <i class="fas fa-user-shield"></i>
                     </div>
-                    <h3>Database Engineering</h3>
-                    <p>Diseño, optimización y administración de bases de datos SQL y NoSQL. Sharding, replicación y alta disponibilidad.</p>
+                    <h3>Asesorías en Ciberseguridad</h3>
+                    <p>Evaluación de vulnerabilidades, implementación de medidas preventivas y capacitación en seguridad digital para empresas.</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> PostgreSQL & MySQL</li>
-                        <li><i class="fas fa-check"></i> MongoDB & Redis</li>
-                        <li><i class="fas fa-check"></i> Query Optimization</li>
-                        <li><i class="fas fa-check"></i> Database Sharding</li>
+                        <li><i class="fas fa-check"></i> Auditorías de seguridad</li>
+                        <li><i class="fas fa-check"></i> Análisis de vulnerabilidades</li>
+                        <li><i class="fas fa-check"></i> Implementación de controles</li>
+                        <li><i class="fas fa-check"></i> Capacitación en seguridad</li>
                     </ul>
                     <div class="service-tech">
-                        <code>PostgreSQL</code>
-                        <code>MongoDB</code>
-                        <code>Redis</code>
+                        <code>Pentesting</code>
+                        <code>Security</code>
+                        <code>Compliance</code>
                     </div>
                 </div>
 
@@ -608,6 +677,72 @@ app = Flask(__name__)
         </div>
     </section>
 
+    <!-- Nuestro Equipo -->
+    <section id="equipo" class="team">
+        <div class="container">
+            <h2 class="section-title">Nuestro Equipo</h2>
+            <p class="section-subtitle">Profesionales multidisciplinarios comprometidos con la excelencia</p>
+            
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3>Juan Jose</h3>
+                    <p class="member-role">Desarrollador</p>
+                    <p class="member-description">Especialista en desarrollo de software con enfoque en soluciones innovadoras y escalables.</p>
+                    <div class="member-skills">
+                        <span>Python</span>
+                        <span>Web Dev</span>
+                        <span>Backend</span>
+                    </div>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Jose David</h3>
+                    <p class="member-role">Desarrollador</p>
+                    <p class="member-description">Experto en desarrollo full-stack y automatización de procesos empresariales.</p>
+                    <div class="member-skills">
+                        <span>Full-Stack</span>
+                        <span>Automation</span>
+                        <span>DevOps</span>
+                    </div>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h3>Diseñadora Gráfica</h3>
+                    <p class="member-role">Diseñadora UX/UI</p>
+                    <p class="member-description">Creativa especializada en experiencias digitales atractivas, funcionales y memorables.</p>
+                    <div class="member-skills">
+                        <span>UI/UX</span>
+                        <span>Branding</span>
+                        <span>Diseño</span>
+                    </div>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>María Antonia Tejada</h3>
+                    <p class="member-role">Administradora y Gestión de Proyectos</p>
+                    <p class="member-description">Líder en gestión de proyectos, garantizando cumplimiento de plazos y calidad en cada entrega.</p>
+                    <div class="member-skills">
+                        <span>Project Management</span>
+                        <span>Agile</span>
+                        <span>Administración</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Proyectos -->
     <section id="proyectos" class="projects">
         <div class="container">
@@ -615,6 +750,33 @@ app = Flask(__name__)
             <p class="section-subtitle">Proyectos enterprise que demuestran nuestra experiencia técnica</p>
             
             <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-image">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-badge">Portafolio</div>
+                        <h3>Aurabyte Web</h3>
+                        <p>Sitio institucional y portafolio oficial. Diseño moderno, responsivo e interactivo con mascota animada Byteo. Implementado con tecnologías web estándar.</p>
+                        <div class="project-metrics">
+                            <div class="metric">
+                                <span class="metric-value">100%</span>
+                                <span class="metric-label">Responsive</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-value">A+</span>
+                                <span class="metric-label">Performance</span>
+                            </div>
+                        </div>
+                        <div class="project-tags">
+                            <span><i class="fab fa-html5"></i> HTML5</span>
+                            <span><i class="fab fa-css3-alt"></i> CSS3</span>
+                            <span><i class="fab fa-js"></i> JavaScript</span>
+                            <span><i class="fab fa-python"></i> Flask</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="project-card">
                     <div class="project-image">
                         <i class="fas fa-shopping-cart"></i>
