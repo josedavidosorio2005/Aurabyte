@@ -3,20 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aurabyte - Enterprise Software Development</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="byteo.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Aurabyte - Desarrollo de Software a Medida</title>
+    <meta name="description" content="Aurabyte es un equipo multidisciplinario de desarrollo de software remoto. Creamos sitios web, aplicaciones y automatizaciones a medida con Python y tecnologías modernas, con comunicación directa y precios negociables.">
+    <link rel="canonical" href="https://josedavidosorio2005.github.io/Aurabyte/">
+
+    <!-- Open Graph / redes sociales -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Aurabyte - Desarrollo de Software a Medida">
+    <meta property="og:description" content="Equipo multidisciplinario de desarrollo de software remoto: sitios web, aplicaciones y automatizaciones a medida con Python y tecnologías modernas.">
+    <meta property="og:image" content="https://josedavidosorio2005.github.io/Aurabyte/og-cover.jpg">
+    <meta property="og:locale" content="es_CO">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Aurabyte - Desarrollo de Software a Medida">
+    <meta name="twitter:description" content="Equipo multidisciplinario de desarrollo de software remoto: sitios web, aplicaciones y automatizaciones a medida con Python y tecnologías modernas.">
+
+    <meta name="theme-color" content="#080b14">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+
+    <!-- Fuentes auto-alojadas (fonts/fonts.css): antes eran 2 de los 3
+         orígenes externos que bloqueaban el primer render (ver CLAUDE.md,
+         sección Rendimiento). Mismo archivo que serviría Google Fonts, solo
+         que desde este dominio: sin round-trip DNS/TLS adicional. -->
+    <link rel="stylesheet" href="fonts/fonts.css">
+    <!-- *.min.css generados con `npm run build:css` a partir de styles.css/
+         byteo.css. Edita siempre los .css originales, nunca estos
+         directamente: se sobrescriben en cada build. -->
+    <link rel="stylesheet" href="styles.min.css">
+    <link rel="stylesheet" href="byteo.min.css">
+
+    <!-- Íconos: antes Font Awesome vía CDN descargaba 278KB de fuentes
+         (fa-solid 147KB + fa-brands 106KB + fa-regular 25KB) para mostrar
+         65 íconos distintos. Ahora es un sprite SVG propio (icons/sprite.svg,
+         ~46KB sin comprimir, cacheable) con solo los íconos realmente usados
+         — sin tercer CDN externo. Íconos de Font Awesome Free
+         (https://fontawesome.com), licencia CC BY 4.0. -->
+
+    <!-- Datos estructurados: solo campos verificables (nombre, URL, logo,
+         WhatsApp, país). Sin dirección, razón social, fecha de fundación ni
+         valoraciones, porque no hay datos reales que respalden esos campos
+         todavía. -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Aurabyte",
+        "url": "https://josedavidosorio2005.github.io/Aurabyte/",
+        "logo": "https://josedavidosorio2005.github.io/Aurabyte/logo.svg",
+        "description": "Equipo multidisciplinario de desarrollo de software remoto: sitios web, aplicaciones y automatizaciones a medida con Python y tecnologías modernas.",
+        "areaServed": "CO",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "telephone": "+57-317-390-7301",
+            "url": "https://wa.me/573173907301"
+        }
+    }
+    </script>
 </head>
 <body>
     <!-- Navegación -->
     <nav class="navbar">
         <div class="container">
             <div class="logo">
-                <img src="logo.svg" alt="Aurabyte Logo" class="logo-img">
+                <img src="logo.svg" alt="Aurabyte Logo" class="logo-img" width="133" height="40">
                 <span>Aurabyte</span>
             </div>
             <ul class="nav-menu" id="navMenu">
@@ -30,48 +79,40 @@
                 <li><a href="#proyectos">Proyectos</a></li>
                 <li><a href="#contacto">Contacto</a></li>
             </ul>
-            <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
-                <i class="fas fa-moon"></i>
+            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Cambiar a modo oscuro" aria-pressed="false">
+                <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-moon"></use></svg>
             </button>
-            <div class="hamburger" id="hamburger">
+            <button type="button" class="hamburger" id="hamburger" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="navMenu">
                 <span></span>
                 <span></span>
                 <span></span>
-            </div>
+            </button>
         </div>
     </nav>
 
+    <main>
     <!-- Hero Section -->
     <section id="inicio" class="hero">
         <div class="container">
             <div class="hero-content">
                 <div class="hero-badge">
-                    <i class="fas fa-code"></i>
-                    <span>Enterprise Software Solutions</span>
+                    <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-code"></use></svg>
+                    <span>Desarrollo de software a medida</span>
                 </div>
                 <h1 class="animate-fade-in">Desarrollo de Software Remoto</h1>
                 <p class="hero-slogan">El Futuro no se Improvisa, se Programa</p>
                 <p class="animate-fade-in-delay">Empresa de desarrollo remoto con equipo multidisciplinario. Creamos soluciones tecnológicas personalizadas con enfoque estético, funcional y estratégico para clientes nacionales e internacionales.</p>
-                <div class="hero-stats">
-                    <div class="stat-item">
-                        <div class="stat-number">150+</div>
-                        <div class="stat-label">Proyectos Completados</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">98%</div>
-                        <div class="stat-label">Satisfacción Cliente</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">24/7</div>
-                        <div class="stat-label">Soporte Técnico</div>
-                    </div>
-                </div>
+                <ul class="hero-capabilities">
+                    <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-users"></use></svg> Equipo multidisciplinario</li>
+                    <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-comments"></use></svg> Comunicación directa, sin intermediarios</li>
+                    <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-python"></use></svg> Stack moderno: Python, web y cloud</li>
+                </ul>
                 <div class="cta-buttons animate-fade-in-delay-2">
-                    <a href="#contacto" class="btn btn-primary">
-                        <i class="fas fa-rocket"></i> Iniciar Proyecto
+                    <a href="https://wa.me/573173907301?text=Hola%2C%20equipo%20de%20Aurabyte.%20Estoy%20interesado%20en%20solicitar%20una%20cotizaci%C3%B3n%20para%20el%20desarrollo%20de%20un%20software%20a%20medida.%20Me%20gustar%C3%ADa%20conocer%20m%C3%A1s%20informaci%C3%B3n." class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-whatsapp"></use></svg> Iniciar Proyecto por WhatsApp
                     </a>
                     <a href="#servicios" class="btn btn-secondary">
-                        <i class="fas fa-terminal"></i> Ver Servicios
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-terminal"></use></svg> Ver Servicios
                     </a>
                 </div>
             </div>
@@ -107,57 +148,57 @@ app = Flask(__name__)
                 <div class="about-text">
                     <h2>Sobre Aurabyte</h2>
                     <p class="about-intro">Aurabyte es una <strong>empresa de desarrollo de software remoto</strong> conformada por un equipo multidisciplinario de profesionales en programación, diseño y gestión empresarial.</p>
-                    
+
                     <p>Creamos soluciones tecnológicas personalizadas para <strong>clientes nacionales e internacionales</strong>, enfocándonos en el desarrollo web y de aplicaciones de escritorio.</p>
-                    
+
                     <p>Nuestro compromiso es entregar <strong>productos de alta calidad</strong>, diseñados con enfoque estético, funcional y estratégico.</p>
-                    
+
                     <div class="about-highlights">
                         <div class="highlight-item">
-                            <i class="fas fa-users"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-users"></use></svg>
                             <div>
-                                <h4>Equipo Multidisciplinario</h4>
+                                <h3>Equipo Multidisciplinario</h3>
                                 <p>Programadores, diseñadores y gestores empresariales</p>
                             </div>
                         </div>
                         <div class="highlight-item">
-                            <i class="fas fa-globe-americas"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-globe-americas"></use></svg>
                             <div>
-                                <h4>Alcance Global</h4>
+                                <h3>Alcance Global</h3>
                                 <p>Trabajo remoto para clientes nacionales e internacionales</p>
                             </div>
                         </div>
                         <div class="highlight-item">
-                            <i class="fas fa-laptop-code"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-laptop-code"></use></svg>
                             <div>
-                                <h4>Desarrollo Integral</h4>
+                                <h3>Desarrollo Integral</h3>
                                 <p>Aplicaciones web y de escritorio personalizadas</p>
                             </div>
                         </div>
                         <div class="highlight-item">
-                            <i class="fas fa-award"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-award"></use></svg>
                             <div>
-                                <h4>Alta Calidad</h4>
+                                <h3>Alta Calidad</h3>
                                 <p>Enfoque estético, funcional y estratégico</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="about-features">
                     <div class="feature-card">
-                        <i class="fas fa-paint-brush"></i>
-                        <h4>Diseño Estético</h4>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-paint-brush"></use></svg>
+                        <h3>Diseño Estético</h3>
                         <p>Interfaces modernas y atractivas que cautivan</p>
                     </div>
                     <div class="feature-card">
-                        <i class="fas fa-cogs"></i>
-                        <h4>Funcionalidad</h4>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-cogs"></use></svg>
+                        <h3>Funcionalidad</h3>
                         <p>Soluciones prácticas que resuelven problemas reales</p>
                     </div>
                     <div class="feature-card">
-                        <i class="fas fa-chess-knight"></i>
-                        <h4>Estrategia</h4>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-chess-knight"></use></svg>
+                        <h3>Estrategia</h3>
                         <p>Visión empresarial orientada a resultados</p>
                     </div>
                 </div>
@@ -172,28 +213,28 @@ app = Flask(__name__)
             <div class="expertise-grid">
                 <div class="expertise-item">
                     <div class="expertise-icon">
-                        <i class="fas fa-laptop-house"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-laptop-house"></use></svg>
                     </div>
                     <h3>Trabajo Remoto</h3>
                     <p>Flexibilidad y eficiencia desde cualquier ubicación con comunicación constante</p>
                 </div>
                 <div class="expertise-item">
                     <div class="expertise-icon">
-                        <i class="fas fa-users-cog"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-users-cog"></use></svg>
                     </div>
                     <h3>Equipo Multidisciplinario</h3>
                     <p>Programación, diseño y gestión empresarial trabajando en conjunto</p>
                 </div>
                 <div class="expertise-item">
                     <div class="expertise-icon">
-                        <i class="fas fa-hand-holding-usd"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-hand-holding-usd"></use></svg>
                     </div>
                     <h3>Precios Accesibles</h3>
                     <p>Calidad profesional con costos competitivos y negociables</p>
                 </div>
                 <div class="expertise-item">
                     <div class="expertise-icon">
-                        <i class="fas fa-headset"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-headset"></use></svg>
                     </div>
                     <h3>Soporte Continuo</h3>
                     <p>Acompañamiento durante todo el proyecto y después del lanzamiento</p>
@@ -208,14 +249,14 @@ app = Flask(__name__)
             <div class="mission-vision-grid">
                 <div class="mission-card">
                     <div class="card-icon">
-                        <i class="fas fa-bullseye"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-bullseye"></use></svg>
                     </div>
                     <h2>Misión</h2>
                     <p>Desarrollar soluciones de software innovadoras y personalizadas, adaptándonos con flexibilidad a las necesidades de cada cliente para impulsar su transformación digital, combinando diseño, calidad técnica y un compromiso permanente con la excelencia y los resultados.</p>
                 </div>
                 <div class="vision-card">
                     <div class="card-icon">
-                        <i class="fas fa-eye"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-eye"></use></svg>
                     </div>
                     <h2>Visión</h2>
                     <p>Ser reconocidos internacionalmente como un equipo confiable y flexible en el desarrollo de software y ciberseguridad, destacando por la calidad técnica, la creatividad y la capacidad de adaptarnos a las necesidades de cada cliente.</p>
@@ -229,59 +270,59 @@ app = Flask(__name__)
         <div class="container">
             <h2 class="section-title">Valores Corporativos</h2>
             <p class="section-subtitle">Los principios que guían cada decisión en Aurabyte</p>
-            
+
             <div class="values-grid">
                 <div class="value-card">
                     <div class="value-icon">
-                        <i class="fas fa-lightbulb"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-lightbulb"></use></svg>
                     </div>
                     <h3>Innovación</h3>
                     <p>Promovemos la curiosidad, la creatividad y la búsqueda constante de nuevas ideas. Creemos que innovar no solo es crear algo nuevo, sino mejorar cada proceso, diseño y línea de código para generar un impacto real en nuestros clientes.</p>
                 </div>
-                
+
                 <div class="value-card">
                     <div class="value-icon">
-                        <i class="fas fa-shield-alt"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-shield-alt"></use></svg>
                     </div>
                     <h3>Seguridad</h3>
                     <p>Garantizamos la protección de la información y la confianza de nuestros clientes a través de prácticas sólidas de ciberseguridad y desarrollo responsable. La seguridad es un principio transversal en cada uno de nuestros proyectos.</p>
                 </div>
-                
+
                 <div class="value-card">
                     <div class="value-icon">
-                        <i class="fas fa-gem"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-gem"></use></svg>
                     </div>
                     <h3>Calidad</h3>
                     <p>Nos comprometemos a ofrecer soluciones estables, funcionales y estéticamente cuidadas. La calidad se refleja en cada detalle: desde la planificación y el diseño hasta la entrega y soporte del producto final.</p>
                 </div>
-                
+
                 <div class="value-card">
                     <div class="value-icon">
-                        <i class="fas fa-sync-alt"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-sync-alt"></use></svg>
                     </div>
                     <h3>Flexibilidad</h3>
                     <p>Entendemos que cada cliente es único. Adaptamos nuestros procesos, herramientas y metodologías para ofrecer soluciones personalizadas, efectivas y alineadas con los objetivos específicos de cada proyecto.</p>
                 </div>
-                
+
                 <div class="value-card">
                     <div class="value-icon">
-                        <i class="fas fa-users"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-users"></use></svg>
                     </div>
                     <h3>Colaboración</h3>
                     <p>Creemos en el trabajo en equipo y en la comunicación constante. Nuestra fortaleza está en la unión de distintas disciplinas que aportan valor, creatividad y perspectiva a cada desarrollo.</p>
                 </div>
-                
+
                 <div class="value-card">
                     <div class="value-icon">
-                        <i class="fas fa-palette"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-palette"></use></svg>
                     </div>
                     <h3>Creatividad</h3>
                     <p>El diseño y la programación son espacios de expresión. En Aurabyte combinamos el arte y la lógica para transformar ideas en experiencias digitales funcionales, atractivas y memorables.</p>
                 </div>
-                
+
                 <div class="value-card">
                     <div class="value-icon">
-                        <i class="fas fa-handshake"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-handshake"></use></svg>
                     </div>
                     <h3>Compromiso</h3>
                     <p>Asumimos cada proyecto como propio. Cumplimos con los plazos, escuchamos activamente y mantenemos un compromiso genuino con el éxito de nuestros clientes, creciendo junto a ellos.</p>
@@ -295,19 +336,19 @@ app = Flask(__name__)
         <div class="container">
             <h2 class="section-title">Servicios de Desarrollo</h2>
             <p class="section-subtitle">Soluciones técnicas de nivel empresarial</p>
-            
+
             <div class="services-grid">
                 <div class="service-card">
                     <div class="service-icon">
-                        <i class="fas fa-globe"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-globe"></use></svg>
                     </div>
                     <h3>Desarrollo Web</h3>
                     <p>Aplicaciones web modernas y responsivas con tecnologías de vanguardia. Desde landing pages hasta plataformas complejas.</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Sitios web corporativos</li>
-                        <li><i class="fas fa-check"></i> E-commerce</li>
-                        <li><i class="fas fa-check"></i> Aplicaciones web SaaS</li>
-                        <li><i class="fas fa-check"></i> Portales personalizados</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Sitios web corporativos</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> E-commerce</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Aplicaciones web SaaS</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Portales personalizados</li>
                     </ul>
                     <div class="service-tech">
                         <code>Python</code>
@@ -318,15 +359,15 @@ app = Flask(__name__)
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <i class="fas fa-desktop"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-desktop"></use></svg>
                     </div>
                     <h3>Aplicaciones de Escritorio</h3>
                     <p>Software nativo para Windows, macOS y Linux. Aplicaciones robustas y eficientes para gestión empresarial.</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Sistemas de gestión</li>
-                        <li><i class="fas fa-check"></i> Aplicaciones empresariales</li>
-                        <li><i class="fas fa-check"></i> Software a medida</li>
-                        <li><i class="fas fa-check"></i> Integración con hardware</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Sistemas de gestión</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Aplicaciones empresariales</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Software a medida</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Integración con hardware</li>
                     </ul>
                     <div class="service-tech">
                         <code>Python</code>
@@ -337,15 +378,15 @@ app = Flask(__name__)
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <i class="fas fa-robot"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-robot"></use></svg>
                     </div>
                     <h3>Automatización de Procesos</h3>
                     <p>Scripts y herramientas para optimizar tareas empresariales. Automatizamos procesos repetitivos para aumentar la eficiencia.</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Scripts de automatización</li>
-                        <li><i class="fas fa-check"></i> Procesamiento de datos</li>
-                        <li><i class="fas fa-check"></i> Integración de sistemas</li>
-                        <li><i class="fas fa-check"></i> Web scraping</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Scripts de automatización</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Procesamiento de datos</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Integración de sistemas</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Web scraping</li>
                     </ul>
                     <div class="service-tech">
                         <code>Python</code>
@@ -356,15 +397,15 @@ app = Flask(__name__)
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <i class="fas fa-tools"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-tools"></use></svg>
                     </div>
                     <h3>Mantenimiento y Soporte Técnico</h3>
                     <p>Actualización, mejora y optimización de proyectos existentes. Acompañamiento continuo para garantizar el éxito de tu software.</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Actualización de sistemas</li>
-                        <li><i class="fas fa-check"></i> Corrección de errores</li>
-                        <li><i class="fas fa-check"></i> Optimización de rendimiento</li>
-                        <li><i class="fas fa-check"></i> Soporte técnico continuo</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Actualización de sistemas</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Corrección de errores</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Optimización de rendimiento</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Soporte técnico continuo</li>
                     </ul>
                     <div class="service-tech">
                         <code>Monitoring</code>
@@ -375,15 +416,15 @@ app = Flask(__name__)
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <i class="fas fa-user-shield"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-user-shield"></use></svg>
                     </div>
                     <h3>Asesorías en Ciberseguridad</h3>
                     <p>Evaluación de vulnerabilidades, implementación de medidas preventivas y capacitación en seguridad digital para empresas.</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Auditorías de seguridad</li>
-                        <li><i class="fas fa-check"></i> Análisis de vulnerabilidades</li>
-                        <li><i class="fas fa-check"></i> Implementación de controles</li>
-                        <li><i class="fas fa-check"></i> Capacitación en seguridad</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Auditorías de seguridad</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Análisis de vulnerabilidades</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Implementación de controles</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Capacitación en seguridad</li>
                     </ul>
                     <div class="service-tech">
                         <code>Pentesting</code>
@@ -394,15 +435,15 @@ app = Flask(__name__)
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <i class="fas fa-cloud"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-cloud"></use></svg>
                     </div>
-                    <h3>DevOps & Cloud</h3>
+                    <h3>DevOps &amp; Cloud</h3>
                     <p>Infraestructura como código, CI/CD pipelines, contenedorización y despliegues automatizados en AWS, Azure y GCP.</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Docker & Kubernetes</li>
-                        <li><i class="fas fa-check"></i> CI/CD Pipelines</li>
-                        <li><i class="fas fa-check"></i> AWS/Azure/GCP</li>
-                        <li><i class="fas fa-check"></i> Terraform & Ansible</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Docker &amp; Kubernetes</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> CI/CD Pipelines</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> AWS/Azure/GCP</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Terraform &amp; Ansible</li>
                     </ul>
                     <div class="service-tech">
                         <code>Docker</code>
@@ -413,15 +454,15 @@ app = Flask(__name__)
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <i class="fas fa-shield-alt"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-shield-alt"></use></svg>
                     </div>
-                    <h3>Security & Testing</h3>
+                    <h3>Security &amp; Testing</h3>
                     <p>Implementación de mejores prácticas de seguridad, testing automatizado, TDD y cobertura completa de código.</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> OWASP Compliance</li>
-                        <li><i class="fas fa-check"></i> Unit & Integration Tests</li>
-                        <li><i class="fas fa-check"></i> TDD & BDD</li>
-                        <li><i class="fas fa-check"></i> Security Audits</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> OWASP Compliance</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Unit &amp; Integration Tests</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> TDD &amp; BDD</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Security Audits</li>
                     </ul>
                     <div class="service-tech">
                         <code>PyTest</code>
@@ -431,15 +472,15 @@ app = Flask(__name__)
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <i class="fas fa-chart-line"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-chart-line"></use></svg>
                     </div>
-                    <h3>Data Engineering & ML</h3>
+                    <h3>Data Engineering &amp; ML</h3>
                     <p>Pipelines de datos, procesamiento ETL, análisis avanzado y modelos de machine learning en producción.</p>
                     <ul class="service-features">
-                        <li><i class="fas fa-check"></i> ETL Pipelines</li>
-                        <li><i class="fas fa-check"></i> Big Data Processing</li>
-                        <li><i class="fas fa-check"></i> ML Model Deploy</li>
-                        <li><i class="fas fa-check"></i> Real-time Analytics</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> ETL Pipelines</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Big Data Processing</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> ML Model Deploy</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Real-time Analytics</li>
                     </ul>
                     <div class="service-tech">
                         <code>Pandas</code>
@@ -456,91 +497,91 @@ app = Flask(__name__)
         <div class="container">
             <h2 class="section-title">Stack Tecnológico Enterprise</h2>
             <p class="section-subtitle">Herramientas y frameworks de nivel profesional</p>
-            
+
             <div class="tech-categories">
                 <div class="tech-category">
-                    <h3><i class="fas fa-server"></i> Backend</h3>
+                    <h3><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-server"></use></svg> Backend</h3>
                     <div class="tech-grid">
                         <div class="tech-item">
-                            <i class="fab fa-python"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-python"></use></svg>
                             <span>Python 3.11+</span>
                         </div>
                         <div class="tech-item">
-                            <i class="fas fa-code"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-code"></use></svg>
                             <span>Django</span>
                         </div>
                         <div class="tech-item">
-                            <i class="fas fa-bolt"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-bolt"></use></svg>
                             <span>FastAPI</span>
                         </div>
                         <div class="tech-item">
-                            <i class="fas fa-flask"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-flask"></use></svg>
                             <span>Flask</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="tech-category">
-                    <h3><i class="fas fa-database"></i> Databases</h3>
+                    <h3><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-database"></use></svg> Databases</h3>
                     <div class="tech-grid">
                         <div class="tech-item">
-                            <i class="fas fa-database"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-database"></use></svg>
                             <span>PostgreSQL</span>
                         </div>
                         <div class="tech-item">
-                            <i class="fas fa-leaf"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-leaf"></use></svg>
                             <span>MongoDB</span>
                         </div>
                         <div class="tech-item">
-                            <i class="fas fa-memory"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-memory"></use></svg>
                             <span>Redis</span>
                         </div>
                         <div class="tech-item">
-                            <i class="fas fa-table"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-table"></use></svg>
                             <span>MySQL</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="tech-category">
-                    <h3><i class="fas fa-cloud"></i> DevOps & Cloud</h3>
+                    <h3><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-cloud"></use></svg> DevOps &amp; Cloud</h3>
                     <div class="tech-grid">
                         <div class="tech-item">
-                            <i class="fab fa-docker"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-docker"></use></svg>
                             <span>Docker</span>
                         </div>
                         <div class="tech-item">
-                            <i class="fas fa-dharmachakra"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-dharmachakra"></use></svg>
                             <span>Kubernetes</span>
                         </div>
                         <div class="tech-item">
-                            <i class="fab fa-aws"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-aws"></use></svg>
                             <span>AWS</span>
                         </div>
                         <div class="tech-item">
-                            <i class="fab fa-git-alt"></i>
-                            <span>Git & CI/CD</span>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-git-alt"></use></svg>
+                            <span>Git &amp; CI/CD</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="tech-category">
-                    <h3><i class="fas fa-code-branch"></i> Frontend & Tools</h3>
+                    <h3><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-code-branch"></use></svg> Frontend &amp; Tools</h3>
                     <div class="tech-grid">
                         <div class="tech-item">
-                            <i class="fab fa-react"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-react"></use></svg>
                             <span>React</span>
                         </div>
                         <div class="tech-item">
-                            <i class="fab fa-vuejs"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-vuejs"></use></svg>
                             <span>Vue.js</span>
                         </div>
                         <div class="tech-item">
-                            <i class="fab fa-node"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-node"></use></svg>
                             <span>Node.js</span>
                         </div>
                         <div class="tech-item">
-                            <i class="fas fa-vial"></i>
+                            <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-vial"></use></svg>
                             <span>Testing</span>
                         </div>
                     </div>
@@ -554,12 +595,12 @@ app = Flask(__name__)
         <div class="container">
             <h2 class="section-title">Planes y Precios Flexibles</h2>
             <p class="section-subtitle">Soluciones adaptadas a tu presupuesto - Precios competitivos desde Colombia 🇨🇴</p>
-            
+
             <div class="pricing-note">
-                <i class="fas fa-info-circle"></i>
+                <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-info-circle"></use></svg>
                 <p><strong>Todos nuestros precios son negociables.</strong> Nos adaptamos a tu presupuesto sin comprometer la calidad. Calidad profesional a precios accesibles.</p>
             </div>
-            
+
             <div class="pricing-grid">
                 <div class="pricing-card">
                     <div class="pricing-header">
@@ -572,16 +613,16 @@ app = Flask(__name__)
                         <span class="price-period">por proyecto</span>
                     </div>
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Sitio web profesional</li>
-                        <li><i class="fas fa-check"></i> Diseño responsive</li>
-                        <li><i class="fas fa-check"></i> Backend básico Python</li>
-                        <li><i class="fas fa-check"></i> Base de datos PostgreSQL</li>
-                        <li><i class="fas fa-check"></i> Hosting configurado</li>
-                        <li><i class="fas fa-check"></i> 3 meses soporte</li>
-                        <li><i class="fas fa-check"></i> Entrega en 2-3 semanas</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Sitio web profesional</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Diseño responsive</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Backend básico Python</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Base de datos PostgreSQL</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Hosting configurado</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> 3 meses soporte</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Entrega en 2-3 semanas</li>
                     </ul>
-                    <a href="#contacto" class="btn btn-secondary btn-pricing">
-                        <i class="fas fa-comments"></i> Consultar Precio
+                    <a href="https://wa.me/573173907301?text=Hola%2C%20equipo%20de%20Aurabyte.%20Me%20interesa%20el%20plan%20Starter%20(desde%20%242M%20COP)%20para%20desarrollo%20web.%20%C2%BFPodr%C3%ADan%20darme%20m%C3%A1s%20informaci%C3%B3n%3F" class="btn btn-secondary btn-pricing" target="_blank" rel="noopener noreferrer">
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-comments"></use></svg> Consultar por WhatsApp
                     </a>
                 </div>
 
@@ -597,18 +638,18 @@ app = Flask(__name__)
                         <span class="price-period">por proyecto</span>
                     </div>
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Aplicación web completa</li>
-                        <li><i class="fas fa-check"></i> APIs REST/GraphQL</li>
-                        <li><i class="fas fa-check"></i> Arquitectura escalable</li>
-                        <li><i class="fas fa-check"></i> Autenticación avanzada</li>
-                        <li><i class="fas fa-check"></i> Dashboard administrativo</li>
-                        <li><i class="fas fa-check"></i> Testing automatizado</li>
-                        <li><i class="fas fa-check"></i> CI/CD Pipeline</li>
-                        <li><i class="fas fa-check"></i> 6 meses soporte</li>
-                        <li><i class="fas fa-check"></i> Documentación técnica</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Aplicación web completa</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> APIs REST/GraphQL</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Arquitectura escalable</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Autenticación avanzada</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Dashboard administrativo</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Testing automatizado</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> CI/CD Pipeline</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> 6 meses soporte</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Documentación técnica</li>
                     </ul>
-                    <a href="#contacto" class="btn btn-primary btn-pricing">
-                        <i class="fas fa-rocket"></i> Solicitar Cotización
+                    <a href="https://wa.me/573173907301?text=Hola%2C%20equipo%20de%20Aurabyte.%20Me%20interesa%20el%20plan%20Professional%20(desde%20%248M%20COP)%20para%20una%20aplicaci%C3%B3n%20web%20completa.%20%C2%BFPodr%C3%ADan%20darme%20m%C3%A1s%20informaci%C3%B3n%3F" class="btn btn-primary btn-pricing" target="_blank" rel="noopener noreferrer">
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-rocket"></use></svg> Solicitar por WhatsApp
                     </a>
                 </div>
 
@@ -623,55 +664,55 @@ app = Flask(__name__)
                         <span class="price-period">por proyecto</span>
                     </div>
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Arquitectura microservicios</li>
-                        <li><i class="fas fa-check"></i> Alta disponibilidad</li>
-                        <li><i class="fas fa-check"></i> Docker + Kubernetes</li>
-                        <li><i class="fas fa-check"></i> Cloud AWS/Azure/GCP</li>
-                        <li><i class="fas fa-check"></i> Monitoreo 24/7</li>
-                        <li><i class="fas fa-check"></i> Security audits</li>
-                        <li><i class="fas fa-check"></i> Machine Learning integration</li>
-                        <li><i class="fas fa-check"></i> 12 meses soporte</li>
-                        <li><i class="fas fa-check"></i> Equipo dedicado</li>
-                        <li><i class="fas fa-check"></i> SLA garantizado</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Arquitectura microservicios</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Alta disponibilidad</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Docker + Kubernetes</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Cloud AWS/Azure/GCP</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Monitoreo 24/7</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Security audits</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Machine Learning integration</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> 12 meses soporte</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> Equipo dedicado</li>
+                        <li><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-check"></use></svg> SLA garantizado</li>
                     </ul>
-                    <a href="#contacto" class="btn btn-secondary btn-pricing">
-                        <i class="fas fa-handshake"></i> Agendar Reunión
+                    <a href="https://wa.me/573173907301?text=Hola%2C%20equipo%20de%20Aurabyte.%20Me%20interesa%20el%20plan%20Enterprise%20(desde%20%2420M%20COP)%20para%20un%20proyecto%20grande.%20Me%20gustar%C3%ADa%20agendar%20una%20reuni%C3%B3n." class="btn btn-secondary btn-pricing" target="_blank" rel="noopener noreferrer">
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-handshake"></use></svg> Agendar por WhatsApp
                     </a>
                 </div>
             </div>
-            
+
             <div class="pricing-cta">
                 <div class="pricing-cta-content">
                     <div class="pricing-cta-text">
                         <h3>¿Proyecto personalizado?</h3>
                         <p>Contáctanos para un plan a tu medida. <strong>Precios 100% negociables</strong> según alcance y plazos.</p>
                     </div>
-                    <a href="#contacto" class="btn btn-primary btn-large">
-                        <i class="fas fa-calculator"></i> Cotizar Proyecto Personalizado
+                    <a href="https://wa.me/573173907301?text=Hola%2C%20equipo%20de%20Aurabyte.%20Tengo%20un%20proyecto%20personalizado%20y%20me%20gustar%C3%ADa%20recibir%20una%20cotizaci%C3%B3n%20a%20medida." class="btn btn-primary btn-large" target="_blank" rel="noopener noreferrer">
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-calculator"></use></svg> Cotizar por WhatsApp
                     </a>
                 </div>
             </div>
-            
+
             <div class="pricing-benefits">
                 <h3>¿Por qué elegir Aurabyte?</h3>
                 <div class="benefits-grid">
                     <div class="benefit-item">
-                        <i class="fas fa-trophy"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-trophy"></use></svg>
                         <h4>Calidad Profesional</h4>
                         <p>Código limpio, bien documentado y siguiendo mejores prácticas internacionales</p>
                     </div>
                     <div class="benefit-item">
-                        <i class="fas fa-dollar-sign"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-dollar-sign"></use></svg>
                         <h4>Precios Justos</h4>
                         <p>Costos competitivos desde Colombia sin sacrificar calidad</p>
                     </div>
                     <div class="benefit-item">
-                        <i class="fas fa-comments"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-comments"></use></svg>
                         <h4>Comunicación Directa</h4>
                         <p>Contacto permanente, sin intermediarios, en tu mismo horario</p>
                     </div>
                     <div class="benefit-item">
-                        <i class="fas fa-clock"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-clock"></use></svg>
                         <h4>Entrega a Tiempo</h4>
                         <p>Cumplimos plazos con metodologías ágiles y seguimiento continuo</p>
                     </div>
@@ -685,11 +726,11 @@ app = Flask(__name__)
         <div class="container">
             <h2 class="section-title">Nuestro Equipo</h2>
             <p class="section-subtitle">Profesionales multidisciplinarios comprometidos con la excelencia</p>
-            
+
             <div class="team-grid">
                 <div class="team-member">
                     <div class="member-avatar">
-                        <i class="fas fa-user-tie"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-user-tie"></use></svg>
                     </div>
                     <h3>Juan Jose</h3>
                     <p class="member-role">Desarrollador</p>
@@ -700,10 +741,10 @@ app = Flask(__name__)
                         <span>Backend</span>
                     </div>
                 </div>
-                
+
                 <div class="team-member">
                     <div class="member-avatar">
-                        <i class="fas fa-code"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-code"></use></svg>
                     </div>
                     <h3>Jose David</h3>
                     <p class="member-role">Desarrollador</p>
@@ -714,10 +755,10 @@ app = Flask(__name__)
                         <span>DevOps</span>
                     </div>
                 </div>
-                
+
                 <div class="team-member">
                     <div class="member-avatar">
-                        <i class="fas fa-paint-brush"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-paint-brush"></use></svg>
                     </div>
                     <h3>Diseñadora Gráfica</h3>
                     <p class="member-role">Diseñadora UX/UI</p>
@@ -728,10 +769,10 @@ app = Flask(__name__)
                         <span>Diseño</span>
                     </div>
                 </div>
-                
+
                 <div class="team-member">
                     <div class="member-avatar">
-                        <i class="fas fa-chart-line"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-chart-line"></use></svg>
                     </div>
                     <h3>María Antonia Tejada</h3>
                     <p class="member-role">Administradora y Gestión de Proyectos</p>
@@ -749,116 +790,34 @@ app = Flask(__name__)
     <!-- Proyectos -->
     <section id="proyectos" class="projects">
         <div class="container">
-            <h2 class="section-title">Casos de Éxito</h2>
-            <p class="section-subtitle">Proyectos enterprise que demuestran nuestra experiencia técnica</p>
-            
-            <div class="projects-grid">
-                <div class="project-card">
+            <h2 class="section-title">Lo que construimos</h2>
+            <p class="section-subtitle">Este sitio es nuestro primer proyecto público: lo diseñamos, desarrollamos y mantenemos nosotros mismos</p>
+
+            <div class="projects-grid projects-grid--single">
+                <div class="project-card project-card--featured">
                     <div class="project-image">
-                        <i class="fas fa-globe"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-globe"></use></svg>
                     </div>
                     <div class="project-content">
                         <div class="project-badge">Portafolio</div>
                         <h3>Aurabyte Web</h3>
-                        <p>Sitio institucional y portafolio oficial. Diseño moderno, responsivo e interactivo con mascota animada Byteo. Implementado con tecnologías web estándar.</p>
-                        <div class="project-metrics">
-                            <div class="metric">
-                                <span class="metric-value">100%</span>
-                                <span class="metric-label">Responsive</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-value">A+</span>
-                                <span class="metric-label">Performance</span>
-                            </div>
-                        </div>
+                        <p>Sitio institucional y portafolio oficial, con mascota animada Byteo, formulario de contacto funcional y API propia construida sobre Flask. Es la mejor muestra de cómo trabajamos: código propio, sin plantillas prefabricadas.</p>
                         <div class="project-tags">
-                            <span><i class="fab fa-html5"></i> HTML5</span>
-                            <span><i class="fab fa-css3-alt"></i> CSS3</span>
-                            <span><i class="fab fa-js"></i> JavaScript</span>
-                            <span><i class="fab fa-python"></i> Flask</span>
+                            <span><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-html5"></use></svg> HTML5</span>
+                            <span><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-css3-alt"></use></svg> CSS3</span>
+                            <span><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-js"></use></svg> JavaScript</span>
+                            <span><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-python"></use></svg> Flask</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="project-card">
-                    <div class="project-image">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <div class="project-content">
-                        <div class="project-badge">E-Commerce</div>
-                        <h3>Plataforma Multi-vendor</h3>
-                        <p>Sistema de comercio electrónico escalable con arquitectura de microservicios, procesamiento de pagos, gestión de inventario en tiempo real y analytics avanzados.</p>
-                        <div class="project-metrics">
-                            <div class="metric">
-                                <span class="metric-value">10K+</span>
-                                <span class="metric-label">Transacciones/día</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-value">99.9%</span>
-                                <span class="metric-label">Uptime</span>
-                            </div>
-                        </div>
-                        <div class="project-tags">
-                            <span><i class="fab fa-python"></i> Django</span>
-                            <span><i class="fas fa-database"></i> PostgreSQL</span>
-                            <span><i class="fab fa-docker"></i> Docker</span>
-                            <span><i class="fas fa-memory"></i> Redis</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="project-card">
-                    <div class="project-image">
-                        <i class="fas fa-chart-network"></i>
-                    </div>
-                    <div class="project-content">
-                        <div class="project-badge">FinTech</div>
-                        <h3>API Banking Gateway</h3>
-                        <p>Gateway de APIs para integración bancaria con alta disponibilidad, procesamiento asíncrono, encriptación end-to-end y compliance con PCI DSS.</p>
-                        <div class="project-metrics">
-                            <div class="metric">
-                                <span class="metric-value">50ms</span>
-                                <span class="metric-label">Latencia promedio</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-value">1M+</span>
-                                <span class="metric-label">Requests/día</span>
-                            </div>
-                        </div>
-                        <div class="project-tags">
-                            <span><i class="fas fa-bolt"></i> FastAPI</span>
-                            <span><i class="fab fa-aws"></i> AWS</span>
-                            <span><i class="fas fa-dharmachakra"></i> Kubernetes</span>
-                            <span><i class="fas fa-shield-alt"></i> OAuth2</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="project-card">
-                    <div class="project-image">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <div class="project-content">
-                        <div class="project-badge">Machine Learning</div>
-                        <h3>Sistema de Recomendaciones</h3>
-                        <p>Plataforma de ML con pipelines de datos en tiempo real, modelos predictivos, A/B testing y monitoreo de performance en producción.</p>
-                        <div class="project-metrics">
-                            <div class="metric">
-                                <span class="metric-value">85%</span>
-                                <span class="metric-label">Accuracy</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-value">Real-time</span>
-                                <span class="metric-label">Predictions</span>
-                            </div>
-                        </div>
-                        <div class="project-tags">
-                            <span><i class="fab fa-python"></i> Python</span>
-                            <span><i class="fas fa-project-diagram"></i> TensorFlow</span>
-                            <span><i class="fas fa-leaf"></i> MongoDB</span>
-                            <span><i class="fas fa-chart-line"></i> Apache Spark</span>
-                        </div>
-                    </div>
+                <div class="project-cta-card">
+                    <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-rocket"></use></svg>
+                    <h3>¿Tu proyecto podría ser el siguiente?</h3>
+                    <p>Estamos empezando a construir nuestro portafolio. Si buscas un equipo que se involucre de verdad en tu proyecto, hablemos.</p>
+                    <a href="https://wa.me/573173907301?text=Hola%2C%20equipo%20de%20Aurabyte.%20Tengo%20una%20idea%20de%20proyecto%20y%20me%20gustar%C3%ADa%20contarles%20los%20detalles." class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-comments"></use></svg> Cuéntanos tu idea por WhatsApp
+                    </a>
                 </div>
             </div>
         </div>
@@ -869,124 +828,118 @@ app = Flask(__name__)
         <div class="container">
             <h2 class="section-title">Contáctanos</h2>
             <p class="section-subtitle">¿Listo para iniciar tu proyecto? Hablemos</p>
-            
+
             <div class="contact-content">
                 <div class="contact-info">
                     <div class="info-item">
-                        <i class="fas fa-envelope"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-whatsapp"></use></svg>
                         <div>
-                            <h4>Email</h4>
-                            <p>info@aurabyte.com</p>
+                            <h3>WhatsApp</h3>
+                            <p><a href="https://wa.me/573173907301" target="_blank" rel="noopener noreferrer">+57 317 390 7301</a></p>
                         </div>
                     </div>
                     <div class="info-item">
-                        <i class="fas fa-phone"></i>
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-map-marker-alt"></use></svg>
                         <div>
-                            <h4>Teléfono</h4>
-                            <p>+34 123 456 789</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <div>
-                            <h4>Ubicación</h4>
+                            <h3>Ubicación</h3>
                             <p>Colombia 🇨🇴</p>
                         </div>
-                    </div>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                        <a href="#"><i class="fab fa-github"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
 
                 <form class="contact-form" id="contactForm">
+                    <p class="form-intro">
+                        Este formulario no guarda ni envía tus datos a nuestro servidor: solo
+                        arma un mensaje con lo que escribas aquí y abre
+                        <strong>WhatsApp</strong> (aplicación externa de Meta) para que lo
+                        confirmes y envíes tú mismo. No usamos email: WhatsApp es nuestro único
+                        canal de contacto por ahora.
+                    </p>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="name">Nombre Completo *</label>
-                            <input type="text" id="name" name="name" placeholder="Tu nombre" required minlength="3">
-                            <span class="form-error" id="nameError"></span>
+                            <input type="text" id="name" name="name" placeholder="Tu nombre" required aria-describedby="nameError" aria-invalid="false">
+                            <span class="form-error" id="nameError" aria-live="polite"></span>
                         </div>
                         <div class="form-group">
-                            <label for="phone">Teléfono</label>
+                            <label for="phone">Teléfono (opcional)</label>
                             <input type="tel" id="phone" name="phone" placeholder="+57 300 123 4567">
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" placeholder="tu@email.com" required>
-                        <span class="form-error" id="emailError"></span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="service">Servicio de Interés</label>
-                        <select id="service" name="service">
+                        <label for="service">Servicio de Interés *</label>
+                        <select id="service" name="service" required aria-describedby="serviceError" aria-invalid="false">
                             <option value="">Selecciona un servicio</option>
-                            <option value="backend">Python Backend Development</option>
-                            <option value="arquitectura">Arquitectura de Software</option>
-                            <option value="devops">DevOps & Cloud</option>
-                            <option value="database">Database Engineering</option>
-                            <option value="security">Security & Testing</option>
-                            <option value="data">Data Engineering & ML</option>
-                            <option value="otro">Otro</option>
+                            <option value="Desarrollo Web">Desarrollo Web</option>
+                            <option value="Aplicaciones de Escritorio">Aplicaciones de Escritorio</option>
+                            <option value="Automatización de Procesos">Automatización de Procesos</option>
+                            <option value="Mantenimiento y Soporte Técnico">Mantenimiento y Soporte Técnico</option>
+                            <option value="Asesorías en Ciberseguridad">Asesorías en Ciberseguridad</option>
+                            <option value="DevOps &amp; Cloud">DevOps &amp; Cloud</option>
+                            <option value="Security &amp; Testing">Security &amp; Testing</option>
+                            <option value="Data Engineering &amp; ML">Data Engineering &amp; ML</option>
+                            <option value="Otro">Otro</option>
                         </select>
+                        <span class="form-error" id="serviceError" aria-live="polite"></span>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="budget">Presupuesto Estimado (COP)</label>
+                        <label for="budget">Presupuesto Estimado (COP, opcional)</label>
                         <select id="budget" name="budget">
                             <option value="">Selecciona un rango</option>
-                            <option value="1-5">$1M - $5M COP</option>
-                            <option value="5-10">$5M - $10M COP</option>
-                            <option value="10-20">$10M - $20M COP</option>
-                            <option value="20+">Más de $20M COP</option>
-                            <option value="negociable">A negociar</option>
+                            <option value="$1M - $5M COP">$1M - $5M COP</option>
+                            <option value="$5M - $10M COP">$5M - $10M COP</option>
+                            <option value="$10M - $20M COP">$10M - $20M COP</option>
+                            <option value="Más de $20M COP">Más de $20M COP</option>
+                            <option value="A negociar">A negociar</option>
                         </select>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="message">Cuéntanos sobre tu proyecto *</label>
-                        <textarea id="message" name="message" rows="5" placeholder="Describe tu proyecto, objetivos, plazos, etc." required minlength="20"></textarea>
-                        <span class="form-error" id="messageError"></span>
+                        <label for="message">Describe tu proyecto *</label>
+                        <textarea id="message" name="message" rows="5" placeholder="Describe tu proyecto, objetivos, plazos, etc." required aria-describedby="messageError" aria-invalid="false"></textarea>
+                        <span class="form-error" id="messageError" aria-live="polite"></span>
                     </div>
-                    
-                    <div class="form-checkbox">
-                        <input type="checkbox" id="terms" name="terms" required>
-                        <label for="terms">Acepto la <a href="#privacidad">política de privacidad</a> y el tratamiento de mis datos *</label>
-                    </div>
-                    
+
                     <button type="submit" class="btn btn-primary btn-form" id="submitBtn">
-                        <i class="fas fa-paper-plane"></i> Enviar Mensaje
+                        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-whatsapp"></use></svg> Continuar por WhatsApp
                     </button>
-                    
-                    <div class="form-message" id="formMessage"></div>
+
+                    <div class="form-message" id="formMessage" role="status" aria-live="polite"></div>
                 </form>
             </div>
         </div>
     </section>
+    </main>
+
+    <!-- Botón flotante de WhatsApp: canal principal de contacto (ver
+         política de privacidad). Fuera de <main> para que "position: fixed"
+         lo mantenga visible en toda la página, sobre el contenido. -->
+    <a
+        href="https://wa.me/573173907301?text=Hola%2C%20equipo%20de%20Aurabyte.%20Me%20gustar%C3%ADa%20m%C3%A1s%20informaci%C3%B3n%20sobre%20sus%20servicios%20de%20desarrollo%20de%20software."
+        class="whatsapp-float"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chatea con Aurabyte por WhatsApp (se abre en una pestaña nueva)"
+    >
+        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-whatsapp"></use></svg>
+    </a>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section footer-about">
-                    <h3><img src="logo.svg" alt="Aurabyte" class="footer-logo"> Aurabyte</h3>
+                    <h3><img src="logo.svg" alt="Aurabyte" class="footer-logo" width="100" height="30"> Aurabyte</h3>
                     <p class="footer-slogan">El Futuro no se Improvisa, se Programa</p>
                     <p>Empresa de desarrollo de software remoto con equipo multidisciplinario. Soluciones tecnológicas personalizadas con enfoque estético, funcional y estratégico para clientes nacionales e internacionales.</p>
-                    <div class="footer-certifications">
-                        <span><i class="fas fa-shield-alt"></i> ISO 27001</span>
-                        <span><i class="fas fa-certificate"></i> AWS Certified</span>
-                    </div>
                     <div class="footer-contact-info">
-                        <p><i class="fas fa-map-marker-alt"></i> Colombia 🇨🇴</p>
-                        <p><i class="fas fa-envelope"></i> info@aurabyte.com</p>
-                        <p><i class="fas fa-phone"></i> +57 300 123 4567</p>
-                        <p><i class="fab fa-whatsapp"></i> WhatsApp: +57 300 123 4567</p>
+                        <p><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-map-marker-alt"></use></svg> Colombia 🇨🇴</p>
+                        <p><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-whatsapp"></use></svg> <a href="https://wa.me/573173907301" target="_blank" rel="noopener noreferrer">+57 317 390 7301</a></p>
                     </div>
                 </div>
-                
+
                 <div class="footer-section">
                     <h4>Enlaces Rápidos</h4>
                     <ul>
@@ -1003,56 +956,30 @@ app = Flask(__name__)
                     <ul>
                         <li><a href="#servicios">Python Backend Development</a></li>
                         <li><a href="#servicios">Arquitectura de Software</a></li>
-                        <li><a href="#servicios">DevOps & Cloud</a></li>
+                        <li><a href="#servicios">DevOps &amp; Cloud</a></li>
                         <li><a href="#servicios">Database Engineering</a></li>
-                        <li><a href="#servicios">Security & Testing</a></li>
-                        <li><a href="#servicios">Data Engineering & ML</a></li>
+                        <li><a href="#servicios">Security &amp; Testing</a></li>
+                        <li><a href="#servicios">Data Engineering &amp; ML</a></li>
                     </ul>
                 </div>
 
-                <div class="footer-section">
-                    <h4>Legal</h4>
-                    <ul>
-                        <li><a href="#privacidad">Política de Privacidad</a></li>
-                        <li><a href="#terminos">Términos y Condiciones</a></li>
-                        <li><a href="#cookies">Política de Cookies</a></li>
-                        <li><a href="#legal">Aviso Legal</a></li>
-                        <li><a href="#gdpr">Protección de Datos (GDPR)</a></li>
-                    </ul>
-                    <div class="footer-legal-info">
-                        <p><strong>Aurabyte S.A.S.</strong></p>
-                        <p>NIT: 900.123.456-7</p>
-                        <p>Colombia 🇨🇴</p>
-                    </div>
-                </div>
             </div>
-            
+
             <div class="footer-divider"></div>
-            
+
             <div class="footer-bottom">
                 <div class="footer-bottom-content">
-                    <p>&copy; 2025 Aurabyte S.L. Todos los derechos reservados.</p>
-                    <div class="footer-bottom-links">
-                        <a href="#privacidad">Privacidad</a>
-                        <span>|</span>
-                        <a href="#terminos">Términos</a>
-                        <span>|</span>
-                        <a href="#cookies">Cookies</a>
-                        <span>|</span>
-                        <a href="#sitemap">Mapa del Sitio</a>
-                    </div>
-                    <div class="social-links-footer">
-                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    </div>
+                    <p>&copy; 2026 Aurabyte. Todos los derechos reservados. Íconos de
+                        <a href="https://fontawesome.com" target="_blank" rel="noopener noreferrer">Font Awesome</a>
+                        (CC BY 4.0).</p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <script src="script.js"></script>
-    <script src="byteo.js"></script>
+    <!-- *.min.js generados con `npm run build:js` a partir de script.js/
+         byteo.js. Edita siempre los .js originales. -->
+    <script src="script.min.js"></script>
+    <script src="byteo.min.js"></script>
 </body>
 </html>

@@ -1,113 +1,79 @@
-# Aurabyte - Sitio Web Corporativo
+# Aurabyte — Sitio Web Corporativo
 
-Sitio web profesional para empresa de desarrollo de software especializada en Python y desarrollo web.
+Sitio web de Aurabyte, equipo multidisciplinario de desarrollo de software remoto
+(Python, web, automatización). Frontend estático (HTML/CSS/JS, sin framework) con
+**WhatsApp Business como único canal de contacto** — el sitio no requiere backend
+para funcionar.
 
-## 🚀 Características
+🔗 **Sitio publicado:** https://josedavidosorio2005.github.io/Aurabyte/
 
-- Diseño moderno y responsivo
-- Navegación suave y animaciones
-- Formulario de contacto funcional
-- Servidor Flask en Python
-- API REST endpoints
-- Compatible con todos los dispositivos
+## Características
 
-## 📋 Requisitos
+- Diseño responsivo (móvil, tablet, escritorio), modo claro/oscuro con persistencia
+- Formulario de contacto que arma un mensaje y lo abre en WhatsApp — sin backend,
+  sin email, sin almacenar datos en ningún servidor
+- Rendimiento: 90-95/100 en Lighthouse móvil, 100/100 en escritorio, accesibilidad,
+  mejores prácticas y SEO
+- Accesible (WCAG 2.1/2.2 AA): navegación por teclado, foco visible, lectores de
+  pantalla, contraste de color verificado
+- Mascota animada "Byteo" y mensajería adaptada a cada servicio/plan de precios
+- API REST en Flask (`app.py`) — **no se usa en el sitio publicado**, se conserva
+  como capacidad disponible para el futuro (ver "Arquitectura" abajo)
 
-- Python 3.8 o superior
-- Navegador web moderno
+## Arquitectura
 
-## 🔧 Instalación
+```
+index.html, styles.css, script.js        Sitio principal
+byteo.css, byteo.js                      Mascota "Byteo"
+icons/sprite.svg                         Íconos propios (sin Font Awesome por CDN)
+fonts/*.woff2, fonts/fonts.css           Fuentes auto-alojadas (sin Google Fonts externo)
+*.min.css, *.min.js                      Generados con `npm run build` — ver abajo
+robots.txt, sitemap.xml, og-cover.jpg    SEO / redes sociales
+app.py, requirements.txt                 Backend Flask (API REST, hoy sin usar en producción)
+tests/                                   Pytest (backend) + Playwright (E2E/accesibilidad)
+.github/workflows/                       CI: pruebas, lint, seguridad, despliegue a Pages
+```
 
-1. Instalar las dependencias de Python:
+El frontend no hace ninguna llamada a `/api/*` — todo el contacto pasa por
+WhatsApp directamente en el navegador. Esto significa que el sitio se puede
+publicar como archivos estáticos puros (GitHub Pages), sin necesidad de un
+servidor Python corriendo. El backend Flask sigue existiendo y probado (10
+pruebas), por si en el futuro se activa un canal de email real — ver
+`CLAUDE.md` para el detalle completo de cada decisión.
+
+## Desarrollo local
+
 ```bash
-pip install -r requirements.txt
+# Backend (opcional — solo si vas a tocar app.py)
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.venv\Scripts\python.exe app.py      # http://127.0.0.1:5000
+
+# Frontend
+npm install
+npm run build        # Regenera los *.min.css/*.min.js — necesario tras editar
+                      # styles.css/script.js/byteo.css/byteo.js
 ```
 
-## ▶️ Uso
-
-### Iniciar el servidor:
+## Pruebas
 
 ```bash
-python app.py
+.venv\Scripts\python.exe -m pytest -q    # Backend: 10 pruebas
+npx playwright test                       # E2E + accesibilidad: 27 pruebas
+npx eslint . && npx stylelint "**/*.css" && npm run lint:html   # Lint
+.venv\Scripts\python.exe -m bandit -r app.py   # Seguridad estática
 ```
 
-El sitio estará disponible en: http://localhost:5000
+Ver `CLAUDE.md` para la documentación técnica completa (decisiones de diseño,
+rendimiento, seguridad, limitaciones conocidas) y `DEPLOYMENT.md` para el
+despliegue.
 
-### Abrir directamente el HTML:
+## Pendientes conocidos
 
-También puedes abrir `index.html` directamente en tu navegador para ver el sitio sin servidor.
+- **Legal**: `privacidad.html` y `terminos.html` existen como borrador en el
+  repositorio pero **no se publican** todavía — faltan datos jurídicos reales
+  (NIT, razón social, dirección) que no se deben inventar. Ver `CLAUDE.md`.
 
-## 📁 Estructura del Proyecto
+## Licencia
 
-```
-poreycto/
-│
-├── index.html          # Página principal
-├── styles.css          # Estilos CSS
-├── script.js           # JavaScript interactivo
-├── app.py              # Servidor Flask (Python)
-├── requirements.txt    # Dependencias Python
-└── README.md           # Este archivo
-```
-
-## 🛠️ Tecnologías Utilizadas
-
-- **Frontend:**
-  - HTML5
-  - CSS3 (con animaciones y diseño responsivo)
-  - JavaScript (ES6+)
-  - Font Awesome (iconos)
-
-- **Backend:**
-  - Python 3
-  - Flask (servidor web)
-  - Flask-CORS (manejo de CORS)
-
-## 🎨 Secciones del Sitio
-
-1. **Inicio (Hero)** - Presentación de la empresa
-2. **Servicios** - Listado de servicios ofrecidos
-3. **Tecnologías** - Stack tecnológico
-4. **Proyectos** - Portfolio de trabajos
-5. **Contacto** - Formulario y datos de contacto
-
-## 📡 API Endpoints
-
-El servidor Flask proporciona varios endpoints REST:
-
-- `GET /` - Página principal
-- `POST /api/contact` - Enviar mensaje de contacto
-- `GET /api/services` - Obtener lista de servicios
-- `GET /api/technologies` - Obtener tecnologías
-- `GET /api/projects` - Obtener proyectos
-
-## 🎯 Próximas Mejoras
-
-- [ ] Integración con base de datos
-- [ ] Sistema de envío de emails
-- [ ] Panel de administración
-- [ ] Blog de tecnología
-- [ ] Área de clientes
-
-## 📝 Personalización
-
-Para personalizar el sitio:
-
-1. **Contenido:** Edita `index.html`
-2. **Estilos:** Modifica `styles.css`
-3. **Funcionalidad:** Actualiza `script.js`
-4. **Backend:** Ajusta `app.py`
-
-## 📞 Contacto
-
-- Email: info@aurabyte.com
-- Teléfono: +34 123 456 789
-- Ubicación: Madrid, España
-
-## 📄 Licencia
-
-Este proyecto es privado y confidencial.
-
----
-
-Desarrollado con ❤️ por Aurabyte
+Proyecto privado y confidencial de Aurabyte.

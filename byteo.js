@@ -26,6 +26,11 @@ class Byteo {
         // Crear el contenedor de Byteo
         this.container = document.createElement('div');
         this.container.id = 'byteo-container';
+        // Byteo es un personaje decorativo que persigue el cursor: no aporta
+        // información ni funcionalidad necesaria, así que se oculta de
+        // lectores de pantalla y tecnología asistiva en vez de simular una
+        // interacción por teclado que no aportaría nada real.
+        this.container.setAttribute('aria-hidden', 'true');
         this.container.innerHTML = `
             <div class="byteo-robot" id="byteo">
                 <!-- Antena -->

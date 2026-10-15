@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://josedavidosorio2005.github.io/Aurabyte/sitemap.xml

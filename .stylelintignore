@@ -1,0 +1,5 @@
+# Generados por `npm run build:css` (lightningcss) a partir de styles.css/
+# byteo.css — nunca se editan a mano, no son código fuente.
+*.min.css
+node_modules/
+.venv/

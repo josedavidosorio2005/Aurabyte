@@ -1,0 +1,5 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "exclude": ["node_modules", ".venv", "playwright-report", "test-results"]
+}

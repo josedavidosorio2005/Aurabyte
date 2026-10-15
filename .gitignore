@@ -28,3 +28,19 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+
+# Python virtual environment
+.venv/
+
+# Node
+node_modules/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Artefacto de despliegue (lo genera .github/scripts/stage-production-files.mjs)
+/_site/
+

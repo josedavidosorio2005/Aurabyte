@@ -253,6 +253,7 @@
     0%, 100% { 
         transform: translateY(0) scaleY(1);
     }
+
     50% { 
         transform: translateY(-3px) scaleY(1.1);
     }
