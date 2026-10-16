@@ -115,3 +115,159 @@ export function computeDispersedPositions(points, target, spread = 1.4) {
     };
   });
 }
+
+// --- Orquestación WebGL/DOM (sin equivalente de prueba unitaria: requiere
+// un canvas real, se prueba vía Playwright en tests/e2e/hero-scene.spec.js) ---
+
+const VERTEX_SHADER = `
+  attribute vec2 a_position;
+  attribute float a_pointSize;
+  attribute vec4 a_color;
+  uniform vec2 u_resolution;
+  varying vec4 v_color;
+  void main() {
+    vec2 clip = (a_position / u_resolution * 2.0 - 1.0) * vec2(1.0, -1.0);
+    gl_Position = vec4(clip, 0.0, 1.0);
+    gl_PointSize = a_pointSize;
+    v_color = a_color;
+  }
+`;
+
+const FRAGMENT_SHADER_POINTS = `
+  precision mediump float;
+  varying vec4 v_color;
+  void main() {
+    vec2 c = gl_PointCoord - vec2(0.5);
+    float alpha = smoothstep(0.5, 0.0, length(c)) * v_color.a;
+    gl_FragColor = vec4(v_color.rgb, alpha);
+  }
+`;
+
+const FRAGMENT_SHADER_LINES = `
+  precision mediump float;
+  varying vec4 v_color;
+  void main() {
+    gl_FragColor = v_color;
+  }
+`;
+
+function compileShader(gl, type, source) {
+  const shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    const info = gl.getShaderInfoLog(shader);
+    gl.deleteShader(shader);
+    throw new Error(`Error compilando shader: ${info}`);
+  }
+  return shader;
+}
+
+function createProgram(gl, vertexSource, fragmentSource) {
+  const program = gl.createProgram();
+  gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, vertexSource));
+  gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, fragmentSource));
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    const info = gl.getProgramInfoLog(program);
+    gl.deleteProgram(program);
+    throw new Error(`Error enlazando programa WebGL: ${info}`);
+  }
+  return program;
+}
+
+function hexToRgb(hex) {
+  const normalized = hex.replace('#', '').trim();
+  const value = normalized.length === 3
+    ? normalized.split('').map((c) => c + c).join('')
+    : normalized;
+  const int = parseInt(value, 16) || 0x0ea5e9;
+  return { r: ((int >> 16) & 255) / 255, g: ((int >> 8) & 255) / 255, b: (int & 255) / 255 };
+}
+
+function readThemeColors() {
+  const value = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+  return hexToRgb(value || '#0ea5e9');
+}
+
+class ParticleNetwork {
+  constructor(canvas, geometry, tier) {
+    this.canvas = canvas;
+    this.geometry = geometry;
+    this.tier = tier;
+    this.gl = canvas.getContext('webgl', { alpha: true, antialias: true });
+    if (!this.gl) throw new Error('WebGL no disponible');
+
+    this.pointProgram = createProgram(this.gl, VERTEX_SHADER, FRAGMENT_SHADER_POINTS);
+    this.lineProgram = createProgram(this.gl, VERTEX_SHADER, FRAGMENT_SHADER_LINES);
+    this.positionBuffer = this.gl.createBuffer();
+    this.pointSizeBuffer = this.gl.createBuffer();
+    this.colorBuffer = this.gl.createBuffer();
+    this.linePositionBuffer = this.gl.createBuffer();
+    this.lineColorBuffer = this.gl.createBuffer();
+
+    this.color = readThemeColors();
+    this.reducedMotion = false;
+    this.running = false;
+    this.startTime = null;
+    this.transitionProgress = 0;
+    this.pointerOffset = { x: 0, y: 0 };
+    this.scatterOffsets = geometry.points.map(() => ({
+      x: (Math.random() - 0.5) * 4,
+      y: (Math.random() - 0.5) * 4,
+      z: (Math.random() - 0.5) * 2,
+      delay: Math.random() * 400,
+    }));
+  }
+
+  resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, this.tier.dprCap);
+    const { clientWidth, clientHeight } = this.canvas;
+    this.canvas.width = Math.max(1, Math.round(clientWidth * dpr));
+    this.canvas.height = Math.max(1, Math.round(clientHeight * dpr));
+    this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+  }
+}
+
+export function initHeroScene() {
+  const container = document.querySelector('[data-hero-scene]');
+  if (!container) return null;
+  const canvas = container.querySelector('.hero-scene-canvas');
+  const fallback = container.querySelector('.hero-scene-fallback');
+
+  let network = null;
+  try {
+    const tier = pickDeviceTier({
+      hardwareConcurrency: navigator.hardwareConcurrency,
+      viewportWidth: window.innerWidth,
+    });
+    const geometry = buildMonogramGeometry(tier.particleCount);
+    network = new ParticleNetwork(canvas, geometry, tier);
+  } catch (error) {
+    console.warn('hero-scene: fallback a SVG —', error);
+    network = null;
+  }
+
+  if (!network) {
+    fallback.hidden = false;
+    canvas.hidden = true;
+    return { setThemeColors() {}, pause() {}, resume() {} };
+  }
+
+  fallback.hidden = true;
+  canvas.hidden = false;
+  network.resize();
+  window.addEventListener('resize', () => network.resize());
+
+  const api = { setThemeColors() {}, pause() {}, resume() {} };
+  window.AuraHeroScene = api;
+  return { network, api };
+}
+
+if (typeof window !== 'undefined' && window.document) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeroScene);
+  } else {
+    initHeroScene();
+  }
+}

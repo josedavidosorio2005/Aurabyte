@@ -126,8 +126,10 @@ def index():
 _PUBLIC_FILES = {
     "styles.min.css",
     "byteo.min.css",
+    "hero-scene.min.css",
     "script.min.js",
     "byteo.min.js",
+    "hero-scene.min.js",
     "logo.svg",
     "og-cover.jpg",
     "robots.txt",
