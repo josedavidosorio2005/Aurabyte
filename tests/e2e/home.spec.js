@@ -1,35 +1,28 @@
 import { expect, test } from '@playwright/test';
 
-// scrollIntoView({behavior:'instant', ...}) depende de que el motor
-// implemente bien ScrollIntoViewOptions — en el WebKit de Linux que usa
-// Playwright en CI, el scroll resultante no estaba moviendo window.scrollY
-// de forma fiable (ni la barra de progreso ni el botón flotante, ambos
-// basados en la posición real de scroll, detectaban ningún cambio incluso
-// sin ninguna otra prueba corriendo en paralelo). window.scrollTo(x, y) con
-// coordenadas numéricas es la forma más primitiva y universalmente
-// soportada de la API de scroll, sin depender de ese dictionary.
-async function scrollInstant(locator) {
-  await locator.evaluate((el) => {
+// window.scrollTo() no actualiza window.scrollY de forma síncrona: medido
+// directamente en CI (diagnóstico temporal, ver historial de commits),
+// scrollY seguía en 0 justo después de llamarlo, y solo se reflejaba un
+// momento más tarde. Por eso no basta con "llamar scrollTo y seguir" — hay
+// que esperar explícitamente a que el scroll realmente se aplique antes de
+// continuar, o cualquier aserción inmediatamente después corre contra el
+// estado viejo.
+async function scrollInstant(page, locator) {
+  const targetY = await locator.evaluate((el) => {
     const rect = el.getBoundingClientRect();
-    window.scrollTo(0, window.scrollY + rect.top);
+    return window.scrollY + rect.top;
   });
+  await page.evaluate((y) => window.scrollTo(0, y), targetY);
+  await page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, targetY);
 }
 
 test.describe('Página principal de Aurabyte', () => {
   test('la experiencia futurista tiene progreso de lectura y hero semántico', async ({ page }) => {
-    page.on('console', (msg) => console.log('[browser]', msg.text()));
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Desarrollo de software');
     await expect(page.locator('.hero-atmosphere')).toHaveAttribute('aria-hidden', 'true');
     await expect(page.locator('.scroll-progress')).toHaveAttribute('aria-hidden', 'true');
-    await scrollInstant(page.locator('#contacto'));
-    await page.evaluate(() => {
-      console.log('DIAG scrollY=' + window.scrollY
-        + ' innerHeight=' + window.innerHeight
-        + ' scrollHeight=' + document.documentElement.scrollHeight
-        + ' contactoTop=' + document.getElementById('contacto').getBoundingClientRect().top
-        + ' transform=' + document.querySelector('.scroll-progress').style.transform);
-    });
+    await scrollInstant(page, page.locator('#contacto'));
     await expect.poll(async () => page.locator('.scroll-progress').evaluate(
       element => Number(element.style.transform.match(/scaleX\(([^)]+)\)/)?.[1] ?? 0)
     )).toBeGreaterThan(0);
@@ -69,7 +62,7 @@ test.describe('Página principal de Aurabyte', () => {
     page,
   }) => {
     await page.goto('/');
-    await scrollInstant(page.locator('#contacto'));
+    await scrollInstant(page, page.locator('#contacto'));
     await page.locator('#name').fill('Cliente de Prueba');
     await page.locator('#service').selectOption('Desarrollo Web');
     await page.locator('#message').fill('muy corto');
@@ -92,7 +85,7 @@ test.describe('Página principal de Aurabyte', () => {
     page,
   }) => {
     await page.goto('/');
-    await scrollInstant(page.locator('#contacto'));
+    await scrollInstant(page, page.locator('#contacto'));
     await page.locator('#name').fill('Cliente de Prueba E2E');
     await page.locator('#service').selectOption('Desarrollo Web');
     await page
@@ -131,7 +124,7 @@ test.describe('Página principal de Aurabyte', () => {
     await expect(floatBtn).toBeHidden();
 
     // Al pasar el hero, debe aparecer y ser completamente funcional.
-    await scrollInstant(page.locator('#servicios'));
+    await scrollInstant(page, page.locator('#servicios'));
     await expect(floatBtn).toBeVisible();
     await expect(floatBtn).toHaveAttribute('href', /^https:\/\/wa\.me\/573173907301/);
     await expect(floatBtn).toHaveAttribute('aria-label', /.+/);
