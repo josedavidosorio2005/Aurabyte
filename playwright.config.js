@@ -13,13 +13,16 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 1,
   // Limita cuántos tests golpean el servidor de desarrollo a la vez. Sin
   // esto, Playwright usa hasta la mitad de los núcleos y el servidor de un
-  // solo proceso no da abasto. En CI el runner es más lento por núcleo que
-  // una máquina de desarrollo, así que el límite es aún más estricto ahí
-  // (2, no 3) — dejar `workers` sin definir en CI fue justo lo que causaba
-  // los timeouts de `scrollIntoViewIfNeeded` en cascada (ver commit que
-  // añadió este comentario). No afecta lo que se prueba, solo el ritmo al
-  // que se piden los recursos.
-  workers: process.env.CI ? 2 : 3,
+  // solo proceso no da abasto. En CI (1, serializado) esto resultó ser más
+  // que solo "el servidor responde tarde": con 2+ navegadores corriendo en
+  // paralelo en un runner compartido, los callbacks de rAF/
+  // IntersectionObserver del propio navegador se retrasaban lo bastante
+  // como para que animaciones/observers reales (barra de progreso, botón
+  // flotante) no se actualizaran dentro del timeout de una prueba —  no un
+  // bug del sitio, sino CPU insuficiente para que el navegador pinte a
+  // tiempo. Serializar a 1 worker en CI le da a cada prueba el runner
+  // completo. No afecta lo que se prueba, solo el ritmo al que corre.
+  workers: process.env.CI ? 1 : 3,
   reporter: process.env.CI ? [['line'], ['html']] : 'html',
   use: {
     baseURL: 'http://127.0.0.1:5000',
