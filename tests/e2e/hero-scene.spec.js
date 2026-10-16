@@ -42,4 +42,15 @@ test.describe('Escena del hero', () => {
     const second = await page.evaluate(() => window.__heroSceneDebug.frameCount);
     expect(second).toBeGreaterThan(first);
   });
+
+  test('la escena reacciona al cursor en dispositivos con puntero fino', async ({ page }) => {
+    await page.goto('/');
+    await page.mouse.move(400, 300);
+    await page.waitForTimeout(50);
+    const offsetAfterFirst = await page.evaluate(() => window.__heroSceneDebug.pointerOffset);
+    await page.mouse.move(700, 150);
+    await page.waitForTimeout(50);
+    const offsetAfterSecond = await page.evaluate(() => window.__heroSceneDebug.pointerOffset);
+    expect(offsetAfterSecond).not.toEqual(offsetAfterFirst);
+  });
 });

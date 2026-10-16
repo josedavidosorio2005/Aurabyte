@@ -409,6 +409,21 @@ export function initHeroScene() {
     },
   };
   window.AuraHeroScene = api;
+
+  window.__heroSceneDebug.pointerOffset = { x: 0, y: 0 };
+  const canTrackPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (canTrackPointer) {
+    const heroSection = document.getElementById('inicio');
+    heroSection.addEventListener('pointermove', (event) => {
+      const bounds = heroSection.getBoundingClientRect();
+      const nx = (event.clientX - bounds.left) / bounds.width - 0.5;
+      const ny = (event.clientY - bounds.top) / bounds.height - 0.5;
+      const offset = { x: nx * 0.3, y: -ny * 0.3 };
+      network.setPointerOffset(offset.x, offset.y);
+      window.__heroSceneDebug.pointerOffset = offset;
+    }, { passive: true });
+  }
+
   return { network, api };
 }
 
