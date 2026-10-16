@@ -180,9 +180,6 @@ function buildWhatsAppMessage(formData) {
         `Hola, equipo de Aurabyte. Soy ${formData.name}.`,
         `Servicio de interés: ${formData.service}.`,
     ];
-    if (formData.budget) {
-        lines.push(`Presupuesto estimado: ${formData.budget}.`);
-    }
     if (formData.phone) {
         lines.push(`Teléfono de contacto: ${formData.phone}.`);
     }
@@ -197,7 +194,6 @@ contactForm.addEventListener('submit', (e) => {
         name: document.getElementById('name').value.trim(),
         phone: document.getElementById('phone').value.trim(),
         service: document.getElementById('service').value,
-        budget: document.getElementById('budget').value,
         message: document.getElementById('message').value.trim(),
     };
 
