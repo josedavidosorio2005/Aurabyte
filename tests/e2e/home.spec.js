@@ -1,0 +1,123 @@
+import { expect, test } from '@playwright/test';
+
+test.describe('Página principal de Aurabyte', () => {
+  test('carga y muestra el hero y la navegación', async ({ page }) => {
+    await page.goto('/');
+    await expect(page).toHaveTitle(/Aurabyte/i);
+    await expect(page.locator('nav')).toBeVisible();
+  });
+
+  test('el formulario de contacto rechaza un proyecto descrito con menos de 20 caracteres', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.locator('#contacto').scrollIntoViewIfNeeded();
+    await page.locator('#name').fill('Cliente de Prueba');
+    await page.locator('#service').selectOption('Desarrollo Web');
+    await page.locator('#message').fill('muy corto');
+
+    const openedBeforeSubmit = await page.evaluate(() => {
+      let opened = false;
+      window.open = () => {
+        opened = true;
+        return null;
+      };
+      document.getElementById('contactForm').requestSubmit();
+      return opened;
+    });
+
+    await expect(page.locator('#formMessage')).toHaveText(/al menos 20 caracteres/i);
+    expect(openedBeforeSubmit).toBe(false);
+  });
+
+  test('el formulario de contacto arma el mensaje de WhatsApp y no afirma un envío', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.locator('#contacto').scrollIntoViewIfNeeded();
+    await page.locator('#name').fill('Cliente de Prueba E2E');
+    await page.locator('#service').selectOption('Desarrollo Web');
+    await page
+      .locator('#message')
+      .fill('Necesito un sitio web con catálogo de productos y formulario de contacto.');
+
+    const capturedUrl = await page.evaluate(
+      () =>
+        new Promise((resolve) => {
+          window.open = (url) => {
+            resolve(url);
+            return null;
+          };
+          document.getElementById('contactForm').requestSubmit();
+        })
+    );
+
+    expect(capturedUrl).toContain('https://wa.me/573173907301?text=');
+    expect(capturedUrl).toContain(encodeURIComponent('Cliente de Prueba E2E'));
+    // No debe afirmar que el mensaje ya fue enviado/entregado: el envío real
+    // ocurre dentro de WhatsApp cuando la persona lo confirma allí.
+    const formMessage = await page.locator('#formMessage').textContent();
+    expect(formMessage.toLowerCase()).not.toContain('mensaje enviado');
+  });
+
+  test('el botón flotante de WhatsApp no tapa los botones del hero y aparece al hacer scroll', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    const floatBtn = page.locator('.whatsapp-float');
+
+    // Mientras el hero está en pantalla, el botón flotante debe quedar
+    // oculto (no solo "detrás": fuera del árbol de accesibilidad y del
+    // orden de tabulación) para no tapar sus propios CTAs — regresión real
+    // encontrada en la Fase 4 (se superponía con "Ver Servicios" en móvil).
+    await expect(floatBtn).toBeHidden();
+
+    // Al pasar el hero, debe aparecer y ser completamente funcional.
+    await page.locator('#servicios').scrollIntoViewIfNeeded();
+    await expect(floatBtn).toBeVisible();
+    await expect(floatBtn).toHaveAttribute('href', /^https:\/\/wa\.me\/573173907301/);
+    await expect(floatBtn).toHaveAttribute('aria-label', /.+/);
+    await expect(floatBtn).toHaveAttribute('target', '_blank');
+    await expect(floatBtn).toHaveAttribute('rel', /noopener/);
+  });
+
+  test('el botón flotante de WhatsApp nunca se superpone con los botones del hero', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    const overlapsHeroButtons = await page.evaluate(() => {
+      function overlaps(a, b) {
+        return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+      }
+      const wa = document.querySelector('.whatsapp-float').getBoundingClientRect();
+      return Array.from(document.querySelectorAll('.cta-buttons a')).some((btn) =>
+        overlaps(wa, btn.getBoundingClientRect())
+      );
+    });
+    expect(overlapsHeroButtons).toBe(false);
+  });
+
+  test('no hay errores de consola al cargar', async ({ page }) => {
+    const errors = [];
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') errors.push(msg.text());
+    });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    expect(errors, `Errores de consola encontrados: ${errors.join(', ')}`).toHaveLength(0);
+  });
+});
+
+test.describe('API REST', () => {
+  test('GET /api/services responde 200 con JSON', async ({ request }) => {
+    const res = await request.get('/api/services');
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(Array.isArray(body)).toBeTruthy();
+  });
+
+  test('POST /api/contact valida campos requeridos', async ({ request }) => {
+    const res = await request.post('/api/contact', { data: {} });
+    expect(res.status()).toBe(400);
+  });
+});

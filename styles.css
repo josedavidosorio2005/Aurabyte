@@ -7,6 +7,12 @@
 
 :root {
     --primary-color: #0ea5e9;
+
+    /* Variante oscurecida de --primary-color para texto sobre fondos claros:
+       #0ea5e9 como texto no llega a 3:1 (WCAG AA). #0369a1 da >=5.3:1 en todos
+       los fondos donde se usa como texto (ver .pricing-badge, .price-amount,
+       .member-role, .member-skills span). */
+    --primary-text: #0369a1;
     --secondary-color: #0284c7;
     --accent-color: #06b6d4;
     --dark-bg: #0f172a;
@@ -16,7 +22,7 @@
     --text-light: #64748b;
     --text-lighter: #94a3b8;
     --bg-light: #f8fafc;
-    --white: #ffffff;
+    --white: #fff;
     --success: #10b981;
     --warning: #f59e0b;
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -24,6 +30,17 @@
     --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.2);
     --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
     --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+
+    /* Tipografía de titulares: Space Grotesk (técnica/geométrica) distinta
+       del cuerpo (Inter), coherente con el carácter "code-first" de la marca. */
+    --font-display: 'Space Grotesk', inter, 'SF Pro Display', sans-serif;
+
+    /* Radios y foco, centralizados para que todos los componentes
+       (actuales y futuros) compartan el mismo lenguaje visual. */
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
+    --focus-ring: 0 0 0 3px rgba(14, 165, 233, 0.45);
 }
 
 /* Modo Oscuro */
@@ -36,24 +53,172 @@ body.dark-mode {
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
     --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.5);
-}
 
-body.dark-mode {
+    /* #0ea5e9 ya da >=5.2:1 sobre las superficies oscuras (#1e293b),
+       así que en modo oscuro --primary-text puede ser el color pleno. */
+    --primary-text: var(--primary-color);
+
     background: #0f172a;
     color: #f1f5f9;
 }
 
 body {
-    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-family: Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
     color: var(--text-dark);
     overflow-x: hidden;
     background: var(--bg-light);
 }
 
+/* Titulares: Space Grotesk le da a la marca una voz propia (técnica,
+   geométrica) distinta del texto de cuerpo, sin perder legibilidad. */
+h1, h2, h3, h4,
+.logo span,
+.footer-logo + * {
+    font-family: var(--font-display);
+}
+
+h1 {
+    letter-spacing: -0.03em;
+}
+
+h2, .section-title {
+    letter-spacing: -0.02em;
+}
+
+/* Movimiento reducido: respeta la preferencia del sistema operativo
+   desactivando animaciones/transiciones no esenciales. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Foco visible y consistente en toda la página (teclado). Los navegadores
+   ya no dibujan :focus en elementos que reciben foco por click gracias a
+   :focus-visible, así que esto solo aparece con navegación por teclado. */
+:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Íconos: SVG inline (icons/sprite.svg) en vez de la fuente de íconos de
+   Font Awesome. Se comportan como los <i class="fas fa-x"> que reemplazan:
+   tamaño relativo a font-size (1em) y color heredado (fill: currentColor),
+   así que el resto del CSS que ya fijaba font-size/color en el contenedor
+   padre sigue funcionando igual. */
+.icon {
+    width: 1em;
+    height: 1em;
+    fill: currentcolor;
+    display: inline-block;
+    vertical-align: -0.125em;
+    flex-shrink: 0;
+}
+
+.icon-spin {
+    animation: icon-spin 1s linear infinite;
+}
+
+@keyframes icon-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Botón flotante de WhatsApp: canal principal de contacto. z-index por
+   encima de Byteo (9999, personaje decorativo que recorre toda la pantalla)
+   para que el botón siempre quede clicable incluso si Byteo pasa por
+   encima visualmente. Tamaño 56px: supera el mínimo táctil de 24px de
+   WCAG 2.5.8 con margen de sobra. */
+.whatsapp-float {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 10000;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #25d366;
+    border-radius: 50%;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.25s ease;
+    opacity: 1;
+}
+
+/* En pantallas donde la primera vista (hero) es tan alta como el viewport,
+   el botón fijo puede quedar justo encima de los botones del propio hero y
+   taparlos. script.js le agrega/quita esta clase según el scroll: visible
+   solo después de pasar el hero, igual que el patrón habitual de los
+   widgets de chat flotantes. Sin JS (clase ".js" ausente), se queda
+   siempre visible en vez de desaparecer para quien no tiene JavaScript. */
+.js .whatsapp-float:not(.is-visible) {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.25s ease,
+        visibility 0.25s;
+}
+
+.whatsapp-float .icon {
+    width: 28px;
+    height: 28px;
+    fill: #fff;
+}
+
+.whatsapp-float:hover,
+.whatsapp-float:focus-visible {
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.whatsapp-float:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 3px;
+}
+
+.whatsapp-float:active {
+    transform: scale(0.96);
+}
+
+@media (max-width: 480px) {
+    .whatsapp-float {
+        right: 16px;
+        bottom: 16px;
+        width: 52px;
+        height: 52px;
+    }
+}
+
+/* Animación de aparición al hacer scroll (script.js, IntersectionObserver).
+   El estado oculto vive en CSS en vez de escribirse por JS en un bucle al
+   cargar la página (menos trabajo de layout en el hilo principal). Va detrás
+   de ".js" para que, sin JavaScript, las tarjetas se vean normales desde el
+   principio en lugar de quedar invisibles para siempre. */
+.js .service-card,
+.js .project-card,
+.js .tech-item {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.js .service-card.is-visible,
+.js .project-card.is-visible,
+.js .tech-item.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 /* Fuente monospace para código */
 code, pre {
-    font-family: 'Fira Code', 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+    font-family: 'Fira Code', 'JetBrains Mono', Consolas, Monaco, monospace;
 }
 
 .container {
@@ -93,7 +258,7 @@ body.dark-mode .navbar {
     gap: 10px;
     font-size: 1.5rem;
     font-weight: bold;
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .logo-img {
@@ -101,7 +266,7 @@ body.dark-mode .navbar {
     width: auto;
 }
 
-.logo i {
+.logo .icon {
     font-size: 1.8rem;
 }
 
@@ -159,7 +324,7 @@ body.dark-mode .navbar {
     box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5);
 }
 
-.theme-toggle i {
+.theme-toggle .icon {
     font-size: 1.2rem;
     color: white;
     transition: transform 0.3s;
@@ -181,8 +346,22 @@ body.dark-mode .theme-toggle:hover {
 .hamburger {
     display: none;
     flex-direction: column;
+    justify-content: center;
     cursor: pointer;
     gap: 5px;
+    background: none;
+    border: none;
+
+    /* Área táctil >=44x44px (WCAG 2.5.8): las 3 barras visibles son más
+       pequeñas, el padding amplía el hit-area sin cambiar el aspecto. */
+    padding: 13px 10px;
+    margin: -13px -10px;
+}
+
+.hamburger:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 6px;
 }
 
 .hamburger span {
@@ -207,10 +386,7 @@ body.dark-mode .theme-toggle:hover {
 .hero::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: 
         radial-gradient(circle at 20% 50%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
@@ -220,9 +396,6 @@ body.dark-mode .theme-toggle:hover {
 .hero .container {
     position: relative;
     z-index: 1;
-}
-
-.hero .container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
@@ -235,7 +408,7 @@ body.dark-mode .theme-toggle:hover {
     line-height: 1.1;
     font-weight: 700;
     letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
+    background: linear-gradient(135deg, #fff 0%, #e0f2fe 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -253,7 +426,7 @@ body.dark-mode .theme-toggle:hover {
     text-align: center;
 }
 
-.hero-image i {
+.hero-image .icon {
     font-size: 15rem;
     opacity: 0.2;
     animation: float 3s ease-in-out infinite;
@@ -323,6 +496,7 @@ body.dark-mode .theme-toggle:hover {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -427,7 +601,7 @@ section {
     gap: 10px;
 }
 
-.service-features i {
+.service-features .icon {
     color: #10b981;
     font-size: 1.1rem;
 }
@@ -460,7 +634,7 @@ section {
     font-weight: 700;
 }
 
-.tech-category h3 i {
+.tech-category h3 .icon {
     color: var(--primary-color);
 }
 
@@ -504,7 +678,7 @@ section {
     opacity: 1;
 }
 
-.tech-item i {
+.tech-item .icon {
     font-size: 3.5rem;
     color: var(--primary-color);
     transition: all 0.4s;
@@ -512,7 +686,7 @@ section {
     z-index: 1;
 }
 
-.tech-item:hover i {
+.tech-item:hover .icon {
     color: var(--white);
     transform: scale(1.1);
 }
@@ -521,14 +695,11 @@ section {
     position: relative;
     z-index: 1;
     transition: color 0.4s;
+    font-weight: 600;
 }
 
 .tech-item:hover span {
     color: var(--white);
-}
-
-.tech-item span {
-    font-weight: 600;
 }
 
 /* Proyectos */
@@ -571,7 +742,7 @@ section {
     opacity: 0.1;
 }
 
-.project-image i {
+.project-image .icon {
     font-size: 5rem;
     color: var(--white);
     position: relative;
@@ -609,34 +780,6 @@ section {
     line-height: 1.7;
 }
 
-.project-metrics {
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 1.5rem;
-    padding: 1rem 0;
-    border-top: 1px solid rgba(14, 165, 233, 0.1);
-    border-bottom: 1px solid rgba(14, 165, 233, 0.1);
-}
-
-.metric {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-}
-
-.metric-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-.metric-label {
-    font-size: 0.75rem;
-    color: var(--text-light);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
 .project-tags {
     display: flex;
     gap: 0.6rem;
@@ -656,8 +799,54 @@ section {
     gap: 0.4rem;
 }
 
-.project-tags span i {
+.project-tags span .icon {
     color: var(--primary-color);
+}
+
+/* Proyectos: layout de un solo caso real + tarjeta de invitación a contactar,
+   en vez de una grilla que sugiera más proyectos de los que existen. */
+.projects-grid--single {
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.8fr);
+    align-items: stretch;
+}
+
+.project-card--featured .project-image {
+    padding: 2.5rem;
+}
+
+.project-cta-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.9rem;
+    padding: 2.5rem;
+    border-radius: var(--radius-md);
+    background: var(--gradient-dark);
+    color: var(--white);
+    border: 1px solid rgba(14, 165, 233, 0.25);
+}
+
+.project-cta-card .icon {
+    font-size: 1.8rem;
+    color: var(--accent-color);
+}
+
+.project-cta-card h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.project-cta-card p {
+    color: #cbd5e1;
+    line-height: 1.6;
+    margin-bottom: 0.4rem;
+}
+
+@media (max-width: 900px) {
+    .projects-grid--single {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Contacto */
@@ -683,13 +872,13 @@ section {
     align-items: flex-start;
 }
 
-.info-item i {
+.info-item .icon {
     font-size: 2rem;
     color: var(--primary-color);
     margin-top: 5px;
 }
 
-.info-item h4 {
+.info-item h3 {
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
 }
@@ -698,35 +887,26 @@ section {
     color: var(--text-light);
 }
 
-.social-links {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
+.info-item p a {
+    color: var(--primary-text);
+    text-decoration: underline;
 }
 
-.social-links a {
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-light);
-    border-radius: 50%;
-    color: var(--primary-color);
-    font-size: 1.5rem;
-    transition: all 0.3s;
-}
-
-.social-links a:hover {
-    background: var(--primary-color);
-    color: var(--white);
-    transform: translateY(-3px);
-}
 
 .contact-form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+}
+
+.form-intro {
+    background: rgba(37, 211, 102, 0.08);
+    border: 1px solid rgba(37, 211, 102, 0.25);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--text-dark);
 }
 
 .form-row {
@@ -762,9 +942,19 @@ section {
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-    outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.form-group input:focus-visible,
+.form-group textarea:focus-visible,
+.form-group select:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+.form-group input[aria-invalid='true'],
+.form-group textarea[aria-invalid='true'] {
+    border-color: #ef4444;
 }
 
 .form-group textarea {
@@ -777,35 +967,13 @@ section {
     color: #ef4444;
     font-size: 0.85rem;
     margin-top: 0.3rem;
-}
 
-.form-checkbox {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.8rem;
-    margin-bottom: 1.5rem;
-}
-
-.form-checkbox input[type="checkbox"] {
-    margin-top: 0.2rem;
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.form-checkbox label {
-    font-size: 0.9rem;
-    color: var(--text-light);
-    cursor: pointer;
-}
-
-.form-checkbox label a {
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-.form-checkbox label a:hover {
-    text-decoration: underline;
+    /* Reserva el espacio de una línea aunque esté vacío: si el texto de
+       error aparece/desaparece y empuja el contenido de abajo, un clic en
+       progreso sobre el siguiente campo (p. ej. el checkbox de términos)
+       puede fallar por el salto de layout justo cuando ocurre. También
+       evita Cumulative Layout Shift. */
+    min-height: 1.3em;
 }
 
 .btn-form {
@@ -901,25 +1069,6 @@ section {
     color: var(--white);
 }
 
-.footer-certifications {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-    flex-wrap: wrap;
-}
-
-.footer-certifications span {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.4rem 0.8rem;
-    background: rgba(14, 165, 233, 0.15);
-    border: 1px solid rgba(14, 165, 233, 0.3);
-    border-radius: 6px;
-    font-size: 0.8rem;
-    color: var(--accent-color);
-}
-
 .footer-about {
     max-width: 350px;
 }
@@ -939,25 +1088,14 @@ section {
     color: rgba(255, 255, 255, 0.7);
 }
 
-.footer-contact-info i {
+.footer-contact-info p a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: underline;
+}
+
+.footer-contact-info .icon {
     color: var(--primary-color);
     width: 16px;
-}
-
-.footer-legal-info {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footer-legal-info p {
-    font-size: 0.85rem;
-    margin-bottom: 0.3rem;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.footer-legal-info strong {
-    color: rgba(255, 255, 255, 0.9);
 }
 
 .footer-divider {
@@ -984,51 +1122,15 @@ section {
     margin: 0;
 }
 
-.footer-bottom-links {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+.footer-bottom-content p a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: underline;
 }
 
-.footer-bottom-links a {
-    color: rgba(255, 255, 255, 0.6);
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: color 0.3s;
-}
-
-.footer-bottom-links a:hover {
+.footer-bottom-content p a:hover {
     color: var(--primary-color);
 }
 
-.footer-bottom-links span {
-    color: rgba(255, 255, 255, 0.3);
-}
-
-.social-links-footer {
-    display: flex;
-    gap: 1rem;
-}
-
-.social-links-footer a {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(14, 165, 233, 0.1);
-    border-radius: 50%;
-    color: var(--primary-color);
-    font-size: 1rem;
-    transition: all 0.3s;
-    border: 1px solid rgba(14, 165, 233, 0.2);
-}
-
-.social-links-footer a:hover {
-    background: var(--primary-color);
-    color: var(--white);
-    transform: translateY(-3px);
-}
 
 /* Responsive */
 @media (max-width: 1024px) {
@@ -1045,7 +1147,10 @@ section {
     }
 }
 
-@media (max-width: 768px) {
+/* El menú horizontal con 9 enlaces no cabe cómodo en tablet (768-1024px):
+   se activa el menú hamburguesa en el mismo punto en que el hero ya pasa
+   a una sola columna, en vez de dejar un rango donde el nav se ve apretado. */
+@media (max-width: 1024px) {
     .hamburger {
         display: flex;
     }
@@ -1056,7 +1161,7 @@ section {
         height: 40px;
     }
 
-    .theme-toggle i {
+    .theme-toggle .icon {
         font-size: 1rem;
     }
 
@@ -1080,7 +1185,9 @@ section {
     .nav-menu.active {
         left: 0;
     }
+}
 
+@media (max-width: 768px) {
     .hero .container {
         grid-template-columns: 1fr;
     }
@@ -1093,12 +1200,13 @@ section {
         font-size: 1.1rem;
     }
 
-    .hero-stats {
-        gap: 2rem;
+    .hero-capabilities {
+        gap: 0.5rem 0.65rem;
     }
 
-    .stat-number {
-        font-size: 2rem;
+    .hero-capabilities li {
+        font-size: 0.85rem;
+        padding: 0.45rem 0.8rem;
     }
 
     .hero-code {
@@ -1169,11 +1277,6 @@ section {
         font-size: 2rem;
     }
 
-    .project-metrics {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
     .footer-content {
         grid-template-columns: 1fr;
         gap: 2rem;
@@ -1182,11 +1285,6 @@ section {
     .footer-bottom-content {
         flex-direction: column;
         text-align: center;
-    }
-
-    .footer-bottom-links {
-        flex-wrap: wrap;
-        justify-content: center;
     }
 
     .pricing-grid {
@@ -1216,10 +1314,8 @@ section {
         font-size: 1.8rem;
     }
 
-    .hero-stats {
-        flex-direction: column;
-        gap: 1.5rem;
-        align-items: center;
+    .hero-capabilities {
+        justify-content: center;
     }
 
     .cta-buttons {
@@ -1243,7 +1339,6 @@ section {
     .expertise-grid {
         grid-template-columns: 1fr;
     }
-}
 
     .service-card,
     .project-card {
@@ -1295,41 +1390,64 @@ section {
     letter-spacing: -0.01em;
 }
 
-/* Hero Stats */
-.hero-stats {
+/* Hero Capabilities: diferenciadores reales (nada de cifras sin respaldo) */
+.hero-capabilities {
     display: flex;
-    gap: 3rem;
-    margin: 2.5rem 0;
     flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    margin: 2.25rem 0;
+    list-style: none;
 }
 
-.stat-item {
-    text-align: center;
+.hero-capabilities li {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.95rem;
+    color: #cbd5e1;
+    padding: 0.5rem 0.9rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 999px;
 }
 
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1;
-    margin-bottom: 0.5rem;
-}
-
-.stat-label {
+.hero-capabilities .icon {
+    color: var(--accent-color);
     font-size: 0.9rem;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
 /* Hero Code Window */
+
+/* "Aura" detrás del code window: el único acento animado del hero, eco
+   directo del destello del logo. Es la única pieza de movimiento ambiental
+   de la página (el resto de la animación responde a scroll/interacción). */
 .hero-code {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+}
+
+.hero-code::before {
+    content: '';
+    position: absolute;
+    inset: -15%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.35) 0%, transparent 65%);
+    filter: blur(30px);
+    animation: aura-pulse 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes aura-pulse {
+    0%, 100% {
+        opacity: 0.55;
+        transform: scale(0.96);
+    }
+
+    50% {
+        opacity: 0.9;
+        transform: scale(1.04);
+    }
 }
 
 .code-window {
@@ -1340,6 +1458,7 @@ section {
     border: 1px solid rgba(14, 165, 233, 0.2);
     max-width: 500px;
     width: 100%;
+    position: relative;
 }
 
 .code-header {
@@ -1378,16 +1497,22 @@ section {
 }
 
 .code-content code {
-    font-family: 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+    font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace;
 }
 
 .code-keyword { color: #c678dd; }
 .code-function { color: #61afef; }
 .code-string { color: #98c379; }
-.code-comment { color: #5c6370; font-style: italic; }
+
+.code-comment {
+    color: #5c6370;
+    font-style: italic;
+}
+
 .code-decorator { color: #e5c07b; }
 
 /* About Us Section */
+
 /* Misión y Visión */
 .mission-vision {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -1399,10 +1524,7 @@ section {
 .mission-vision::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: 
         radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 80% 50%, rgba(14, 165, 233, 0.1) 0%, transparent 50%);
@@ -1433,10 +1555,7 @@ section {
 .vision-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
     opacity: 0;
     transition: opacity 0.4s;
@@ -1468,8 +1587,8 @@ section {
     z-index: 1;
 }
 
-.mission-card .card-icon i,
-.vision-card .card-icon i {
+.mission-card .card-icon .icon,
+.vision-card .card-icon .icon {
     font-size: 2.5rem;
     color: white;
 }
@@ -1519,10 +1638,7 @@ section {
 .value-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(14, 165, 233, 0.05) 100%);
     opacity: 0;
     transition: opacity 0.4s;
@@ -1556,7 +1672,7 @@ section {
     transform: scale(1.1) rotate(5deg);
 }
 
-.value-icon i {
+.value-icon .icon {
     font-size: 2rem;
     color: white;
 }
@@ -1622,7 +1738,7 @@ section {
     box-shadow: 0 8px 30px rgba(6, 182, 212, 0.4);
 }
 
-.member-avatar i {
+.member-avatar .icon {
     font-size: 3.5rem;
     color: white;
 }
@@ -1636,7 +1752,7 @@ section {
 
 .member-role {
     font-size: 1rem;
-    color: var(--primary-color);
+    color: var(--primary-text);
     font-weight: 600;
     margin-bottom: 1rem;
 }
@@ -1657,7 +1773,7 @@ section {
 
 .member-skills span {
     background: rgba(6, 182, 212, 0.1);
-    color: var(--primary-color);
+    color: var(--primary-text);
     padding: 0.4rem 0.8rem;
     border-radius: 20px;
     font-size: 0.85rem;
@@ -1715,13 +1831,13 @@ section {
     border-left: 3px solid var(--primary-color);
 }
 
-.highlight-item i {
+.highlight-item .icon {
     font-size: 2rem;
     color: var(--primary-color);
     margin-top: 0.3rem;
 }
 
-.highlight-item h4 {
+.highlight-item h3 {
     font-size: 1.1rem;
     margin-bottom: 0.3rem;
     color: var(--text-dark);
@@ -1753,13 +1869,13 @@ section {
     transform: translateY(-5px);
 }
 
-.feature-card i {
+.feature-card .icon {
     font-size: 3rem;
     margin-bottom: 1rem;
     opacity: 0.9;
 }
 
-.feature-card h4 {
+.feature-card h3 {
     font-size: 1.3rem;
     margin-bottom: 0.8rem;
     font-weight: 700;
@@ -1844,7 +1960,7 @@ section {
     gap: 1rem;
 }
 
-.pricing-note i {
+.pricing-note .icon {
     font-size: 2rem;
     color: var(--primary-color);
 }
@@ -1910,7 +2026,7 @@ section {
     display: inline-block;
     padding: 0.4rem 1rem;
     background: rgba(14, 165, 233, 0.1);
-    color: var(--primary-color);
+    color: var(--primary-text);
     border-radius: 50px;
     font-size: 0.85rem;
     font-weight: 600;
@@ -1929,7 +2045,7 @@ section {
     display: block;
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--primary-text);
     line-height: 1;
 }
 
@@ -1965,7 +2081,7 @@ section {
     border-bottom: none;
 }
 
-.pricing-features i {
+.pricing-features .icon {
     color: var(--success);
     font-size: 1.1rem;
 }
@@ -2047,7 +2163,7 @@ section {
     padding: 2rem 1rem;
 }
 
-.benefit-item i {
+.benefit-item .icon {
     font-size: 3rem;
     color: var(--primary-color);
     margin-bottom: 1rem;

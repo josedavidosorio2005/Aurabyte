@@ -1,29 +1,35 @@
+// Marca <html class="js"> lo antes posible: las reglas de ".js .service-card"
+// etc. en styles.css solo ocultan las tarjetas antes de la animación de
+// scroll cuando JS está disponible para luego mostrarlas. Sin esta marca
+// (JS desactivado), las tarjetas se ven normales desde el principio.
+document.documentElement.classList.add('js');
+
 // Cambio de tema (Modo Oscuro/Claro)
 const themeToggle = document.getElementById('themeToggle');
 const body = document.body;
-const themeIcon = themeToggle.querySelector('i');
+// El ícono es un <svg><use href="icons/sprite.svg#icon-moon"></use></svg>;
+// "cambiar de ícono" ahora es reapuntar el href del <use>, no togglear clases.
+const themeIconUse = themeToggle.querySelector('use');
+
+function setThemeIcon(isDark) {
+    themeIconUse.setAttribute('href', `icons/sprite.svg#icon-${isDark ? 'sun' : 'moon'}`);
+}
 
 // Cargar tema guardado
 const savedTheme = localStorage.getItem('theme') || 'light';
 if (savedTheme === 'dark') {
     body.classList.add('dark-mode');
-    themeIcon.classList.remove('fa-moon');
-    themeIcon.classList.add('fa-sun');
+    setThemeIcon(true);
+    themeToggle.setAttribute('aria-pressed', 'true');
 }
 
 // Toggle theme
 themeToggle.addEventListener('click', () => {
     body.classList.toggle('dark-mode');
-    
-    if (body.classList.contains('dark-mode')) {
-        themeIcon.classList.remove('fa-moon');
-        themeIcon.classList.add('fa-sun');
-        localStorage.setItem('theme', 'dark');
-    } else {
-        themeIcon.classList.remove('fa-sun');
-        themeIcon.classList.add('fa-moon');
-        localStorage.setItem('theme', 'light');
-    }
+    const isDark = body.classList.contains('dark-mode');
+    themeToggle.setAttribute('aria-pressed', String(isDark));
+    setThemeIcon(isDark);
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
 });
 
 // Menú hamburguesa
@@ -32,18 +38,25 @@ const navMenu = document.getElementById('navMenu');
 
 hamburger.addEventListener('click', () => {
     navMenu.classList.toggle('active');
-    
+    const isOpen = navMenu.classList.contains('active');
+
+    // Estado accesible: lectores de pantalla anuncian si el menú está abierto
+    hamburger.setAttribute('aria-expanded', String(isOpen));
+    hamburger.setAttribute('aria-label', isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
+
     // Animación del hamburger
     const spans = hamburger.querySelectorAll('span');
-    spans[0].style.transform = navMenu.classList.contains('active') ? 'rotate(45deg) translate(5px, 5px)' : 'rotate(0)';
-    spans[1].style.opacity = navMenu.classList.contains('active') ? '0' : '1';
-    spans[2].style.transform = navMenu.classList.contains('active') ? 'rotate(-45deg) translate(7px, -6px)' : 'rotate(0)';
+    spans[0].style.transform = isOpen ? 'rotate(45deg) translate(5px, 5px)' : 'rotate(0)';
+    spans[1].style.opacity = isOpen ? '0' : '1';
+    spans[2].style.transform = isOpen ? 'rotate(-45deg) translate(7px, -6px)' : 'rotate(0)';
 });
 
 // Cerrar menú al hacer click en un enlace
 document.querySelectorAll('.nav-menu a').forEach(link => {
     link.addEventListener('click', () => {
         navMenu.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+        hamburger.setAttribute('aria-label', 'Abrir menú de navegación');
         const spans = hamburger.querySelectorAll('span');
         spans[0].style.transform = 'rotate(0)';
         spans[1].style.opacity = '1';
@@ -57,15 +70,29 @@ let lastScroll = 0;
 
 window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
-    
+
     if (currentScroll > 50) {
         navbar.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.15)';
     } else {
         navbar.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
     }
-    
+
     lastScroll = currentScroll;
 });
+
+// Botón flotante de WhatsApp: oculto mientras el hero está en pantalla para
+// no tapar sus propios botones (ambos ocupan la misma esquina en móvil).
+// Visible el resto del tiempo, como cualquier widget de chat flotante.
+const whatsappFloat = document.querySelector('.whatsapp-float');
+const heroSection = document.getElementById('inicio');
+
+function updateWhatsAppFloatVisibility() {
+    const heroBottom = heroSection.getBoundingClientRect().bottom;
+    whatsappFloat.classList.toggle('is-visible', heroBottom < 0);
+}
+
+window.addEventListener('scroll', updateWhatsAppFloatVisibility, { passive: true });
+updateWhatsAppFloatVisibility();
 
 // Animación de scroll suave para los enlaces
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -90,127 +117,127 @@ const observerOptions = {
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
+            // El estado oculto inicial y la transición ya están en CSS
+            // (".js .service-card", etc.) — aquí solo togglear la clase.
+            entry.target.classList.add('is-visible');
         }
     });
 }, observerOptions);
 
 // Observar las tarjetas de servicios, proyectos y tecnologías
 document.querySelectorAll('.service-card, .project-card, .tech-item').forEach(card => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(30px)';
-    card.style.transition = 'all 0.6s ease-out';
     observer.observe(card);
 });
 
-// Formulario de contacto mejorado
+// Formulario de contacto: ya no hace POST a /api/contact (eso requeriría
+// SMTP configurado, que no existe hoy — ver CLAUDE.md). Construye un mensaje
+// de WhatsApp a partir de los campos y abre wa.me; el envío real lo confirma
+// la persona que llena el formulario al presionar "Enviar" DENTRO de
+// WhatsApp, así que nunca afirmamos "mensaje enviado" desde aquí.
+const WHATSAPP_NUMBER = '573173907301';
 const contactForm = document.getElementById('contactForm');
-const submitBtn = document.getElementById('submitBtn');
 const formMessage = document.getElementById('formMessage');
 
 // Validación en tiempo real
 const nameInput = document.getElementById('name');
-const emailInput = document.getElementById('email');
+const serviceInput = document.getElementById('service');
 const messageInput = document.getElementById('message');
+
+// Marca un campo como inválido/válido también para lectores de pantalla
+// (aria-invalid), no solo visualmente.
+function setFieldError(input, errorEl, message) {
+    errorEl.textContent = message;
+    input.setAttribute('aria-invalid', message ? 'true' : 'false');
+}
 
 nameInput.addEventListener('blur', () => {
     const nameError = document.getElementById('nameError');
-    if (nameInput.value.length < 3) {
-        nameError.textContent = 'El nombre debe tener al menos 3 caracteres';
-    } else {
-        nameError.textContent = '';
-    }
+    setFieldError(
+        nameInput,
+        nameError,
+        nameInput.value.length < 3 ? 'El nombre debe tener al menos 3 caracteres' : ''
+    );
 });
 
-emailInput.addEventListener('blur', () => {
-    const emailError = document.getElementById('emailError');
-    if (!validateEmail(emailInput.value)) {
-        emailError.textContent = 'Email no válido';
-    } else {
-        emailError.textContent = '';
-    }
+serviceInput.addEventListener('change', () => {
+    const serviceError = document.getElementById('serviceError');
+    setFieldError(serviceInput, serviceError, !serviceInput.value ? 'Selecciona un servicio' : '');
 });
 
 messageInput.addEventListener('blur', () => {
     const messageError = document.getElementById('messageError');
-    if (messageInput.value.length < 20) {
-        messageError.textContent = 'El mensaje debe tener al menos 20 caracteres';
-    } else {
-        messageError.textContent = '';
-    }
+    setFieldError(
+        messageInput,
+        messageError,
+        messageInput.value.length < 20 ? 'El mensaje debe tener al menos 20 caracteres' : ''
+    );
 });
 
-contactForm.addEventListener('submit', async (e) => {
+// Arma el mensaje de WhatsApp con lo que la persona escribió — nada se
+// inventa ni se agrega aparte de los datos del propio formulario.
+function buildWhatsAppMessage(formData) {
+    const lines = [
+        `Hola, equipo de Aurabyte. Soy ${formData.name}.`,
+        `Servicio de interés: ${formData.service}.`,
+    ];
+    if (formData.budget) {
+        lines.push(`Presupuesto estimado: ${formData.budget}.`);
+    }
+    if (formData.phone) {
+        lines.push(`Teléfono de contacto: ${formData.phone}.`);
+    }
+    lines.push('', formData.message);
+    return lines.join('\n');
+}
+
+contactForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
-    // Obtener valores del formulario
+
     const formData = {
         name: document.getElementById('name').value.trim(),
-        email: document.getElementById('email').value.trim(),
         phone: document.getElementById('phone').value.trim(),
         service: document.getElementById('service').value,
         budget: document.getElementById('budget').value,
         message: document.getElementById('message').value.trim(),
     };
-    
-    // Validación
+
     if (formData.name.length < 3) {
         showFormMessage('El nombre debe tener al menos 3 caracteres', 'error');
         return;
     }
-    
-    if (!validateEmail(formData.email)) {
-        showFormMessage('Por favor, introduce un email válido', 'error');
+
+    if (!formData.service) {
+        showFormMessage('Selecciona un servicio de interés', 'error');
         return;
     }
-    
+
     if (formData.message.length < 20) {
-        showFormMessage('El mensaje debe tener al menos 20 caracteres', 'error');
+        showFormMessage('Describe tu proyecto con al menos 20 caracteres', 'error');
         return;
     }
-    
-    // Deshabilitar botón
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-    
-    try {
-        // Enviar al backend Flask
-        const response = await fetch('/api/contact', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            showFormMessage('¡Mensaje enviado con éxito! Te contactaremos pronto en menos de 24 horas.', 'success');
-            contactForm.reset();
-            showNotification('✅ Mensaje enviado correctamente', 'success');
-        } else {
-            showFormMessage(data.message || 'Error al enviar el mensaje. Intenta nuevamente.', 'error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showFormMessage('Error de conexión. Por favor, escríbenos directamente a info@aurabyte.com o WhatsApp +57 300 123 4567', 'error');
-    } finally {
-        // Rehabilitar botón
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Mensaje';
-    }
+
+    const text = encodeURIComponent(buildWhatsAppMessage(formData));
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
+
+    // "Recibido" aquí significa "listo para enviar", no "entregado": el
+    // paso final (presionar Enviar) ocurre en WhatsApp, fuera de este sitio.
+    showFormMessage(
+        'Vas a continuar en WhatsApp con tu mensaje ya escrito. Presiona Enviar allí para completar tu solicitud.',
+        'success'
+    );
+    showNotification('📲 Abriendo WhatsApp…', 'success');
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    contactForm.reset();
 });
 
 // Mostrar mensajes en el formulario
 function showFormMessage(message, type) {
     formMessage.textContent = message;
     formMessage.className = `form-message ${type}`;
-    
+
     // Scroll al mensaje
     formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    
+
     // Ocultar después de 8 segundos si es éxito
     if (type === 'success') {
         setTimeout(() => {
@@ -219,19 +246,14 @@ function showFormMessage(message, type) {
     }
 }
 
-// Validación de email
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-}
-
 // Sistema de notificaciones
 function showNotification(message, type = 'info') {
     // Crear elemento de notificación
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
+    const iconName = type === 'success' ? 'check-circle' : 'exclamation-circle';
     notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-${iconName}"></use></svg>
         <span>${message}</span>
     `;
     

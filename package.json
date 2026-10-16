@@ -1,0 +1,36 @@
+{
+  "name": "aurabyte",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Sitio web corporativo de Aurabyte (frontend estático + API Flask)",
+  "scripts": {
+    "lint:js": "eslint .",
+    "lint:css": "stylelint \"**/*.css\"",
+    "lint:html": "html-validate index.html",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "build:css": "lightningcss --minify --output-file=styles.min.css styles.css && lightningcss --minify --output-file=byteo.min.css byteo.css",
+    "build:js": "terser script.js -c -m -o script.min.js && terser byteo.js -c -m -o byteo.min.js",
+    "build": "npm run build:css && npm run build:js"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "eslint": "^9.17.0",
+    "@eslint/js": "^9.17.0",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2",
+    "stylelint": "^16.23.0",
+    "stylelint-config-standard": "^39.0.0",
+    "@playwright/test": "^1.49.1",
+    "@axe-core/playwright": "^4.10.1",
+    "lightningcss-cli": "^1.29.1",
+    "terser": "^5.36.0",
+    "html-validate": "^8.24.0"
+  },
+  "overrides": {
+    "braces": "^3.0.3"
+  }
+}

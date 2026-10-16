@@ -16,7 +16,11 @@
       "dest": "app.py"
     },
     {
-      "src": "/(.*\\.(css|js|svg|png|jpg|jpeg|gif|ico))",
+      "src": "/(.*\\.(css|js|svg|png|jpg|jpeg|gif|ico|woff|woff2|json|xml|txt))",
+      "dest": "/$1"
+    },
+    {
+      "src": "/([a-zA-Z0-9_-]+\\.html)",
       "dest": "/$1"
     },
     {
