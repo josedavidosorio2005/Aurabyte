@@ -12,7 +12,7 @@ para funcionar.
 - Los precios no se publican: cada proyecto se cotiza directamente con el equipo.
 - Instagram oficial: https://www.instagram.com/aurabyte_software/
 
-- Diseño responsivo (móvil, tablet, escritorio), modo claro/oscuro con persistencia
+- Diseño futurista responsivo con hero holográfico, tarjeta de código, progreso de lectura, halos interactivos y animaciones accesibles; modo claro/oscuro persistente
 - Formulario de contacto que arma un mensaje y lo abre en WhatsApp — sin backend,
   sin email, sin almacenar datos en ningún servidor
 - Rendimiento: 90-95/100 en Lighthouse móvil, 100/100 en escritorio, accesibilidad,
