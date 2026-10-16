@@ -1,6 +1,42 @@
 import { expect, test } from '@playwright/test';
 
+// window.scrollTo() no actualiza window.scrollY de forma síncrona: medido
+// directamente en CI (diagnóstico temporal, ver historial de commits),
+// scrollY seguía en 0 justo después de llamarlo, y solo se reflejaba un
+// momento más tarde. Por eso no basta con "llamar scrollTo y seguir" — hay
+// que esperar explícitamente a que el scroll realmente se aplique antes de
+// continuar, o cualquier aserción inmediatamente después corre contra el
+// estado viejo.
+async function scrollInstant(page, locator) {
+  const targetY = await locator.evaluate((el) => {
+    const rect = el.getBoundingClientRect();
+    return window.scrollY + rect.top;
+  });
+  await page.evaluate((y) => window.scrollTo(0, y), targetY);
+  await page.waitForFunction((y) => Math.abs(window.scrollY - y) < 2, targetY);
+}
+
 test.describe('Página principal de Aurabyte', () => {
+  test('la experiencia futurista tiene progreso de lectura y hero semántico', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Desarrollo de software');
+    await expect(page.locator('.hero-atmosphere')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('.scroll-progress')).toHaveAttribute('aria-hidden', 'true');
+    await scrollInstant(page, page.locator('#contacto'));
+    await expect.poll(async () => page.locator('.scroll-progress').evaluate(
+      element => Number(element.style.transform.match(/scaleX\(([^)]+)\)/)?.[1] ?? 0)
+    )).toBeGreaterThan(0);
+  });
+
+  test('el efecto de movimiento respeta las preferencias de accesibilidad', async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto('/');
+    const reveal = page.locator('.reveal-on-scroll').first();
+    await expect(reveal).toHaveCSS('opacity', '1');
+    await context.close();
+  });
+
   test('carga y muestra el hero y la navegación', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/Aurabyte/i);
@@ -26,7 +62,7 @@ test.describe('Página principal de Aurabyte', () => {
     page,
   }) => {
     await page.goto('/');
-    await page.locator('#contacto').scrollIntoViewIfNeeded();
+    await scrollInstant(page, page.locator('#contacto'));
     await page.locator('#name').fill('Cliente de Prueba');
     await page.locator('#service').selectOption('Desarrollo Web');
     await page.locator('#message').fill('muy corto');
@@ -49,7 +85,7 @@ test.describe('Página principal de Aurabyte', () => {
     page,
   }) => {
     await page.goto('/');
-    await page.locator('#contacto').scrollIntoViewIfNeeded();
+    await scrollInstant(page, page.locator('#contacto'));
     await page.locator('#name').fill('Cliente de Prueba E2E');
     await page.locator('#service').selectOption('Desarrollo Web');
     await page
@@ -88,7 +124,7 @@ test.describe('Página principal de Aurabyte', () => {
     await expect(floatBtn).toBeHidden();
 
     // Al pasar el hero, debe aparecer y ser completamente funcional.
-    await page.locator('#servicios').scrollIntoViewIfNeeded();
+    await scrollInstant(page, page.locator('#servicios'));
     await expect(floatBtn).toBeVisible();
     await expect(floatBtn).toHaveAttribute('href', /^https:\/\/wa\.me\/573173907301/);
     await expect(floatBtn).toHaveAttribute('aria-label', /.+/);

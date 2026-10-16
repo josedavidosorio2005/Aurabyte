@@ -130,6 +130,17 @@ deshacerlo sin querer:
 5. **`theme-toggle`/spinner/notificaciones dinámicas**: ya no togglean
    clases `fa-moon`/`fa-sun` (no existen más) — cambian el atributo `href`
    del `<use>` del ícono. Ver `script.js`, función `setThemeIcon`.
+6. **Rediseño futurista (hero holográfico, `.scroll-progress`, `.reveal-on-scroll`
+   en tarjetas de precios/equipo/destacados, halo de puntero en `.service-card`/
+   `.pricing-card`/`.value-card`)**: mismo patrón de arriba, con una regla
+   extra. `.js .reveal-on-scroll` usa **`opacity: 0` Y `visibility: hidden`**
+   en su estado inicial, no opacity sola — axe-core mide el contraste real
+   de un texto con `opacity: 0` (que compone al color de fondo) y lo marca
+   como violación "serious" de WCAG, aunque nadie lo vea así (encontrado y
+   corregido en la revisión del PR #3: 32 nodos afectados). Si agregas una
+   clase de revelado nueva, replica ambas propiedades — opacity sola no
+   basta. El halo de puntero (`--spot-x`/`--spot-y`) solo se activa si
+   `(hover: hover) and (pointer: fine)`, así que no interfiere en táctil.
 
 **Nota honesta sobre la métrica:** Lighthouse móvil simula red lenta (Slow
 4G) y CPU limitada; el 95/100 es bajo esas condiciones simuladas. En escritorio

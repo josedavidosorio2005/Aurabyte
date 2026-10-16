@@ -12,10 +12,14 @@ export default defineConfig({
   // vuelve a fallar en el reintento.
   retries: process.env.CI ? 2 : 1,
   // Limita cuántos tests golpean el servidor de desarrollo a la vez. Sin
-  // esto, Playwright usa hasta la mitad de los núcleos (8 en una máquina de
-  // 16) y el servidor de un solo proceso no da abasto. No afecta lo que se
-  // prueba, solo el ritmo al que se piden los recursos.
-  workers: process.env.CI ? undefined : 3,
+  // esto, Playwright usa hasta la mitad de los núcleos y el servidor de un
+  // solo proceso no da abasto. Se probó serializar CI a 1 worker para
+  // descartar contención de CPU como causa de otro fallo (scroll-progress/
+  // botón flotante en 0%) — persistió incluso así, así que la causa real
+  // era otra (ver tests/e2e/home.spec.js, scrollIntoView vs scrollTo) y no
+  // hacía falta pagar el costo de serializar del todo. 2 en CI, no 3, por
+  // ser un runner más lento por núcleo que una máquina de desarrollo.
+  workers: process.env.CI ? 2 : 3,
   reporter: process.env.CI ? [['line'], ['html']] : 'html',
   use: {
     baseURL: 'http://127.0.0.1:5000',
