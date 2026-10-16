@@ -1,15 +1,18 @@
 import { expect, test } from '@playwright/test';
 
-// `scrollIntoViewIfNeeded()` dispara el scroll nativo del navegador, que
-// respeta `scroll-behavior: smooth` (ver styles.css) — una animación que no
-// aporta nada en una prueba automatizada y que, bajo la carga de CPU de un
-// runner de CI con varios navegadores en paralelo, puede tardar mucho más
-// de lo normal en asentarse y agotar el timeout. Pasar `behavior: 'instant'`
-// explícitamente en la llamada anula el scroll-behavior de la hoja de
-// estilos (así lo define la spec de CSSOM View) sin tocar la experiencia
-// real de quien navega el sitio con el mouse.
+// scrollIntoView({behavior:'instant', ...}) depende de que el motor
+// implemente bien ScrollIntoViewOptions — en el WebKit de Linux que usa
+// Playwright en CI, el scroll resultante no estaba moviendo window.scrollY
+// de forma fiable (ni la barra de progreso ni el botón flotante, ambos
+// basados en la posición real de scroll, detectaban ningún cambio incluso
+// sin ninguna otra prueba corriendo en paralelo). window.scrollTo(x, y) con
+// coordenadas numéricas es la forma más primitiva y universalmente
+// soportada de la API de scroll, sin depender de ese dictionary.
 async function scrollInstant(locator) {
-  await locator.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'start' }));
+  await locator.evaluate((el) => {
+    const rect = el.getBoundingClientRect();
+    window.scrollTo(0, window.scrollY + rect.top);
+  });
 }
 
 test.describe('Página principal de Aurabyte', () => {
