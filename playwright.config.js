@@ -12,10 +12,14 @@ export default defineConfig({
   // vuelve a fallar en el reintento.
   retries: process.env.CI ? 2 : 1,
   // Limita cuántos tests golpean el servidor de desarrollo a la vez. Sin
-  // esto, Playwright usa hasta la mitad de los núcleos (8 en una máquina de
-  // 16) y el servidor de un solo proceso no da abasto. No afecta lo que se
-  // prueba, solo el ritmo al que se piden los recursos.
-  workers: process.env.CI ? undefined : 3,
+  // esto, Playwright usa hasta la mitad de los núcleos y el servidor de un
+  // solo proceso no da abasto. En CI el runner es más lento por núcleo que
+  // una máquina de desarrollo, así que el límite es aún más estricto ahí
+  // (2, no 3) — dejar `workers` sin definir en CI fue justo lo que causaba
+  // los timeouts de `scrollIntoViewIfNeeded` en cascada (ver commit que
+  // añadió este comentario). No afecta lo que se prueba, solo el ritmo al
+  // que se piden los recursos.
+  workers: process.env.CI ? 2 : 3,
   reporter: process.env.CI ? [['line'], ['html']] : 'html',
   use: {
     baseURL: 'http://127.0.0.1:5000',
