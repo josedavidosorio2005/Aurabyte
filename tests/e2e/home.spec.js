@@ -17,11 +17,19 @@ async function scrollInstant(locator) {
 
 test.describe('Página principal de Aurabyte', () => {
   test('la experiencia futurista tiene progreso de lectura y hero semántico', async ({ page }) => {
+    page.on('console', (msg) => console.log('[browser]', msg.text()));
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Desarrollo de software');
     await expect(page.locator('.hero-atmosphere')).toHaveAttribute('aria-hidden', 'true');
     await expect(page.locator('.scroll-progress')).toHaveAttribute('aria-hidden', 'true');
     await scrollInstant(page.locator('#contacto'));
+    await page.evaluate(() => {
+      console.log('DIAG scrollY=' + window.scrollY
+        + ' innerHeight=' + window.innerHeight
+        + ' scrollHeight=' + document.documentElement.scrollHeight
+        + ' contactoTop=' + document.getElementById('contacto').getBoundingClientRect().top
+        + ' transform=' + document.querySelector('.scroll-progress').style.transform);
+    });
     await expect.poll(async () => page.locator('.scroll-progress').evaluate(
       element => Number(element.style.transform.match(/scaleX\(([^)]+)\)/)?.[1] ?? 0)
     )).toBeGreaterThan(0);
