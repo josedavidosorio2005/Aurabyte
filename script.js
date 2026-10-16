@@ -29,6 +29,7 @@ themeToggle.addEventListener('click', () => {
     const isDark = body.classList.contains('dark-mode');
     themeToggle.setAttribute('aria-pressed', String(isDark));
     setThemeIcon(isDark);
+    window.AuraHeroScene?.setThemeColors();
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
 });
 

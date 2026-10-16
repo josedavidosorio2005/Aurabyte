@@ -188,7 +188,11 @@ function hexToRgb(hex) {
 }
 
 function readThemeColors() {
-  const value = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+  // --primary-color no cambia entre temas (ver CLAUDE.md, "Contraste de
+  // color: ya resuelto") — --primary-text sí (#0369a1 claro / #0ea5e9
+  // oscuro), por eso es la variable correcta para un color que de verdad
+  // debe reaccionar al cambio de tema.
+  const value = getComputedStyle(document.body).getPropertyValue('--primary-text').trim();
   return hexToRgb(value || '#0ea5e9');
 }
 
@@ -254,6 +258,10 @@ class ParticleNetwork {
 
   setPointerOffset(x, y) {
     this.pointerOffset = { x, y };
+  }
+
+  setThemeColors() {
+    this.color = readThemeColors();
   }
 
   setTransitionProgress(progress) {
@@ -397,8 +405,12 @@ export function initHeroScene() {
   window.__heroSceneDebug.running = true;
   window.addEventListener('resize', () => network.resize());
 
+  window.__heroSceneDebug.color = network.color;
   const api = {
-    setThemeColors() {},
+    setThemeColors() {
+      network.setThemeColors();
+      window.__heroSceneDebug.color = network.color;
+    },
     pause() {
       network.pause();
       window.__heroSceneDebug.running = false;

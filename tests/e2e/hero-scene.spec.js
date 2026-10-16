@@ -75,4 +75,16 @@ test.describe('Escena del hero', () => {
     const running = await page.evaluate(() => window.__heroSceneDebug.running);
     expect(running).toBe(false);
   });
+
+  test('cambiar de tema actualiza el color de la escena sin reiniciarla', async ({ page }) => {
+    await page.goto('/');
+    const before = await page.evaluate(() => window.__heroSceneDebug.frameCount);
+    const colorBefore = await page.evaluate(() => window.__heroSceneDebug.color);
+    await page.click('#themeToggle');
+    await page.waitForTimeout(100);
+    const after = await page.evaluate(() => window.__heroSceneDebug.frameCount);
+    const colorAfter = await page.evaluate(() => window.__heroSceneDebug.color);
+    expect(after).toBeGreaterThan(before); // nunca se detuvo el loop
+    expect(colorAfter).not.toEqual(colorBefore);
+  });
 });
