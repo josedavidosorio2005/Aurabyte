@@ -36,9 +36,20 @@
     height: 100%;
 }
 
+.hero-scene {
+    opacity: calc(1 - var(--hero-scene-progress, 0) * 0.85);
+    transform: scale(calc(1 - var(--hero-scene-progress, 0) * 0.18));
+    transition: opacity 0.1s linear, transform 0.1s linear;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .hero-scene-fallback-shape,
     .hero-scene-fallback-spark {
         animation: none;
+    }
+
+    .hero-scene,
+    .hero-content {
+        transition: none;
     }
 }

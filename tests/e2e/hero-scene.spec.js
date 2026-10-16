@@ -53,4 +53,26 @@ test.describe('Escena del hero', () => {
     const offsetAfterSecond = await page.evaluate(() => window.__heroSceneDebug.pointerOffset);
     expect(offsetAfterSecond).not.toEqual(offsetAfterFirst);
   });
+
+  test('hacer scroll a través del hero aumenta el progreso de la Transición A', async ({ page }) => {
+    await page.goto('/');
+    const initial = await page.locator('#inicio').getAttribute('data-transition-progress');
+    expect(Number(initial)).toBe(0);
+    const heroHeight = await page.locator('#inicio').evaluate((el) => el.getBoundingClientRect().height);
+    await page.evaluate((y) => window.scrollTo(0, y), heroHeight * 0.6);
+    await page.waitForFunction(() => window.scrollY > 0);
+    await expect.poll(async () =>
+      Number(await page.locator('#inicio').getAttribute('data-transition-progress'))
+    ).toBeGreaterThan(0.3);
+  });
+
+  test('al pasar completamente el hero, el loop de render queda en pausa', async ({ page }) => {
+    await page.goto('/');
+    const heroHeight = await page.locator('#inicio').evaluate((el) => el.getBoundingClientRect().height);
+    await page.evaluate((y) => window.scrollTo(0, y), heroHeight * 1.5);
+    await page.waitForFunction((h) => window.scrollY >= h, heroHeight * 1.4);
+    await page.waitForTimeout(100);
+    const running = await page.evaluate(() => window.__heroSceneDebug.running);
+    expect(running).toBe(false);
+  });
 });

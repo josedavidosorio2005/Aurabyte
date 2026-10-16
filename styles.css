@@ -2398,6 +2398,8 @@ body .hero .container {
 .hero-content {
     position: relative;
     z-index: 3;
+    transform: translateY(calc(var(--hero-scene-progress, 0) * -32px));
+    transition: transform 0.1s linear;
 }
 
 body .hero-content h1 {

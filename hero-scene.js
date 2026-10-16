@@ -410,10 +410,11 @@ export function initHeroScene() {
   };
   window.AuraHeroScene = api;
 
+  const heroSection = document.getElementById('inicio');
+
   window.__heroSceneDebug.pointerOffset = { x: 0, y: 0 };
   const canTrackPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   if (canTrackPointer) {
-    const heroSection = document.getElementById('inicio');
     heroSection.addEventListener('pointermove', (event) => {
       const bounds = heroSection.getBoundingClientRect();
       const nx = (event.clientX - bounds.left) / bounds.width - 0.5;
@@ -423,6 +424,41 @@ export function initHeroScene() {
       window.__heroSceneDebug.pointerOffset = offset;
     }, { passive: true });
   }
+
+  const visibilityObserver = new IntersectionObserver(
+    ([entry]) => (entry.isIntersecting ? api.resume() : api.pause()),
+    { threshold: 0 }
+  );
+  visibilityObserver.observe(canvas);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      api.pause();
+    } else if (heroSection.getBoundingClientRect().bottom > 0) {
+      api.resume();
+    }
+  });
+
+  let scrollFrame = null;
+  function updateTransition() {
+    scrollFrame = null;
+    const rect = heroSection.getBoundingClientRect();
+    const progress = Math.min(1, Math.max(0, -rect.top / rect.height));
+    network.setTransitionProgress(progress);
+    if (progress >= 1) {
+      api.pause();
+    } else if (!window.__heroSceneDebug.running) {
+      api.resume();
+    }
+    heroSection.style.setProperty('--hero-scene-progress', progress.toFixed(3));
+    heroSection.dataset.transitionProgress = progress.toFixed(3);
+  }
+  window.addEventListener('scroll', () => {
+    if (scrollFrame) return;
+    scrollFrame = requestAnimationFrame(updateTransition);
+  }, { passive: true });
+  window.addEventListener('resize', updateTransition);
+  updateTransition();
 
   return { network, api };
 }
