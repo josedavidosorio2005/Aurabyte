@@ -2278,26 +2278,26 @@ body.dark-mode code {
    AURABYTE / VISUAL SYSTEM 2026
    Futurismo sobrio: movimiento funcional, sin CDNs ni librerías.
    ============================================================ */
-:root {
+html:root {
     --aura-cyan: #38d9fa;
     --aura-violet: #8b5cf6;
     --aura-ink: #070b1d;
     --aura-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.navbar {
+body .navbar {
     background: rgb(247 250 255 / 86%);
     backdrop-filter: blur(18px) saturate(150%);
     border-bottom: 1px solid rgb(14 165 233 / 15%);
     box-shadow: 0 4px 32px rgb(2 6 23 / 6%);
 }
 
-body.dark-mode .navbar {
+html body.dark-mode .navbar {
     background: rgb(7 11 29 / 88%);
     border-bottom-color: rgb(56 217 250 / 19%);
 }
 
-.navbar .container {
+body .navbar .container {
     max-width: 1320px;
 }
 
@@ -2328,11 +2328,11 @@ body.dark-mode .navbar {
     will-change: transform;
 }
 
-.nav-menu a {
+body .nav-menu a {
     transition: color 200ms ease;
 }
 
-.nav-menu a::after {
+body .nav-menu a::after {
     background: linear-gradient(90deg, #06b6d4, #8b5cf6);
     border-radius: 999px;
 }
@@ -2342,7 +2342,7 @@ body.dark-mode .navbar {
 }
 
 /* Hero: paisaje tecnológico construido solo con gradientes y CSS. */
-.hero {
+body .hero {
     color: #f8fafc;
     isolation: isolate;
     min-height: min(920px, 100svh);
@@ -2353,7 +2353,7 @@ body.dark-mode .navbar {
         linear-gradient(135deg, #030815, #0b1531 52%, #080d25);
 }
 
-.hero::before {
+body .hero::before {
     z-index: -2;
     background:
         radial-gradient(circle at 85% 30%, rgb(56 189 248 / 12%), transparent 32%),
@@ -2391,7 +2391,7 @@ body.dark-mode .navbar {
     pointer-events: none;
 }
 
-.hero .container {
+body .hero .container {
     max-width: 1320px;
     grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
     gap: clamp(2rem, 5vw, 5rem);
@@ -2402,7 +2402,7 @@ body.dark-mode .navbar {
     z-index: 3;
 }
 
-.hero-content h1 {
+body .hero-content h1 {
     max-width: 780px;
     font-size: clamp(2.75rem, 5.25vw, 5.25rem);
     letter-spacing: -0.065em;
@@ -2430,7 +2430,7 @@ body.dark-mode .navbar {
     font-size: clamp(1rem, 1.4vw, 1.14rem);
 }
 
-.hero-slogan {
+body .hero-slogan {
     background: none;
     -webkit-text-fill-color: currentcolor;
     color: #b9dff9 !important;
@@ -2439,7 +2439,7 @@ body.dark-mode .navbar {
     letter-spacing: -0.015em;
 }
 
-.hero-badge {
+body .hero-badge {
     position: relative;
     border-color: rgb(103 232 249 / 38%);
     background: rgb(56 189 248 / 9%);
@@ -2461,7 +2461,7 @@ body.dark-mode .navbar {
     animation: aura-signal 3s ease-in-out infinite;
 }
 
-.hero-capabilities li {
+body .hero-capabilities li {
     background: rgb(255 255 255 / 4%);
     border-color: rgb(125 211 252 / 19%);
     backdrop-filter: blur(8px);
@@ -2474,11 +2474,11 @@ body.dark-mode .navbar {
     transform: translateY(-3px);
 }
 
-.cta-buttons {
+body .cta-buttons {
     gap: 0.85rem;
 }
 
-.btn {
+body .btn {
     position: relative;
     isolation: isolate;
     border-radius: 12px;
@@ -2494,7 +2494,7 @@ body.dark-mode .navbar {
     min-height: 52px;
 }
 
-.btn-primary {
+body .btn-primary {
     overflow: hidden;
     color: #041321;
     background: linear-gradient(110deg, #67e8f9, #38bdf8);
@@ -2516,7 +2516,7 @@ body.dark-mode .navbar {
     transform: translateX(130%);
 }
 
-.btn-primary:hover {
+body .btn-primary:hover {
     transform: translateY(-4px);
     box-shadow: 0 13px 36px rgb(14 165 233 / 30%);
 }
@@ -2552,12 +2552,12 @@ body.dark-mode .navbar {
     animation: aura-line 2.6s ease-in-out infinite alternate;
 }
 
-.hero-code {
+body .hero-code {
     min-height: 470px;
     perspective: 1300px;
 }
 
-.hero-code::before {
+body .hero-code::before {
     inset: -4%;
     background: radial-gradient(circle, rgb(56 189 248 / 27%), transparent 65%);
     filter: blur(28px);
@@ -2620,7 +2620,7 @@ body.dark-mode .navbar {
     opacity: 0.18;
 }
 
-.code-window {
+body .code-window {
     max-width: 510px;
     z-index: 2;
     overflow: hidden;
@@ -2652,12 +2652,12 @@ body.dark-mode .navbar {
     pointer-events: none;
 }
 
-.code-header {
+body .code-header {
     background: rgb(9 15 34 / 90%);
     border-bottom-color: rgb(125 211 252 / 13%);
 }
 
-.code-title {
+body .code-title {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
@@ -2675,13 +2675,13 @@ body.dark-mode .navbar {
     box-shadow: 0 0 10px #5eead4;
 }
 
-.code-content {
+body .code-content {
     font-size: 0.86rem;
     line-height: 1.75;
     color: #dce9f8;
 }
 
-.code-comment {
+body .code-comment {
     color: #9dc1d9;
 }
 
@@ -2715,7 +2715,7 @@ body.dark-mode .navbar {
 }
 
 /* Secciones luminosas: futurismo legible también en modo claro. */
-section {
+body section {
     scroll-margin-top: 92px;
 }
 
@@ -2728,7 +2728,7 @@ section {
     text-align: center;
 }
 
-.section-title {
+body .section-title {
     font-size: clamp(2rem, 3.5vw, 3.4rem);
     line-height: 1.16;
     text-wrap: balance;
@@ -2753,7 +2753,7 @@ section {
     isolation: isolate;
 }
 
-.services {
+body .services {
     background:
         radial-gradient(ellipse 60% 50% at 7% 15%, rgb(56 189 248 / 7%), transparent 72%),
         var(--bg-light);
@@ -2816,15 +2816,15 @@ section {
     box-shadow: 0 24px 60px rgb(14 165 233 / 12%);
 }
 
-.pricing-featured {
+body .pricing-featured {
     border-color: var(--primary-color);
 }
 
-.pricing-featured:hover {
+body .pricing-featured:hover {
     transform: translateY(-8px) scale(1.05);
 }
 
-.service-icon {
+body .service-icon {
     transition: transform 400ms var(--aura-ease), box-shadow 300ms ease;
 }
 
@@ -2837,13 +2837,13 @@ section {
     letter-spacing: -0.03em;
 }
 
-.contact-form {
+body .contact-form {
     border-radius: 20px;
     border: 1px solid rgb(14 165 233 / 17%);
     box-shadow: 0 20px 55px rgb(15 23 42 / 7%);
 }
 
-.footer {
+body .footer {
     position: relative;
 }
 
@@ -2870,38 +2870,55 @@ section {
 }
 
 @keyframes aura-breathe {
-    from { opacity: 0.55; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1.06); }
+    from {
+        opacity: 0.55;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1.06);
+    }
 }
 
 @keyframes aura-signal {
-    50% { box-shadow: 0 0 0 7px rgb(94 234 212 / 5%), 0 0 18px #5eead4; }
+    50% {
+        box-shadow: 0 0 0 7px rgb(94 234 212 / 5%), 0 0 18px #5eead4;
+    }
 }
 
 @keyframes aura-orbit {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes aura-scan {
-    60%, 100% { transform: translateY(480%); }
+    60%, 100% {
+        transform: translateY(480%);
+    }
 }
 
 @keyframes aura-bob {
-    50% { transform: translateY(-10px); }
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 @keyframes aura-line {
-    to { transform: scaleX(1.5); opacity: 0.5; }
+    to {
+        transform: scaleX(1.5);
+        opacity: 0.5;
+    }
 }
 
 @media (max-width: 1024px) {
-    .hero .container {
+    body .hero .container {
         grid-template-columns: 1fr;
         max-width: 750px;
         text-align: center;
     }
 
-    .hero {
+    body .hero {
         padding-top: 140px;
     }
 
@@ -2912,11 +2929,11 @@ section {
     }
 
     .hero-capabilities,
-    .cta-buttons {
+    body .cta-buttons {
         justify-content: center;
     }
 
-    .hero-code {
+    body .hero-code {
         min-height: 350px;
         max-width: 550px;
         margin: 1rem auto 0;
@@ -2937,21 +2954,21 @@ section {
 }
 
 @media (max-width: 768px) {
-    .hero {
+    body .hero {
         min-height: auto;
         padding: 132px 0 80px;
     }
 
-    .hero-content h1 {
+    body .hero-content h1 {
         font-size: clamp(2.45rem, 9vw, 4rem);
     }
 
-    .hero-code {
+    body .hero-code {
         display: flex;
         min-height: 290px;
     }
 
-    .code-window {
+    body .code-window {
         width: min(100%, 455px);
         transform: none;
     }
@@ -2968,7 +2985,7 @@ section {
         width: min(92%, 340px);
     }
 
-    .code-content {
+    body .code-content {
         font-size: clamp(0.63rem, 2.25vw, 0.82rem);
         padding: 1rem;
     }
@@ -2977,21 +2994,21 @@ section {
         font-size: 1.02rem;
     }
 
-    .pricing-featured:hover {
+    body .pricing-featured:hover {
         transform: translateY(-8px);
     }
 }
 
 @media (max-width: 480px) {
-    .hero {
+    body .hero {
         padding-top: 118px;
     }
 
-    .hero-content h1 {
+    body .hero-content h1 {
         font-size: clamp(2.2rem, 10vw, 3rem);
     }
 
-    .hero-badge {
+    body .hero-badge {
         font-size: 0.66rem;
         letter-spacing: 0.05em;
     }
@@ -3000,7 +3017,7 @@ section {
         justify-content: flex-start;
     }
 
-    .hero-code {
+    body .hero-code {
         min-height: 215px;
         margin-top: 0;
     }
@@ -3009,7 +3026,7 @@ section {
         width: 215px;
     }
 
-    .code-window {
+    body .code-window {
         display: none;
     }
 
@@ -3036,7 +3053,7 @@ section {
     .project-card:hover,
     .pricing-card:hover,
     .value-card:hover,
-    .pricing-featured:hover {
+    body .pricing-featured:hover {
         transform: none;
     }
 
