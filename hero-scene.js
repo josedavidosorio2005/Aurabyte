@@ -119,6 +119,8 @@ export function computeDispersedPositions(points, target, spread = 1.4) {
 // --- Orquestación WebGL/DOM (sin equivalente de prueba unitaria: requiere
 // un canvas real, se prueba vía Playwright en tests/e2e/hero-scene.spec.js) ---
 
+const ASSEMBLE_DURATION_MS = 1600;
+
 const VERTEX_SHADER = `
   attribute vec2 a_position;
   attribute float a_pointSize;
@@ -227,13 +229,144 @@ class ParticleNetwork {
     this.canvas.height = Math.max(1, Math.round(clientHeight * dpr));
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
   }
+
+  start() {
+    if (this.running) return;
+    this.running = true;
+    this.startTime = this.startTime ?? performance.now();
+    this.frame = this.frame.bind(this);
+    requestAnimationFrame(this.frame);
+  }
+
+  pause() {
+    this.running = false;
+  }
+
+  resume() {
+    if (this.running) return;
+    this.start();
+  }
+
+  snapToSettled() {
+    this.reducedMotion = true;
+    this.startTime = performance.now() - ASSEMBLE_DURATION_MS - 1;
+  }
+
+  setPointerOffset(x, y) {
+    this.pointerOffset = { x, y };
+  }
+
+  setTransitionProgress(progress) {
+    this.transitionProgress = Math.min(1, Math.max(0, progress));
+  }
+
+  frame(now) {
+    if (!this.running) return;
+    this.render(now);
+    window.__heroSceneDebug.frameCount += 1;
+    requestAnimationFrame(this.frame);
+  }
+
+  render(now) {
+    const gl = this.gl;
+    const elapsed = now - this.startTime;
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+    const projected = this.geometry.points.map((point, index) => {
+      const scatter = this.scatterOffsets[index];
+      const localProgress = this.reducedMotion
+        ? 1
+        : Math.min(1, Math.max(0, (elapsed - scatter.delay) / ASSEMBLE_DURATION_MS));
+      const eased = easeInOutCubic(localProgress);
+      const settledX = lerp(point.x, point.x + this.transitionProgress * 1.6, this.transitionProgress);
+      const settledY = point.y - this.transitionProgress * 1.1;
+      const driftX = this.reducedMotion ? 0 : Math.sin(now / 1800 + index) * 0.02;
+      const driftY = this.reducedMotion ? 0 : Math.cos(now / 2200 + index) * 0.02;
+      const x = lerp(point.x + scatter.x, settledX, eased) + driftX + this.pointerOffset.x * (1 - point.z);
+      const y = lerp(point.y + scatter.y, settledY, eased) + driftY + this.pointerOffset.y * (1 - point.z);
+      const z = lerp(point.z + scatter.z, point.z, eased);
+      const proj = projectPoint({ x, y, z }, width, height);
+      const alpha = (0.35 + 0.65 * eased) * (1 - this.transitionProgress * 0.8);
+      return { ...proj, alpha, isCore: point.isCore };
+    });
+
+    this.drawLines(projected);
+    this.drawPoints(projected, now);
+  }
+
+  drawPoints(projected, now) {
+    const gl = this.gl;
+    gl.useProgram(this.pointProgram);
+    const positions = new Float32Array(projected.length * 2);
+    const sizes = new Float32Array(projected.length);
+    const colors = new Float32Array(projected.length * 4);
+    projected.forEach((p, i) => {
+      positions[i * 2] = p.x;
+      positions[i * 2 + 1] = p.y;
+      const pulse = p.isCore ? 0.6 + 0.4 * Math.sin(now / 300) : 1;
+      sizes[i] = (p.isCore ? 7 : 3.5) * p.scale * pulse;
+      colors[i * 4] = this.color.r;
+      colors[i * 4 + 1] = this.color.g;
+      colors[i * 4 + 2] = this.color.b;
+      colors[i * 4 + 3] = p.isCore ? Math.min(1, p.alpha * 1.4) : p.alpha;
+    });
+    this.bindAttribute(this.pointProgram, this.positionBuffer, 'a_position', positions, 2);
+    this.bindAttribute(this.pointProgram, this.pointSizeBuffer, 'a_pointSize', sizes, 1);
+    this.bindAttribute(this.pointProgram, this.colorBuffer, 'a_color', colors, 4);
+    gl.uniform2f(gl.getUniformLocation(this.pointProgram, 'u_resolution'), this.canvas.width, this.canvas.height);
+    gl.drawArrays(gl.POINTS, 0, projected.length);
+  }
+
+  drawLines(projected) {
+    const gl = this.gl;
+    gl.useProgram(this.lineProgram);
+    const positions = new Float32Array(this.geometry.edges.length * 4);
+    const colors = new Float32Array(this.geometry.edges.length * 8);
+    this.geometry.edges.forEach(([aIndex, bIndex], i) => {
+      const a = projected[aIndex];
+      const b = projected[bIndex];
+      positions[i * 4] = a.x;
+      positions[i * 4 + 1] = a.y;
+      positions[i * 4 + 2] = b.x;
+      positions[i * 4 + 3] = b.y;
+      const alpha = Math.min(a.alpha, b.alpha) * 0.5;
+      [0, 1].forEach((v) => {
+        colors[i * 8 + v * 4] = this.color.r;
+        colors[i * 8 + v * 4 + 1] = this.color.g;
+        colors[i * 8 + v * 4 + 2] = this.color.b;
+        colors[i * 8 + v * 4 + 3] = alpha;
+      });
+    });
+    this.bindAttribute(this.lineProgram, this.linePositionBuffer, 'a_position', positions, 2);
+    this.bindAttribute(this.lineProgram, this.lineColorBuffer, 'a_color', colors, 4);
+    gl.uniform2f(gl.getUniformLocation(this.lineProgram, 'u_resolution'), this.canvas.width, this.canvas.height);
+    gl.drawArrays(gl.LINES, 0, this.geometry.edges.length * 2);
+  }
+
+  bindAttribute(program, buffer, name, data, size) {
+    const gl = this.gl;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
+    const location = gl.getAttribLocation(program, name);
+    if (location === -1) return;
+    gl.enableVertexAttribArray(location);
+    gl.vertexAttribPointer(location, size, gl.FLOAT, false, 0, 0);
+  }
 }
 
 export function initHeroScene() {
+  window.__heroSceneDebug = { frameCount: 0, running: false };
   const container = document.querySelector('[data-hero-scene]');
   if (!container) return null;
   const canvas = container.querySelector('.hero-scene-canvas');
   const fallback = container.querySelector('.hero-scene-fallback');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let network = null;
   try {
@@ -243,6 +376,7 @@ export function initHeroScene() {
     });
     const geometry = buildMonogramGeometry(tier.particleCount);
     network = new ParticleNetwork(canvas, geometry, tier);
+    if (reducedMotion) network.snapToSettled();
   } catch (error) {
     console.warn('hero-scene: fallback a SVG —', error);
     network = null;
@@ -251,15 +385,29 @@ export function initHeroScene() {
   if (!network) {
     fallback.hidden = false;
     canvas.hidden = true;
-    return { setThemeColors() {}, pause() {}, resume() {} };
+    const api = { setThemeColors() {}, pause() {}, resume() {} };
+    window.AuraHeroScene = api;
+    return api;
   }
 
   fallback.hidden = true;
   canvas.hidden = false;
   network.resize();
+  network.start();
+  window.__heroSceneDebug.running = true;
   window.addEventListener('resize', () => network.resize());
 
-  const api = { setThemeColors() {}, pause() {}, resume() {} };
+  const api = {
+    setThemeColors() {},
+    pause() {
+      network.pause();
+      window.__heroSceneDebug.running = false;
+    },
+    resume() {
+      network.resume();
+      window.__heroSceneDebug.running = true;
+    },
+  };
   window.AuraHeroScene = api;
   return { network, api };
 }

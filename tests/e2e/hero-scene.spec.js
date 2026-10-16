@@ -23,4 +23,23 @@ test.describe('Escena del hero', () => {
     await expect(page.locator('.hero-scene-canvas')).toBeHidden();
     expect(consoleErrors).toEqual([]);
   });
+
+  test('con reduced-motion, la escena queda asentada de inmediato (sin fase de ensamblaje)', async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto('/');
+    await page.waitForTimeout(100);
+    const frameCountEarly = await page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0);
+    expect(frameCountEarly).toBeGreaterThan(0);
+    await context.close();
+  });
+
+  test('la escena sigue renderizando frames mientras está en pantalla', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(50);
+    const first = await page.evaluate(() => window.__heroSceneDebug.frameCount);
+    await page.waitForTimeout(200);
+    const second = await page.evaluate(() => window.__heroSceneDebug.frameCount);
+    expect(second).toBeGreaterThan(first);
+  });
 });
