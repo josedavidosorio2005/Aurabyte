@@ -36,4 +36,13 @@ export default [
       sourceType: 'module',
     },
   },
+  {
+    files: ['.github/scripts/**/*.mjs'],
+    languageOptions: {
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
 ];

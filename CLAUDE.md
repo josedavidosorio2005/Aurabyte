@@ -237,6 +237,18 @@ falla si vuelven a aparecer esos 3 nombres.
   instancia; si se despliega en serverless (Vercel) con múltiples instancias
   frías, el límite no persiste entre invocaciones — ver "Limitaciones
   conocidas".
+- **Fase 5: `static_folder=None`, no `"."`** — servir `static_folder="."`
+  expone TODO el directorio del proyecto por HTTP (`app.py`,
+  `requirements.txt`, un `.env` real si existiera). En su lugar hay rutas
+  explícitas (`public_file`, `icons`, `fonts`) que solo sirven lo que
+  también publica GitHub Pages — ver `_PUBLIC_FILES` en `app.py` y
+  `.github/scripts/production-files.mjs`. **Estas tres rutas llevan
+  `@limiter.exempt`**: el endpoint `static` que registra Flask por defecto
+  queda exento del límite global de `flask-limiter` automáticamente, pero
+  una ruta propia no — sin el exempt, cargar la página unas pocas veces
+  agota `default_limits=["50 per hour"]` (son ~10 archivos estáticos por
+  carga) y el sitio entero empieza a responder 429. Si agregas una ruta
+  nueva que sirva un archivo estático, no olvides el mismo `@limiter.exempt`.
 - Cabeceras `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` se
   añaden en `after_request`. No las quites.
 - `SECRET_KEY` se lee de entorno; nunca hardcodear un secreto en `app.py`.

@@ -3,7 +3,7 @@ Aurabyte - Servidor Web Flask
 Aplicación web para empresa de desarrollo de software
 """
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory, abort
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -27,7 +27,13 @@ for _stream in (sys.stdout, sys.stderr):
 
 load_dotenv()
 
-app = Flask(__name__, template_folder=".", static_folder=".", static_url_path="")
+# static_folder=None desactiva la ruta estática automática de Flask
+# (/<path:filename> sirviendo TODO el directorio del proyecto, incluyendo
+# app.py, requirements.txt y un .env real si existiera). En su lugar, más
+# abajo se registran rutas explícitas solo para los archivos públicos que
+# el frontend realmente necesita — la misma lista que usa el despliegue
+# estático en GitHub Pages (ver .github/scripts/production-files.mjs).
+app = Flask(__name__, template_folder=".", static_folder=None)
 
 # SECRET_KEY solo es necesaria si se usan sesiones/cookies firmadas;
 # se define por variable de entorno para no hardcodear secretos en el repo.
@@ -112,6 +118,49 @@ def set_security_headers(response):
 def index():
     """Página principal"""
     return render_template("index.html")
+
+
+# Mismos archivos sueltos que publica GitHub Pages (ver
+# .github/scripts/production-files.mjs) — nada fuera de esta lista se sirve
+# por HTTP, aunque exista en el directorio del proyecto.
+_PUBLIC_FILES = {
+    "styles.min.css",
+    "byteo.min.css",
+    "script.min.js",
+    "byteo.min.js",
+    "logo.svg",
+    "og-cover.jpg",
+    "robots.txt",
+    "sitemap.xml",
+}
+
+
+@app.route("/<string:filename>")
+@limiter.exempt
+def public_file(filename):
+    """Sirve únicamente los archivos estáticos sueltos en _PUBLIC_FILES.
+
+    @limiter.exempt: el endpoint "static" que registraba Flask por defecto
+    quedaba exento del límite global (comportamiento propio de
+    flask-limiter); estas rutas lo sustituyen y necesitan la misma exención
+    explícita, o una página con ~10 recursos estáticos agota "50 per hour"
+    en pocas cargas y el resto del sitio empieza a responder 429.
+    """
+    if filename not in _PUBLIC_FILES:
+        abort(404)
+    return send_from_directory(".", filename)
+
+
+@app.route("/icons/<path:filename>")
+@limiter.exempt
+def icons(filename):
+    return send_from_directory("icons", filename)
+
+
+@app.route("/fonts/<path:filename>")
+@limiter.exempt
+def fonts(filename):
+    return send_from_directory("fonts", filename)
 
 
 @app.route("/api/contact", methods=["POST"])
