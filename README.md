@@ -2,12 +2,15 @@
 
 Sitio web de Aurabyte, equipo multidisciplinario de desarrollo de software remoto
 (Python, web, automatización). Frontend estático (HTML/CSS/JS, sin framework) con
-**WhatsApp Business como único canal de contacto** — el sitio no requiere backend
+**WhatsApp Business como canal de cotizaciones, e Instagram como red social** — el sitio no requiere backend
 para funcionar.
 
 🔗 **Sitio publicado:** https://josedavidosorio2005.github.io/Aurabyte/
 
 ## Características
+
+- Los precios no se publican: cada proyecto se cotiza directamente con el equipo.
+- Instagram oficial: https://www.instagram.com/aurabyte_software/
 
 - Diseño responsivo (móvil, tablet, escritorio), modo claro/oscuro con persistencia
 - Formulario de contacto que arma un mensaje y lo abre en WhatsApp — sin backend,
@@ -16,7 +19,7 @@ para funcionar.
   mejores prácticas y SEO
 - Accesible (WCAG 2.1/2.2 AA): navegación por teclado, foco visible, lectores de
   pantalla, contraste de color verificado
-- Mascota animada "Byteo" y mensajería adaptada a cada servicio/plan de precios
+- Mascota animada "Byteo" y mensajería de cotización personalizada para cada tipo de solución
 - API REST en Flask (`app.py`) — **no se usa en el sitio publicado**, se conserva
   como capacidad disponible para el futuro (ver "Arquitectura" abajo)
 
