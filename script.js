@@ -94,6 +94,21 @@ function updateWhatsAppFloatVisibility() {
 window.addEventListener('scroll', updateWhatsAppFloatVisibility, { passive: true });
 updateWhatsAppFloatVisibility();
 
+// Barra de lectura: transform evita recalcular el layout en cada scroll.
+const scrollProgress = document.querySelector('.scroll-progress');
+let progressFrame = 0;
+function updateScrollProgress() {
+    if (progressFrame) return;
+    progressFrame = window.requestAnimationFrame(() => {
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = maxScroll > 0 ? Math.min(1, window.scrollY / maxScroll) : 0;
+        scrollProgress.style.transform = `scaleX(${progress})`;
+        progressFrame = 0;
+    });
+}
+window.addEventListener('scroll', updateScrollProgress, { passive: true });
+updateScrollProgress();
+
 // Animación de scroll suave para los enlaces
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
@@ -124,10 +139,30 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observar las tarjetas de servicios, proyectos y tecnologías
-document.querySelectorAll('.service-card, .project-card, .tech-item').forEach(card => {
-    observer.observe(card);
+// Scroll reveal escalonado, sin ocultar contenido si JS está deshabilitado.
+const revealItems = document.querySelectorAll(
+    '.pricing-card, .value-card, .team-member, .project-cta-card, .about-highlights .highlight-item'
+);
+revealItems.forEach((item, index) => {
+    item.classList.add('reveal-on-scroll');
+    item.style.setProperty('--reveal-delay', `${(index % 3) * 75}ms`);
 });
+
+document.querySelectorAll(
+    '.service-card, .project-card, .tech-item, .reveal-on-scroll'
+).forEach(card => observer.observe(card));
+
+// Halo de interacción localizado; no usa librerías ni anima el layout.
+const canTrackPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+if (canTrackPointer) {
+    document.querySelectorAll('.service-card, .pricing-card, .value-card').forEach(card => {
+        card.addEventListener('pointermove', event => {
+            const bounds = card.getBoundingClientRect();
+            card.style.setProperty('--spot-x', `${event.clientX - bounds.left}px`);
+            card.style.setProperty('--spot-y', `${event.clientY - bounds.top}px`);
+        }, { passive: true });
+    });
+}
 
 // Formulario de contacto: ya no hace POST a /api/contact (eso requeriría
 // SMTP configurado, que no existe hoy — ver CLAUDE.md). Construye un mensaje
@@ -321,15 +356,6 @@ function animateValue(element, start, end, duration) {
     window.requestAnimationFrame(step);
 }
 
-// Efecto parallax simple para el hero
-window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
-    const heroImage = document.querySelector('.hero-image i');
-    if (heroImage) {
-        heroImage.style.transform = `translateY(${scrolled * 0.3}px)`;
-    }
-});
-
 // Resaltar enlace activo en el menú
 const sections = document.querySelectorAll('section[id]');
 const navLinks = document.querySelectorAll('.nav-menu a');
@@ -355,26 +381,4 @@ window.addEventListener('scroll', () => {
 
 
 
-// Prevenir que el formulario recargue la página
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 Aurabyte - Website cargado correctamente');
-    
-    // Animación inicial del hero
-    const heroContent = document.querySelector('.hero-content');
-    if (heroContent) {
-        heroContent.style.opacity = '0';
-        setTimeout(() => {
-            heroContent.style.transition = 'opacity 1s ease-in';
-            heroContent.style.opacity = '1';
-        }, 100);
-    }
-});
 
-// Click tracking para analytics (opcional)
-document.querySelectorAll('a, button').forEach(element => {
-    element.addEventListener('click', (e) => {
-        const text = element.textContent.trim();
-        console.log(`Click en: ${text}`);
-        // Aquí podrías enviar eventos a Google Analytics o similar
-    });
-});
