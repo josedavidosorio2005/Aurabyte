@@ -72,9 +72,7 @@ body {
 
 /* Titulares: Space Grotesk le da a la marca una voz propia (técnica,
    geométrica) distinta del texto de cuerpo, sin perder legibilidad. */
-h1, h2, h3, h4,
-.logo span,
-.footer-logo + * {
+h1, h2, h3, h4 {
     font-family: var(--font-display);
 }
 
@@ -2856,9 +2854,16 @@ body .footer {
     opacity: 0.55;
 }
 
-/* Animaciones de aparición ejecutadas únicamente tras cargar JS. */
+/* Animaciones de aparición ejecutadas únicamente tras cargar JS.
+   visibility:hidden (no solo opacity:0) saca el texto del árbol de
+   accesibilidad mientras está en su estado "no revelado" — sin esto, axe
+   mide el contraste real de un texto con opacity:0 (que compone a
+   prácticamente el color del fondo) y lo reporta como violación de
+   contraste "serious", aunque nadie lo vea así. Mismo patrón ya usado en
+   `.whatsapp-float` (ver CLAUDE.md, "Canal de contacto"). */
 .js .reveal-on-scroll {
     opacity: 0;
+    visibility: hidden;
     transform: translateY(22px);
     transition: opacity 650ms var(--aura-ease), transform 650ms var(--aura-ease);
     transition-delay: var(--reveal-delay, 0ms);
@@ -2866,6 +2871,7 @@ body .footer {
 
 .js .reveal-on-scroll.is-visible {
     opacity: 1;
+    visibility: visible;
     transform: translateY(0);
 }
 
@@ -3044,6 +3050,7 @@ body .footer {
 @media (prefers-reduced-motion: reduce) {
     .js .reveal-on-scroll {
         opacity: 1;
+        visibility: visible;
         transform: none;
         transition: none;
     }
