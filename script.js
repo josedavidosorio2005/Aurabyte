@@ -83,16 +83,23 @@ window.addEventListener('scroll', () => {
 // Botón flotante de WhatsApp: oculto mientras el hero está en pantalla para
 // no tapar sus propios botones (ambos ocupan la misma esquina en móvil).
 // Visible el resto del tiempo, como cualquier widget de chat flotante.
+//
+// IntersectionObserver en vez de recalcular en cada evento "scroll": un
+// cálculo basado en "scroll" solo se dispara si realmente ocurre un evento
+// de scroll, así que si la página carga con el hero ya fuera de vista (o un
+// salto de scroll instantáneo no dispara "scroll" en algún motor/entorno —
+// esto causaba fallos intermitentes reales en CI, no solo en teoría), el
+// botón se quedaba oculto para siempre. El observer evalúa la intersección
+// real del hero con el viewport sin depender de que se dispare ningún
+// evento en particular.
 const whatsappFloat = document.querySelector('.whatsapp-float');
 const heroSection = document.getElementById('inicio');
 
-function updateWhatsAppFloatVisibility() {
-    const heroBottom = heroSection.getBoundingClientRect().bottom;
-    whatsappFloat.classList.toggle('is-visible', heroBottom < 0);
-}
-
-window.addEventListener('scroll', updateWhatsAppFloatVisibility, { passive: true });
-updateWhatsAppFloatVisibility();
+const heroVisibilityObserver = new IntersectionObserver(
+    ([entry]) => whatsappFloat.classList.toggle('is-visible', !entry.isIntersecting),
+    { threshold: 0 }
+);
+heroVisibilityObserver.observe(heroSection);
 
 // Barra de lectura: transform evita recalcular el layout en cada scroll.
 const scrollProgress = document.querySelector('.scroll-progress');

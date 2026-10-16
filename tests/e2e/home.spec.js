@@ -1,12 +1,24 @@
 import { expect, test } from '@playwright/test';
 
+// `scrollIntoViewIfNeeded()` dispara el scroll nativo del navegador, que
+// respeta `scroll-behavior: smooth` (ver styles.css) — una animación que no
+// aporta nada en una prueba automatizada y que, bajo la carga de CPU de un
+// runner de CI con varios navegadores en paralelo, puede tardar mucho más
+// de lo normal en asentarse y agotar el timeout. Pasar `behavior: 'instant'`
+// explícitamente en la llamada anula el scroll-behavior de la hoja de
+// estilos (así lo define la spec de CSSOM View) sin tocar la experiencia
+// real de quien navega el sitio con el mouse.
+async function scrollInstant(locator) {
+  await locator.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'start' }));
+}
+
 test.describe('Página principal de Aurabyte', () => {
   test('la experiencia futurista tiene progreso de lectura y hero semántico', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Desarrollo de software');
     await expect(page.locator('.hero-atmosphere')).toHaveAttribute('aria-hidden', 'true');
     await expect(page.locator('.scroll-progress')).toHaveAttribute('aria-hidden', 'true');
-    await page.locator('#contacto').scrollIntoViewIfNeeded();
+    await scrollInstant(page.locator('#contacto'));
     await expect.poll(async () => page.locator('.scroll-progress').evaluate(
       element => Number(element.style.transform.match(/scaleX\(([^)]+)\)/)?.[1] ?? 0)
     )).toBeGreaterThan(0);
@@ -46,7 +58,7 @@ test.describe('Página principal de Aurabyte', () => {
     page,
   }) => {
     await page.goto('/');
-    await page.locator('#contacto').scrollIntoViewIfNeeded();
+    await scrollInstant(page.locator('#contacto'));
     await page.locator('#name').fill('Cliente de Prueba');
     await page.locator('#service').selectOption('Desarrollo Web');
     await page.locator('#message').fill('muy corto');
@@ -69,7 +81,7 @@ test.describe('Página principal de Aurabyte', () => {
     page,
   }) => {
     await page.goto('/');
-    await page.locator('#contacto').scrollIntoViewIfNeeded();
+    await scrollInstant(page.locator('#contacto'));
     await page.locator('#name').fill('Cliente de Prueba E2E');
     await page.locator('#service').selectOption('Desarrollo Web');
     await page
@@ -108,7 +120,7 @@ test.describe('Página principal de Aurabyte', () => {
     await expect(floatBtn).toBeHidden();
 
     // Al pasar el hero, debe aparecer y ser completamente funcional.
-    await page.locator('#servicios').scrollIntoViewIfNeeded();
+    await scrollInstant(page.locator('#servicios'));
     await expect(floatBtn).toBeVisible();
     await expect(floatBtn).toHaveAttribute('href', /^https:\/\/wa\.me\/573173907301/);
     await expect(floatBtn).toHaveAttribute('aria-label', /.+/);
