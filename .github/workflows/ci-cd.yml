@@ -85,7 +85,7 @@ jobs:
         run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Pruebas E2E + accesibilidad (Playwright)
-        run: npx playwright test --reporter=line
+        run: npx playwright test
         env:
           CI: true
 

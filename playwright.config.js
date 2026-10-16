@@ -16,7 +16,7 @@ export default defineConfig({
   // 16) y el servidor de un solo proceso no da abasto. No afecta lo que se
   // prueba, solo el ritmo al que se piden los recursos.
   workers: process.env.CI ? undefined : 3,
-  reporter: 'html',
+  reporter: process.env.CI ? [['line'], ['html']] : 'html',
   use: {
     baseURL: 'http://127.0.0.1:5000',
     trace: 'on-first-retry',
