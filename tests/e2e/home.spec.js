@@ -13,11 +13,11 @@ test.describe('Página principal de Aurabyte', () => {
     await expect(page.locator('#precios .quote-label').first()).toHaveText('Cotización personalizada');
     await expect(page.locator('#budget')).toHaveCount(0);
     const sectionText = await page.locator('#precios').innerText();
-    expect(sectionText).not.toMatch(/\\$\\s*\\d|\\d+\\s*M\\s*COP|Desde\\s*\\$/i);
+    expect(sectionText).not.toMatch(/\$\s*\d|\d+\s*M\s*COP|Desde\s*\$/i);
     const links = await page.locator('#precios a[href^="https://wa.me/"]').evaluateAll(
       (elements) => elements.map((element) => decodeURIComponent(element.href))
     );
-    expect(links.join(' ')).not.toMatch(/\\$\\s*\\d|\\d+\\s*M\\s*COP/i);
+    expect(links.join(' ')).not.toMatch(/\$\s*\d|\d+\s*M\s*COP/i);
     await expect(page.getByRole('link', { name: /Instagram de Aurabyte/ }).first())
       .toHaveAttribute('href', 'https://www.instagram.com/aurabyte_software/');
   });
