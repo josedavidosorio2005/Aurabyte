@@ -64,6 +64,7 @@
 <body>
     <!-- Navegación -->
     <nav class="navbar">
+        <div class="scroll-progress" aria-hidden="true"></div>
         <div class="container">
             <div class="logo">
                 <img src="logo.svg" alt="Aurabyte Logo" class="logo-img" width="133" height="40">
@@ -94,13 +95,14 @@
     <main>
     <!-- Hero Section -->
     <section id="inicio" class="hero">
+        <div class="hero-atmosphere" aria-hidden="true"></div>
         <div class="container">
             <div class="hero-content">
                 <div class="hero-badge">
                     <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-code"></use></svg>
                     <span>Desarrollo de software a medida</span>
                 </div>
-                <h1 class="animate-fade-in">Desarrollo de Software Remoto</h1>
+                <h1 class="animate-fade-in">Desarrollo de software <span class="hero-title-accent">que impulsa ideas.</span></h1>
                 <p class="hero-slogan">El Futuro no se Improvisa, se Programa</p>
                 <p class="animate-fade-in-delay">Empresa de desarrollo remoto con equipo multidisciplinario. Creamos soluciones tecnológicas personalizadas con enfoque estético, funcional y estratégico para clientes nacionales e internacionales.</p>
                 <ul class="hero-capabilities">
@@ -116,27 +118,37 @@
                         <svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-terminal"></use></svg> Ver Servicios
                     </a>
                 </div>
+                <div class="hero-scroll-cue" aria-hidden="true"><span class="hero-scroll-line"></span> Explora lo que podemos crear</div>
             </div>
             <div class="hero-code">
+                <div class="hero-hologram" aria-hidden="true">
+                    <div class="hero-hologram-ring"></div>
+                    <div class="hero-hologram-core"><img src="logo.svg" width="92" height="92" alt=""></div>
+                </div>
                 <div class="code-window">
                     <div class="code-header">
                         <span class="dot red"></span>
                         <span class="dot yellow"></span>
                         <span class="dot green"></span>
-                        <span class="code-title">main.py</span>
+                        <span class="code-title"><span class="code-status-dot"></span> aurabyte / idea.py</span>
                     </div>
-                    <pre class="code-content"><code><span class="code-keyword">from</span> flask <span class="code-keyword">import</span> Flask
-<span class="code-keyword">import</span> asyncio
-
-app = Flask(__name__)
-
-<span class="code-decorator">@app.route</span>(<span class="code-string">'/api/deploy'</span>)
-<span class="code-keyword">async def</span> <span class="code-function">deploy_solution</span>():
-    <span class="code-comment"># Enterprise-grade deployment</span>
+                    <pre class="code-content"><code><span class="code-comment"># Tu idea, nuestra siguiente línea de código</span>
+<span class="code-keyword">def</span> <span class="code-function">crear_solucion</span>(idea):
     <span class="code-keyword">return</span> {
-        <span class="code-string">'status'</span>: <span class="code-string">'success'</span>,
-        <span class="code-string">'uptime'</span>: <span class="code-string">'99.9%'</span>
+        <span class="code-string">"origen"</span>: idea,
+        <span class="code-string">"diseño"</span>: <span class="code-string">"a medida"</span>,
+        <span class="code-string">"proceso"</span>: [
+            <span class="code-string">"imaginar"</span>,
+            <span class="code-string">"construir"</span>,
+            <span class="code-string">"evolucionar"</span>
+        ]
     }</code></pre>
+                </div>
+                <div class="hero-orbit-label hero-orbit-label--top" aria-hidden="true">
+                    <span class="orbit-pip"></span> Soluciones digitales
+                </div>
+                <div class="hero-orbit-label hero-orbit-label--bottom" aria-hidden="true">
+                    <span class="orbit-pip"></span> Diseño + código
                 </div>
             </div>
         </div>
@@ -335,6 +347,7 @@ app = Flask(__name__)
     <!-- Servicios -->
     <section id="servicios" class="services">
         <div class="container">
+            <p class="section-eyebrow">EXPLORA NUESTRO UNIVERSO DIGITAL</p>
             <h2 class="section-title">Servicios de Desarrollo</h2>
             <p class="section-subtitle">Soluciones técnicas de nivel empresarial</p>
 
@@ -594,6 +607,7 @@ app = Flask(__name__)
     <!-- Precios -->
     <section id="precios" class="pricing">
         <div class="container">
+            <p class="section-eyebrow">CADA PROYECTO ES ÚNICO</p>
             <h2 class="section-title">Soluciones a tu medida</h2>
             <p class="section-subtitle">Cada proyecto es diferente. Conversemos sobre tus necesidades y preparemos una propuesta personalizada.</p>
 
@@ -788,6 +802,7 @@ app = Flask(__name__)
     <!-- Proyectos -->
     <section id="proyectos" class="projects">
         <div class="container">
+            <p class="section-eyebrow">TECNOLOGÍA CON PROPÓSITO</p>
             <h2 class="section-title">Lo que construimos</h2>
             <p class="section-subtitle">Este sitio es nuestro primer proyecto público: lo diseñamos, desarrollamos y mantenemos nosotros mismos</p>
 
@@ -799,7 +814,7 @@ app = Flask(__name__)
                     <div class="project-content">
                         <div class="project-badge">Portafolio</div>
                         <h3>Aurabyte Web</h3>
-                        <p>Sitio institucional y portafolio oficial, con mascota animada Byteo, formulario de contacto funcional y API propia construida sobre Flask. Es la mejor muestra de cómo trabajamos: código propio, sin plantillas prefabricadas.</p>
+                        <p>Sitio institucional y portafolio oficial, con mascota animada Byteo, interfaz accesible y contacto directo por WhatsApp. Su código es propio y cuenta con una API Flask en el repositorio para desarrollo y pruebas.</p>
                         <div class="project-tags">
                             <span><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-html5"></use></svg> HTML5</span>
                             <span><svg class="icon" aria-hidden="true"><use href="icons/sprite.svg#icon-css3-alt"></use></svg> CSS3</span>
@@ -824,6 +839,7 @@ app = Flask(__name__)
     <!-- Contacto -->
     <section id="contacto" class="contact">
         <div class="container">
+            <p class="section-eyebrow">TU PRÓXIMO PROYECTO EMPIEZA AQUÍ</p>
             <h2 class="section-title">Contáctanos</h2>
             <p class="section-subtitle">¿Listo para iniciar tu proyecto? Hablemos</p>
 
