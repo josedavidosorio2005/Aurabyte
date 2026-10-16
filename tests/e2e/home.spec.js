@@ -1,6 +1,26 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Página principal de Aurabyte', () => {
+  test('la experiencia futurista tiene progreso de lectura y hero semántico', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Desarrollo de software');
+    await expect(page.locator('.hero-atmosphere')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('.scroll-progress')).toHaveAttribute('aria-hidden', 'true');
+    await page.locator('#contacto').scrollIntoViewIfNeeded();
+    await expect.poll(async () => page.locator('.scroll-progress').evaluate(
+      element => Number(element.style.transform.match(/scaleX\\(([^)]+)\\)/)?.[1] ?? 0)
+    )).toBeGreaterThan(0);
+  });
+
+  test('el efecto de movimiento respeta las preferencias de accesibilidad', async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto('/');
+    const reveal = page.locator('.reveal-on-scroll').first();
+    await expect(reveal).toHaveCSS('opacity', '1');
+    await context.close();
+  });
+
   test('carga y muestra el hero y la navegación', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/Aurabyte/i);
