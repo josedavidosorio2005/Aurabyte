@@ -95,26 +95,34 @@ window.addEventListener('scroll', () => {
 const whatsappFloat = document.querySelector('.whatsapp-float');
 const heroSection = document.getElementById('inicio');
 
+// rootMargin negativo: el hero (min-height: 90vh) suele terminar justo
+// donde empieza la siguiente sección, así que al hacer scroll hasta ahí su
+// borde inferior puede caer EXACTAMENTE en el borde del viewport (0px de
+// superposición). En ese punto límite, distintos motores de render
+// redondean el sub-píxel de forma distinta y algunos siguen reportando
+// isIntersecting=true. Encoger el "viewport" del observer 2px exige que el
+// hero esté claramente fuera, no justo al borde, y evita esa ambigüedad.
 const heroVisibilityObserver = new IntersectionObserver(
     ([entry]) => whatsappFloat.classList.toggle('is-visible', !entry.isIntersecting),
-    { threshold: 0 }
+    { threshold: 0, rootMargin: '0px 0px -2px 0px' }
 );
 heroVisibilityObserver.observe(heroSection);
 
 // Barra de lectura: transform evita recalcular el layout en cada scroll.
+// Bucle de rAF autosostenido en vez de atado al evento "scroll": un scroll
+// programático (scrollIntoView, usado también por las pruebas E2E) puede no
+// disparar "scroll" de forma consistente entre motores/entornos, y entonces
+// la barra se quedaba congelada en 0%. Leer scrollY en cada frame cuesta
+// prácticamente nada (una lectura de layout + un transform) y no depende de
+// qué evento dispare el scroll.
 const scrollProgress = document.querySelector('.scroll-progress');
-let progressFrame = 0;
 function updateScrollProgress() {
-    if (progressFrame) return;
-    progressFrame = window.requestAnimationFrame(() => {
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-        const progress = maxScroll > 0 ? Math.min(1, window.scrollY / maxScroll) : 0;
-        scrollProgress.style.transform = `scaleX(${progress})`;
-        progressFrame = 0;
-    });
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = maxScroll > 0 ? Math.min(1, window.scrollY / maxScroll) : 0;
+    scrollProgress.style.transform = `scaleX(${progress})`;
+    window.requestAnimationFrame(updateScrollProgress);
 }
-window.addEventListener('scroll', updateScrollProgress, { passive: true });
-updateScrollProgress();
+window.requestAnimationFrame(updateScrollProgress);
 
 // Animación de scroll suave para los enlaces
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
