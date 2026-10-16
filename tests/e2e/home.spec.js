@@ -8,7 +8,7 @@ test.describe('Página principal de Aurabyte', () => {
     await expect(page.locator('.scroll-progress')).toHaveAttribute('aria-hidden', 'true');
     await page.locator('#contacto').scrollIntoViewIfNeeded();
     await expect.poll(async () => page.locator('.scroll-progress').evaluate(
-      element => Number(element.style.transform.match(/scaleX\\(([^)]+)\\)/)?.[1] ?? 0)
+      element => Number(element.style.transform.match(/scaleX\(([^)]+)\)/)?.[1] ?? 0)
     )).toBeGreaterThan(0);
   });
 
