@@ -221,6 +221,30 @@ es el estado real. Queda como candidato razonable para una fase futura:
 inicializar escenas fuera de viewport solo cuando se acercan (p. ej. con
 `IntersectionObserver`) en vez de las 3 al cargar la página.
 
+**Actualización Fase 5 (diagnóstico real con el perfilador de Lighhouse —
+la hipótesis de la nota anterior era incorrecta):** el audit `long-tasks` de
+Lighthouse identificó la causa real: una sola tarea de **860ms+63ms en
+`hero-scene.min.js`** (compilar los 2 shaders de `ParticleNetwork` + crear
+sus 5 buffers + el primer draw call, síncrono, bajo rasterización por
+software) — por lejos el mayor bloqueo de toda la carga.
+`services-scene.js`/`process-scene.js` ni aparecían en el perfil; no eran el
+problema, al contrario de lo que sugería la nota de la Fase 4. Corrección:
+`initHeroScene()` separa los listeners de interacción (scroll/click para
+saltar la intro, cursor, visibilidad) — que se adjuntan de inmediato, igual
+que antes — de la construcción de WebGL en sí, que se difiere un solo
+`requestAnimationFrame` (no `requestIdleCallback`: el hero debe conservar su
+impacto visual desde la entrada, y el fallback SVG ya es el estado por
+defecto del HTML sin JS). **Intento inicial fallido, documentado para no
+repetirlo:** diferir también los listeners de interacción dentro del mismo
+callback rompió 2 pruebas de WebKit de forma reproducible (confirmado
+comparando contra el código sin el cambio) — `requestAnimationFrame` puede
+tardar más de lo esperado en WebKit sin GPU, el mismo tipo de límite que
+"frameCount atascado en 1" ya documentado en Fase 1. Resultado medido
+(mediana de 5 corridas, antes/después, sin manipular la auditoría):
+rendimiento móvil 83.5 → **91/100** (TBT 340ms → 46ms mediana); escritorio
+100/95 → **100/100/100** estable (TBT 0ms en las 3 corridas). Accesibilidad/
+mejores prácticas/SEO: 100/100, sin cambios.
+
 ## Canal de contacto — WhatsApp (sin backend), no email
 
 Aurabyte **no tiene correo empresarial**. El canal de contacto real y único
@@ -393,14 +417,20 @@ sitio qué problema real resuelve cada paso — no construyas por construir:
 
 1. **Completar los datos legales** (`[PENDIENTE: ...]` en `privacidad.html`/
    `terminos.html`) y pedirle revisión a un abogado antes de considerarlos
-   definitivos — es lo más urgente, no es técnico.
-2. **Decidir el hosting** con la info de "Canal de contacto" arriba: si
-   WhatsApp basta como único canal, GitHub Pages es gratis y suficiente; si
-   se quiere reactivar el email, ahí sí vale la pena Vercel + SMTP.
-3. **CI**: GitHub Actions corriendo `pytest`, `playwright test`, `bandit`,
-   `flake8`/`eslint`/`stylelint` y Lighthouse CI en cada PR.
-4. **Comprimir `og-cover.png`** antes de depender de ella como imagen de
-   Open Graph en producción.
+   definitivos — es lo más urgente, no es técnico. Sigue pendiente a la
+   Fase 5.
+2. **Lighthouse automatizado en CI**: hoy se corre manualmente (`npx
+   lighthouse`, ver "Rendimiento" arriba) — agregarlo como paso del workflow
+   evitaría que una regresión de rendimiento pase desapercibida en un PR.
+
+Ya resueltos, no reabrir sin evidencia nueva de que hace falta:
+- ~~Decidir el hosting~~ — GitHub Pages, decidido y desplegado desde la
+  Fase 3.
+- ~~CI~~ — `.github/workflows/ci-cd.yml` ya corre pytest/playwright/bandit/
+  flake8/eslint/stylelint en cada PR y push a `master`.
+- ~~Comprimir `og-cover.png`~~ — ya es `og-cover.jpg`, 1024×1024, 30KB; no
+  aparece en ningún audit de Lighthouse (no se carga en el render de la
+  página, solo como meta `og:image`). Verificado en la Fase 5.
 
 No se necesita autenticación de usuarios, base de datos compleja ni
 contenedores para una página de este tipo — eso solo tendría sentido si el
