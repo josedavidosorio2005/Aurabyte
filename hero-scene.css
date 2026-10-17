@@ -1,10 +1,15 @@
 .hero-scene {
-    position: relative;
-    width: 100%;
-    height: 100%;
+    /* Igual que .hero-hologram antes: un overlay a pantalla completa
+       dentro de .hero-code (position:relative), detrás del code-window —
+       no un hijo más del flex row, o queda comprimido en una porción
+       angosta en vez de ocupar todo el espacio disponible. */
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: none;
+    z-index: 0;
     opacity: calc(1 - var(--hero-scene-progress, 0) * 0.85);
     transform: scale(calc(1 - var(--hero-scene-progress, 0) * 0.18));
     transition: opacity 0.1s linear, transform 0.1s linear;

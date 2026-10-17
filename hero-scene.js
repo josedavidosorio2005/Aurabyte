@@ -6,7 +6,7 @@ const MONOGRAM_OUTLINE_2D = [
   [15, 45], [30, 15], [45, 45], [38, 45], [30, 28], [22, 45],
 ];
 const MONOGRAM_SPARKLE_2D = [32, 18];
-const MONOGRAM_SCALE = 1 / 15;
+const MONOGRAM_SCALE = 1 / 8;
 
 function toLocalSpace([x, y], cx, cy) {
   // Y se invierte: en SVG crece hacia abajo, en la escena "arriba" es positivo.
