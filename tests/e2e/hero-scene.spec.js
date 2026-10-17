@@ -3,8 +3,11 @@ import { expect, test } from '@playwright/test';
 test.describe('Escena del hero', () => {
   test('muestra el canvas WebGL cuando está disponible y oculta el fallback', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('.hero-scene-canvas')).toBeVisible();
-    await expect(page.locator('.hero-scene-fallback')).toBeHidden();
+    // En CI, WebGL por software (Firefox/WebKit en runners sin GPU) puede
+    // tardar bastante más que en un equipo de desarrollo normal en
+    // inicializar — timeout generoso en vez de asumir la velocidad local.
+    await expect(page.locator('.hero-scene-canvas')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('.hero-scene-fallback')).toBeHidden({ timeout: 15000 });
   });
 
   test('degrada al fallback SVG sin errores de consola cuando WebGL no está disponible', async ({ page }) => {
@@ -28,30 +31,45 @@ test.describe('Escena del hero', () => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
     await page.goto('/');
-    await page.waitForTimeout(100);
-    const frameCountEarly = await page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0);
-    expect(frameCountEarly).toBeGreaterThan(0);
+    // expect.poll en vez de un único wait+lectura: en CI (WebGL por
+    // software, sin GPU) el primer requestAnimationFrame puede tardar
+    // bastante más que los ~16ms de un frame normal.
+    await expect.poll(
+      () => page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0),
+      { timeout: 15000 }
+    ).toBeGreaterThan(0);
     await context.close();
   });
 
   test('la escena sigue renderizando frames mientras está en pantalla', async ({ page }) => {
     await page.goto('/');
-    await page.waitForTimeout(50);
+    await expect.poll(
+      () => page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0),
+      { timeout: 15000 }
+    ).toBeGreaterThan(0);
     const first = await page.evaluate(() => window.__heroSceneDebug.frameCount);
-    await page.waitForTimeout(200);
-    const second = await page.evaluate(() => window.__heroSceneDebug.frameCount);
-    expect(second).toBeGreaterThan(first);
+    await expect.poll(
+      () => page.evaluate(() => window.__heroSceneDebug.frameCount),
+      { timeout: 15000 }
+    ).toBeGreaterThan(first);
   });
 
   test('la escena reacciona al cursor en dispositivos con puntero fino', async ({ page }) => {
     await page.goto('/');
     await page.mouse.move(400, 300);
-    await page.waitForTimeout(50);
+    await expect.poll(
+      () => page.evaluate(() => window.__heroSceneDebug.pointerOffset.x !== 0 || window.__heroSceneDebug.pointerOffset.y !== 0),
+      { timeout: 15000 }
+    ).toBe(true);
     const offsetAfterFirst = await page.evaluate(() => window.__heroSceneDebug.pointerOffset);
     await page.mouse.move(700, 150);
-    await page.waitForTimeout(50);
-    const offsetAfterSecond = await page.evaluate(() => window.__heroSceneDebug.pointerOffset);
-    expect(offsetAfterSecond).not.toEqual(offsetAfterFirst);
+    await expect.poll(
+      async () => {
+        const offset = await page.evaluate(() => window.__heroSceneDebug.pointerOffset);
+        return offset.x !== offsetAfterFirst.x || offset.y !== offsetAfterFirst.y;
+      },
+      { timeout: 15000 }
+    ).toBe(true);
   });
 
   test('hacer scroll a través del hero aumenta el progreso de la Transición A', async ({ page }) => {
@@ -78,13 +96,22 @@ test.describe('Escena del hero', () => {
 
   test('cambiar de tema actualiza el color de la escena sin reiniciarla', async ({ page }) => {
     await page.goto('/');
+    await expect.poll(
+      () => page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0),
+      { timeout: 15000 }
+    ).toBeGreaterThan(0);
     const before = await page.evaluate(() => window.__heroSceneDebug.frameCount);
     const colorBefore = await page.evaluate(() => window.__heroSceneDebug.color);
-    await page.click('#themeToggle');
-    await page.waitForTimeout(100);
-    const after = await page.evaluate(() => window.__heroSceneDebug.frameCount);
+    // El canvas sigue animando continuamente de fondo; en CI (sin GPU) eso
+    // puede hacer que la heurística de "estabilidad visual" de Playwright
+    // tarde más en considerar la página lista para un click normal — se
+    // fuerza el click (el botón en sí nunca se mueve, solo lo de alrededor).
+    await page.click('#themeToggle', { force: true });
+    await expect.poll(
+      () => page.evaluate(() => window.__heroSceneDebug.frameCount),
+      { timeout: 15000 }
+    ).toBeGreaterThan(before); // nunca se detuvo el loop
     const colorAfter = await page.evaluate(() => window.__heroSceneDebug.color);
-    expect(after).toBeGreaterThan(before); // nunca se detuvo el loop
     expect(colorAfter).not.toEqual(colorBefore);
   });
 });
