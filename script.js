@@ -1,4 +1,4 @@
-// Marca <html class="js"> lo antes posible: las reglas de ".js .service-card"
+// Marca <html class="js"> lo antes posible: las reglas de ".js .reveal-on-scroll"
 // etc. en styles.css solo ocultan las tarjetas antes de la animación de
 // scroll cuando JS está disponible para luego mostrarlas. Sin esta marca
 // (JS desactivado), las tarjetas se ven normales desde el principio.
@@ -181,7 +181,7 @@ const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             // El estado oculto inicial y la transición ya están en CSS
-            // (".js .service-card", etc.) — aquí solo togglear la clase.
+            // (".js .reveal-on-scroll", etc.) — aquí solo togglear la clase.
             entry.target.classList.add('is-visible');
         }
     });
@@ -197,13 +197,13 @@ revealItems.forEach((item, index) => {
 });
 
 document.querySelectorAll(
-    '.service-card, .project-card, .tech-item, .reveal-on-scroll'
+    '.project-card, .tech-item, .reveal-on-scroll'
 ).forEach(card => observer.observe(card));
 
 // Halo de interacción localizado; no usa librerías ni anima el layout.
 const canTrackPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 if (canTrackPointer) {
-    document.querySelectorAll('.service-card, .pricing-card, .value-card').forEach(card => {
+    document.querySelectorAll('.service-panel, .pricing-card, .value-card').forEach(card => {
         card.addEventListener('pointermove', event => {
             const bounds = card.getBoundingClientRect();
             card.style.setProperty('--spot-x', `${event.clientX - bounds.left}px`);

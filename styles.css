@@ -200,14 +200,12 @@ h2, .section-title {
    cargar la página (menos trabajo de layout en el hilo principal). Va detrás
    de ".js" para que, sin JavaScript, las tarjetas se vean normales desde el
    principio en lugar de quedar invisibles para siempre. */
-.js .service-card,
 .js .project-card,
 .js .tech-item {
     opacity: 0;
     transform: translateY(30px);
 }
 
-.js .service-card.is-visible,
 .js .project-card.is-visible,
 .js .tech-item.is-visible {
     opacity: 1;
@@ -525,13 +523,13 @@ section {
     background: var(--bg-light);
 }
 
-.services-grid {
+.services-panels {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
 }
 
-.service-card {
+.service-panel {
     background: var(--white);
     padding: 2.5rem;
     border-radius: 16px;
@@ -542,7 +540,7 @@ section {
     overflow: hidden;
 }
 
-.service-card::before {
+.service-panel::before {
     content: '';
     position: absolute;
     top: 0;
@@ -554,13 +552,13 @@ section {
     transition: transform 0.4s;
 }
 
-.service-card:hover {
+.service-panel:hover {
     transform: translateY(-10px);
     box-shadow: var(--shadow-xl);
     border-color: var(--primary-color);
 }
 
-.service-card:hover::before {
+.service-panel:hover::before {
     transform: scaleX(1);
 }
 
@@ -574,7 +572,7 @@ section {
     display: inline-block;
 }
 
-.service-card h3 {
+.service-panel h3 {
     font-size: 1.6rem;
     margin-bottom: 1rem;
     color: var(--text-dark);
@@ -582,7 +580,7 @@ section {
     letter-spacing: -0.01em;
 }
 
-.service-card p {
+.service-panel p {
     color: var(--text-light);
     margin-bottom: 1.5rem;
 }
@@ -1233,7 +1231,7 @@ section {
         grid-template-columns: 1fr;
     }
 
-    .services-grid,
+    .services-panels,
     .projects-grid {
         grid-template-columns: 1fr;
     }
@@ -1338,7 +1336,7 @@ section {
         grid-template-columns: 1fr;
     }
 
-    .service-card,
+    .service-panel,
     .project-card {
         padding: 1.5rem;
     }
@@ -2208,7 +2206,7 @@ html {
 }
 
 /* Estilos adicionales para modo oscuro */
-body.dark-mode .service-card,
+body.dark-mode .service-panel,
 body.dark-mode .project-card,
 body.dark-mode .value-card,
 body.dark-mode .team-member,
@@ -2217,7 +2215,7 @@ body.dark-mode .pricing-card {
     border-color: rgba(14, 165, 233, 0.2);
 }
 
-body.dark-mode .service-card:hover,
+body.dark-mode .service-panel:hover,
 body.dark-mode .project-card:hover,
 body.dark-mode .value-card:hover,
 body.dark-mode .team-member:hover,
@@ -2764,7 +2762,7 @@ body .services {
     background-image: radial-gradient(ellipse at 90% 5%, rgb(139 92 246 / 5%), transparent 45%);
 }
 
-.service-card,
+.service-panel,
 .project-card,
 .pricing-card,
 .value-card,
@@ -2776,7 +2774,7 @@ body .services {
         border-color 420ms ease, background-color 420ms ease;
 }
 
-.service-card,
+.service-panel,
 .project-card,
 .pricing-card,
 .value-card {
@@ -2785,7 +2783,7 @@ body .services {
     box-shadow: 0 8px 28px rgb(15 23 42 / 5%);
 }
 
-.service-card::after,
+.service-panel::after,
 .pricing-card::after,
 .value-card::after {
     content: '';
@@ -2801,13 +2799,13 @@ body .services {
     pointer-events: none;
 }
 
-.service-card:hover::after,
+.service-panel:hover::after,
 .pricing-card:hover::after,
 .value-card:hover::after {
     opacity: 1;
 }
 
-.service-card:hover,
+.service-panel:hover,
 .project-card:hover,
 .pricing-card:hover,
 .value-card:hover {
@@ -2828,7 +2826,7 @@ body .service-icon {
     transition: transform 400ms var(--aura-ease), box-shadow 300ms ease;
 }
 
-.service-card:hover .service-icon {
+.service-panel:hover .service-icon {
     transform: rotate(-7deg) translateY(-4px);
     box-shadow: 0 14px 30px rgb(14 165 233 / 21%);
 }
@@ -3059,7 +3057,7 @@ body .footer {
 
     .hero-code .code-window,
     .hero-code:hover .code-window,
-    .service-card:hover,
+    .service-panel:hover,
     .project-card:hover,
     .pricing-card:hover,
     .value-card:hover,

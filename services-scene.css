@@ -1,0 +1,57 @@
+/* El look base de .service-panel (tarjeta, halo de puntero, hover,
+   modo oscuro) vive en styles.css — es el mismo que .service-card ya
+   tenía antes de la Fase 2, solo renombrado junto con el marcado (ver
+   Task 4 del plan). Este archivo solo añade lo nuevo: el CTA por
+   panel, los indicadores, y (Task 6) las reglas de riel pineado bajo
+   [data-scene="rail"], que no se activan sin ese atributo. */
+
+.service-panel-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    background: var(--primary-color);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.service-panel-cta:hover,
+.service-panel-cta:focus-visible {
+    filter: brightness(1.1);
+}
+
+.services-indicators {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.services-indicators[hidden] {
+    display: none;
+}
+
+.services-indicator {
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    background: transparent;
+    color: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.services-indicator[aria-current="true"] {
+    border-color: var(--primary-color);
+    color: var(--primary-text);
+    font-weight: 600;
+}
+
+@media (min-width: 1024px) {
+    /* Nada se activa aquí todavía sin [data-scene="rail"] — Task 6 añade
+       las reglas de riel pineado bajo ese selector. Este bloque queda
+       deliberadamente vacío como punto de anclaje documentado. */
+}
