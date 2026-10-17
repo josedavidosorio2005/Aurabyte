@@ -38,6 +38,9 @@ node_modules/
 # Playwright
 /test-results/
 /playwright-report/
+# Capturas/video de verificación visual manual (ver plan de implementación
+# del hero cinematográfico) — nunca se commitean, se regeneran al vuelo.
+/evidence/
 /blob-report/
 /playwright/.cache/
 

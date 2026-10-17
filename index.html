@@ -30,6 +30,7 @@
          directamente: se sobrescriben en cada build. -->
     <link rel="stylesheet" href="styles.min.css">
     <link rel="stylesheet" href="byteo.min.css">
+    <link rel="stylesheet" href="hero-scene.min.css">
 
     <!-- Íconos: antes Font Awesome vía CDN descargaba 278KB de fuentes
          (fa-solid 147KB + fa-brands 106KB + fa-regular 25KB) para mostrar
@@ -120,9 +121,18 @@
                 <div class="hero-scroll-cue" aria-hidden="true"><span class="hero-scroll-line"></span> Explora lo que podemos crear</div>
             </div>
             <div class="hero-code">
-                <div class="hero-hologram" aria-hidden="true">
-                    <div class="hero-hologram-ring"></div>
-                    <div class="hero-hologram-core"><img src="logo.svg" width="92" height="92" alt=""></div>
+                <div class="hero-scene" data-hero-scene>
+                    <svg class="hero-scene-fallback" aria-hidden="true" viewBox="0 0 200 60" focusable="false">
+                        <defs>
+                            <linearGradient id="heroSceneGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#06b6d4" />
+                                <stop offset="100%" stop-color="#0ea5e9" />
+                            </linearGradient>
+                        </defs>
+                        <path class="hero-scene-fallback-shape" d="M 15 45 L 30 15 L 45 45 L 38 45 L 30 28 L 22 45 Z" fill="url(#heroSceneGradient)" />
+                        <circle class="hero-scene-fallback-spark" cx="32" cy="18" r="1.5" fill="#fff" />
+                    </svg>
+                    <canvas class="hero-scene-canvas" aria-hidden="true" hidden></canvas>
                 </div>
                 <div class="code-window">
                     <div class="code-header">
@@ -131,7 +141,7 @@
                         <span class="dot green"></span>
                         <span class="code-title"><span class="code-status-dot"></span> aurabyte / idea.py</span>
                     </div>
-                    <pre class="code-content"><code><span class="code-comment"># Tu idea, nuestra siguiente línea de código</span>
+                    <pre class="code-content" tabindex="0"><code><span class="code-comment"># Tu idea, nuestra siguiente línea de código</span>
 <span class="code-keyword">def</span> <span class="code-function">crear_solucion</span>(idea):
     <span class="code-keyword">return</span> {
         <span class="code-string">"origen"</span>: idea,
@@ -989,6 +999,7 @@
     <!-- *.min.js generados con `npm run build:js` a partir de script.js/
          byteo.js. Edita siempre los .js originales. -->
     <script src="script.min.js"></script>
+    <script type="module" src="hero-scene.min.js"></script>
     <script src="byteo.min.js"></script>
 </body>
 </html>

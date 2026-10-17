@@ -29,6 +29,7 @@ themeToggle.addEventListener('click', () => {
     const isDark = body.classList.contains('dark-mode');
     themeToggle.setAttribute('aria-pressed', String(isDark));
     setThemeIcon(isDark);
+    window.AuraHeroScene?.setThemeColors();
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
 });
 
@@ -66,7 +67,6 @@ document.querySelectorAll('.nav-menu a').forEach(link => {
 
 // Navbar transparente al hacer scroll
 const navbar = document.querySelector('.navbar');
-let lastScroll = 0;
 
 window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
@@ -76,8 +76,6 @@ window.addEventListener('scroll', () => {
     } else {
         navbar.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
     }
-
-    lastScroll = currentScroll;
 });
 
 // Botón flotante de WhatsApp: oculto mientras el hero está en pantalla para
@@ -109,20 +107,55 @@ const heroVisibilityObserver = new IntersectionObserver(
 heroVisibilityObserver.observe(heroSection);
 
 // Barra de lectura: transform evita recalcular el layout en cada scroll.
-// Bucle de rAF autosostenido en vez de atado al evento "scroll": un scroll
-// programático (scrollIntoView, usado también por las pruebas E2E) puede no
-// disparar "scroll" de forma consistente entre motores/entornos, y entonces
-// la barra se quedaba congelada en 0%. Leer scrollY en cada frame cuesta
-// prácticamente nada (una lectura de layout + un transform) y no depende de
-// qué evento dispare el scroll.
+// Antes: un bucle de rAF perpetuo (60 veces/segundo para siempre, incluso
+// con la página completamente quieta) para no depender de que "scroll" se
+// disparase de forma confiable en todos los motores/entornos (scroll
+// programático como scrollIntoView, usado también por las pruebas E2E).
+// Ahora: ráfagas de rAF de alta frecuencia solo durante ~1s tras cada
+// "scroll"/"resize" real (fluido mientras el usuario interactúa), más un
+// pulso de respaldo cada 500ms en reposo — corrige el valor igual si algún
+// motor no disparase el evento, pero sin gastar un frame por cada uno de
+// los 60fps durante el resto del tiempo que la página está quieta.
 const scrollProgress = document.querySelector('.scroll-progress');
-function updateScrollProgress() {
+let lastRenderedProgress = -1;
+
+function readScrollProgress() {
     const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = maxScroll > 0 ? Math.min(1, window.scrollY / maxScroll) : 0;
-    scrollProgress.style.transform = `scaleX(${progress})`;
-    window.requestAnimationFrame(updateScrollProgress);
+    return maxScroll > 0 ? Math.min(1, window.scrollY / maxScroll) : 0;
 }
-window.requestAnimationFrame(updateScrollProgress);
+
+function applyScrollProgress() {
+    const progress = readScrollProgress();
+    if (progress !== lastRenderedProgress) {
+        scrollProgress.style.transform = `scaleX(${progress})`;
+        lastRenderedProgress = progress;
+    }
+}
+
+let activeUntil = performance.now() + 1000;
+let rafPending = false;
+
+function scrollProgressTick(now) {
+    rafPending = false;
+    applyScrollProgress();
+    if (now < activeUntil) {
+        rafPending = true;
+        window.requestAnimationFrame(scrollProgressTick);
+    }
+}
+
+function nudgeScrollProgress() {
+    activeUntil = performance.now() + 1000;
+    if (!rafPending) {
+        rafPending = true;
+        window.requestAnimationFrame(scrollProgressTick);
+    }
+}
+
+window.addEventListener('scroll', nudgeScrollProgress, { passive: true });
+window.addEventListener('resize', nudgeScrollProgress);
+applyScrollProgress();
+window.setInterval(applyScrollProgress, 500);
 
 // Animación de scroll suave para los enlaces
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -357,20 +390,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Contador de scroll para animar números (opcional)
-function animateValue(element, start, end, duration) {
-    let startTimestamp = null;
-    const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        element.textContent = Math.floor(progress * (end - start) + start);
-        if (progress < 1) {
-            window.requestAnimationFrame(step);
-        }
-    };
-    window.requestAnimationFrame(step);
-}
-
 // Resaltar enlace activo en el menú
 const sections = document.querySelectorAll('section[id]');
 const navLinks = document.querySelectorAll('.nav-menu a');
@@ -380,7 +399,6 @@ window.addEventListener('scroll', () => {
     
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
         if (window.pageYOffset >= sectionTop - 200) {
             current = section.getAttribute('id');
         }

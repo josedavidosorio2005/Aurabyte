@@ -12,8 +12,9 @@
     "format:check": "prettier --check .",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "build:css": "lightningcss --minify --output-file=styles.min.css styles.css && lightningcss --minify --output-file=byteo.min.css byteo.css",
-    "build:js": "terser script.js -c -m -o script.min.js && terser byteo.js -c -m -o byteo.min.js",
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "build:css": "lightningcss --minify --output-file=styles.min.css styles.css && lightningcss --minify --output-file=byteo.min.css byteo.css && lightningcss --minify --output-file=hero-scene.min.css hero-scene.css",
+    "build:js": "terser script.js -c -m -o script.min.js && terser byteo.js -c -m -o byteo.min.js && terser hero-scene.js -c -m -o hero-scene.min.js --module",
     "build": "npm run build:css && npm run build:js"
   },
   "devDependencies": {

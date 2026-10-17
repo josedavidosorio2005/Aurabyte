@@ -8,6 +8,9 @@ export default [
       '.venv/**',
       'playwright-report/**',
       'test-results/**',
+      // Capturas/scripts de verificación visual manual (ver plan del hero
+      // cinematográfico) — gitignored, no es código fuente del sitio.
+      'evidence/**',
       '*.config.js',
       // Generados por `npm run build:js` (lightningcss/terser) a partir de
       // script.js/byteo.js — nunca se editan a mano, no son código fuente.
@@ -32,6 +35,15 @@ export default [
   },
   {
     files: ['tests/e2e/**/*.js'],
+    languageOptions: {
+      sourceType: 'module',
+    },
+  },
+  {
+    // Único script del sitio cargado como <script type="module"> (ver
+    // index.html) — necesita su propio sourceType, a diferencia de
+    // script.js/byteo.js que son scripts clásicos.
+    files: ['hero-scene.js'],
     languageOptions: {
       sourceType: 'module',
     },
