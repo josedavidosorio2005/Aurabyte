@@ -142,6 +142,36 @@ test.describe('Escena del hero', () => {
     expect(running).toBe(false);
   });
 
+  test('pausar y reanudar repetidamente no duplica el loop de render', async ({ page }) => {
+    test.setTimeout(60000);
+    await page.goto('/');
+    test.skip(!(await canRenderSecondFrame(page)), 'Este entorno no produce un segundo frame en un presupuesto razonable');
+
+    const measureRate = () => page.evaluate(() => new Promise((resolve) => {
+      const start = window.__heroSceneDebug.frameCount;
+      setTimeout(() => resolve(window.__heroSceneDebug.frameCount - start), 300);
+    }));
+
+    const baseline = await measureRate();
+
+    // pause()/resume() en el mismo tick, varias veces: si pause() no
+    // cancela el requestAnimationFrame ya agendado, cada resume() arranca
+    // una cadena nueva mientras la anterior sigue viva — el frame rate se
+    // multiplica en vez de mantenerse.
+    await page.evaluate(() => {
+      for (let i = 0; i < 5; i += 1) {
+        window.AuraHeroScene.pause();
+        window.AuraHeroScene.resume();
+      }
+    });
+
+    const afterChurn = await measureRate();
+
+    // Margen generoso (2x) para absorber ruido real de timing — el bug
+    // medía ~5x, muy por encima de cualquier varianza normal.
+    expect(afterChurn).toBeLessThan(baseline * 2 + 5);
+  });
+
   test('cambiar de tema actualiza el color de la escena sin reiniciarla', async ({ page }) => {
     test.setTimeout(60000);
     await page.goto('/');

@@ -258,6 +258,8 @@ class ParticleNetwork {
       z: (Math.random() - 0.5) * 2,
       delay: Math.random() * 400,
     }));
+    this.rafId = null;
+    this.frame = this.frame.bind(this);
   }
 
   resize() {
@@ -272,12 +274,20 @@ class ParticleNetwork {
     if (this.running) return;
     this.running = true;
     this.startTime = this.startTime ?? performance.now();
-    this.frame = this.frame.bind(this);
-    requestAnimationFrame(this.frame);
+    // Puede haber un rAF ya agendado (p. ej. pause() seguido de resume()
+    // en el mismo tick, antes de que el callback anterior corriera) — sin
+    // cancelarlo primero, ambas cadenas quedan vivas y cada una se
+    // reagenda sola para siempre, multiplicando el frame rate real.
+    if (this.rafId !== null) cancelAnimationFrame(this.rafId);
+    this.rafId = requestAnimationFrame(this.frame);
   }
 
   pause() {
     this.running = false;
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
   }
 
   resume() {
@@ -303,10 +313,11 @@ class ParticleNetwork {
   }
 
   frame(now) {
+    this.rafId = null;
     if (!this.running) return;
     this.render(now);
     window.__heroSceneDebug.frameCount += 1;
-    requestAnimationFrame(this.frame);
+    this.rafId = requestAnimationFrame(this.frame);
   }
 
   render(now) {
