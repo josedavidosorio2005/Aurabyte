@@ -1,13 +1,35 @@
 import { expect, test } from '@playwright/test';
 
+// WebGL por software en runners de CI sin GPU no es universal: Chromium
+// suele traer un rasterizador por software que funciona out-of-the-box,
+// pero Firefox/WebKit headless pueden carecer de uno utilizable. Cuando
+// eso pasa, hero-scene.js hace exactamente lo que debe — degradar al
+// fallback SVG — así que las pruebas que dependen de la escena activa
+// (frames, puntero, scroll, tema) comprueban la capacidad real del
+// navegador en este entorno y se saltan (no fallan) si no aplica, en vez
+// de asumir que WebGL siempre está disponible.
+async function hasWorkingWebGL(page) {
+  return page.evaluate(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      return !!canvas.getContext('webgl');
+    } catch {
+      return false;
+    }
+  });
+}
+
 test.describe('Escena del hero', () => {
-  test('muestra el canvas WebGL cuando está disponible y oculta el fallback', async ({ page }) => {
+  test('muestra el canvas cuando WebGL está disponible, o el fallback SVG cuando no', async ({ page }) => {
     await page.goto('/');
-    // En CI, WebGL por software (Firefox/WebKit en runners sin GPU) puede
-    // tardar bastante más que en un equipo de desarrollo normal en
-    // inicializar — timeout generoso en vez de asumir la velocidad local.
-    await expect(page.locator('.hero-scene-canvas')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('.hero-scene-fallback')).toBeHidden({ timeout: 15000 });
+    const webglAvailable = await hasWorkingWebGL(page);
+    if (webglAvailable) {
+      await expect(page.locator('.hero-scene-canvas')).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('.hero-scene-fallback')).toBeHidden({ timeout: 15000 });
+    } else {
+      await expect(page.locator('.hero-scene-fallback')).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('.hero-scene-canvas')).toBeHidden({ timeout: 15000 });
+    }
   });
 
   test('degrada al fallback SVG sin errores de consola cuando WebGL no está disponible', async ({ page }) => {
@@ -27,15 +49,16 @@ test.describe('Escena del hero', () => {
     expect(consoleErrors).toEqual([]);
   });
 
-  test('con reduced-motion, la escena queda asentada de inmediato (sin fase de ensamblaje)', async ({ browser }) => {
+  test('con reduced-motion, la escena queda asentada de inmediato (sin fase de ensamblaje)', async ({ browser, page }) => {
+    test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
     const context = await browser.newContext({ reducedMotion: 'reduce' });
-    const page = await context.newPage();
-    await page.goto('/');
+    const reducedPage = await context.newPage();
+    await reducedPage.goto('/');
     // expect.poll en vez de un único wait+lectura: en CI (WebGL por
-    // software, sin GPU) el primer requestAnimationFrame puede tardar
-    // bastante más que los ~16ms de un frame normal.
+    // software) el primer requestAnimationFrame puede tardar bastante más
+    // que los ~16ms de un frame normal.
     await expect.poll(
-      () => page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0),
+      () => reducedPage.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0),
       { timeout: 15000 }
     ).toBeGreaterThan(0);
     await context.close();
@@ -43,6 +66,7 @@ test.describe('Escena del hero', () => {
 
   test('la escena sigue renderizando frames mientras está en pantalla', async ({ page }) => {
     await page.goto('/');
+    test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
     await expect.poll(
       () => page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0),
       { timeout: 15000 }
@@ -56,6 +80,7 @@ test.describe('Escena del hero', () => {
 
   test('la escena reacciona al cursor en dispositivos con puntero fino', async ({ page }) => {
     await page.goto('/');
+    test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
     await page.mouse.move(400, 300);
     await expect.poll(
       () => page.evaluate(() => window.__heroSceneDebug.pointerOffset.x !== 0 || window.__heroSceneDebug.pointerOffset.y !== 0),
@@ -74,6 +99,7 @@ test.describe('Escena del hero', () => {
 
   test('hacer scroll a través del hero aumenta el progreso de la Transición A', async ({ page }) => {
     await page.goto('/');
+    test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
     const initial = await page.locator('#inicio').getAttribute('data-transition-progress');
     expect(Number(initial)).toBe(0);
     const heroHeight = await page.locator('#inicio').evaluate((el) => el.getBoundingClientRect().height);
@@ -86,6 +112,7 @@ test.describe('Escena del hero', () => {
 
   test('al pasar completamente el hero, el loop de render queda en pausa', async ({ page }) => {
     await page.goto('/');
+    test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
     const heroHeight = await page.locator('#inicio').evaluate((el) => el.getBoundingClientRect().height);
     await page.evaluate((y) => window.scrollTo(0, y), heroHeight * 1.5);
     await page.waitForFunction((h) => window.scrollY >= h, heroHeight * 1.4);
@@ -96,16 +123,17 @@ test.describe('Escena del hero', () => {
 
   test('cambiar de tema actualiza el color de la escena sin reiniciarla', async ({ page }) => {
     await page.goto('/');
+    test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
     await expect.poll(
       () => page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0),
       { timeout: 15000 }
     ).toBeGreaterThan(0);
     const before = await page.evaluate(() => window.__heroSceneDebug.frameCount);
     const colorBefore = await page.evaluate(() => window.__heroSceneDebug.color);
-    // El canvas sigue animando continuamente de fondo; en CI (sin GPU) eso
-    // puede hacer que la heurística de "estabilidad visual" de Playwright
-    // tarde más en considerar la página lista para un click normal — se
-    // fuerza el click (el botón en sí nunca se mueve, solo lo de alrededor).
+    // El canvas sigue animando continuamente de fondo; en CI eso puede
+    // hacer que la heurística de "estabilidad visual" de Playwright tarde
+    // más en considerar la página lista para un click normal — se fuerza
+    // el click (el botón en sí nunca se mueve, solo lo de alrededor).
     await page.click('#themeToggle', { force: true });
     await expect.poll(
       () => page.evaluate(() => window.__heroSceneDebug.frameCount),
