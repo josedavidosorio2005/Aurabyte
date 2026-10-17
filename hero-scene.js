@@ -1,4 +1,13 @@
 // hero-scene.js
+// Importa el compañero MINIFICADO, no la fuente: no hay bundler que
+// reescriba specifiers de import entre el build y el código fuente, y
+// este proyecto ya commitea los *.min.* como lo que realmente se
+// ejecuta/importa (ver CLAUDE.md, "Build de producción"). El propio
+// `scroll-progress.min.js` se regenera con `npm run build` y queda
+// commiteado — por eso también resuelve en pruebas unitarias de Node,
+// que importan este archivo directamente sin pasar por un build previo.
+import { registerScrollRegion, clampProgress } from './scroll-progress.min.js';
+
 // Geometría muestreada directamente del triángulo "A" de logo.svg (mismos
 // puntos que logo.svg:10 y el brillo de logo.svg:13) — la constelación de
 // partículas converge en la marca real, no en una forma inventada.
@@ -613,11 +622,8 @@ export function initHeroScene() {
   // opacity/transform por CSS. Se agenda después de que la escena (si
   // existe) ya quedó inicializada/arrancada, para no arrancarla antes de
   // tiempo — pero igual corre siempre, también en el fallback.
-  let scrollFrame = null;
-  function updateTransition() {
-    scrollFrame = null;
-    const rect = heroSection.getBoundingClientRect();
-    const progress = Math.min(1, Math.max(0, -rect.top / rect.height));
+  function updateTransition(rect) {
+    const progress = clampProgress(-rect.top / rect.height);
     if (network) {
       network.setTransitionProgress(progress);
       if (progress >= 1) {
@@ -629,12 +635,7 @@ export function initHeroScene() {
     heroSection.style.setProperty('--hero-scene-progress', progress.toFixed(3));
     heroSection.dataset.transitionProgress = progress.toFixed(3);
   }
-  window.addEventListener('scroll', () => {
-    if (scrollFrame) return;
-    scrollFrame = requestAnimationFrame(updateTransition);
-  }, { passive: true });
-  window.addEventListener('resize', updateTransition);
-  updateTransition();
+  registerScrollRegion(heroSection, updateTransition);
 
   return { network, api };
 }

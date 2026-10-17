@@ -141,6 +141,7 @@ _PUBLIC_FILES = {
     "script.min.js",
     "byteo.min.js",
     "hero-scene.min.js",
+    "scroll-progress.min.js",
     "logo.svg",
     "og-cover.jpg",
     "robots.txt",
