@@ -19,27 +19,20 @@ async function hasWorkingWebGL(page) {
   });
 }
 
-// Más allá de "hay contexto WebGL": algunos runners de CI (WebKit por
-// software, sin GPU) a veces tardan muchísimo más que otros en producir
-// incluso un segundo frame — variación real entre ejecuciones de CI con
-// el mismo código (confirmado: la misma suite pasó limpia en una
-// ejecución y volvió a fallar justo aquí en la siguiente, sin cambios de
-// por medio). Para las pruebas que dependen de que el loop siga
-// avanzando (no solo de que exista), comprobar la capacidad real de
-// producir un segundo frame en un presupuesto generoso y saltar si no
-// se cumple es más honesto que perseguir un timeout cada vez mayor
-// contra infraestructura con ruido real.
-async function canRenderSecondFrame(page, budgetMs = 20000) {
-  if (!(await hasWorkingWebGL(page))) return false;
-  try {
-    await expect.poll(
-      () => page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0),
-      { timeout: budgetMs }
-    ).toBeGreaterThan(1);
-    return true;
-  } catch {
-    return false;
-  }
+// Para las pruebas que dependen de que el render siga avanzando (no solo
+// de que exista un contexto): medir en tiempo de ejecución si el
+// navegador "puede" sostener un segundo frame y saltar si no, hace que
+// una regresión real (el loop muere tras el primer frame) se vea
+// idéntica a "este entorno es lento" — se saltaría en silencio en los 3
+// navegadores en vez de fallar. En su lugar, Chromium SIEMPRE corre la
+// aserción completa, también en CI: trae un rasterizador por software
+// confiable out-of-the-box, así que una regresión real sigue fallando
+// ahí de forma determinística. Solo Firefox/WebKit se saltan, y solo en
+// CI (confirmado: WebKit headless sin GPU varió de 0 a >15s para un
+// segundo frame entre corridas de CI con el mismo código — no así
+// localmente, donde hay GPU real).
+function requiresSkipForSustainedRendering(browserName) {
+  return browserName !== 'chromium' && !!process.env.CI;
 }
 
 test.describe('Escena del hero', () => {
@@ -147,6 +140,14 @@ test.describe('Escena del hero', () => {
     await expect.poll(async () =>
       Number(await normalPage.locator('#inicio').getAttribute('data-transition-progress'))
     ).toBeGreaterThan(0.3);
+    // Poll sobre el opacity calculado en sí, no solo sobre el atributo: el
+    // recálculo de estilo para el calc() de opacity puede ir un paso por
+    // detrás de cuándo el atributo/custom property ya se setearon
+    // (confirmado: una sola lectura inmediata tras el poll del atributo
+    // era intermitente en WebKit — a veces opacity seguía leyendo 1).
+    await expect.poll(
+      () => normalPage.locator('.hero-scene').evaluate((el) => Number(getComputedStyle(el).opacity))
+    ).toBeLessThan(0.9);
     const normalOpacity = await normalPage.locator('.hero-scene').evaluate((el) => Number(getComputedStyle(el).opacity));
     await normalContext.close();
 
@@ -158,6 +159,12 @@ test.describe('Escena del hero', () => {
     await expect.poll(async () =>
       Number(await reducedPage.locator('#inicio').getAttribute('data-transition-progress'))
     ).toBeGreaterThan(0.3);
+    // Con reduced-motion el fade es de baja amplitud a propósito — puede
+    // no cruzar 0.9, así que solo se confirma que haya CAMBIADO de 1 (no
+    // un umbral fijo), antes de leer el valor final para comparar.
+    await expect.poll(
+      () => reducedPage.locator('.hero-scene').evaluate((el) => Number(getComputedStyle(el).opacity))
+    ).toBeLessThan(1);
     const reducedOpacity = await reducedPage.locator('.hero-scene').evaluate((el) => Number(getComputedStyle(el).opacity));
     await reducedContext.close();
 
@@ -168,9 +175,10 @@ test.describe('Escena del hero', () => {
     expect(reducedFade).toBeLessThan(normalFade * 0.6);
   });
 
-  test('un scroll durante la secuencia de entrada la corta al estado final', async ({ page }) => {
+  test('un scroll durante la secuencia de entrada la corta al estado final', async ({ page, browserName }) => {
     await page.goto('/');
-    test.skip(!(await canRenderSecondFrame(page)), 'Este entorno no produce un segundo frame en un presupuesto razonable');
+    test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
+    test.skip(requiresSkipForSustainedRendering(browserName), 'Firefox/WebKit en CI: render por software no confiable para esto; Chromium cubre la aserción determinística');
     // Antes de que termine la animación de ensamblaje (~1.6s) — interrumpe.
     await page.evaluate(() => window.dispatchEvent(new Event('scroll')));
     await expect.poll(
@@ -193,10 +201,15 @@ test.describe('Escena del hero', () => {
     await context.close();
   });
 
-  test('la escena sigue renderizando frames mientras está en pantalla', async ({ page }) => {
+  test('la escena sigue renderizando frames mientras está en pantalla', async ({ page, browserName }) => {
     test.setTimeout(60000);
     await page.goto('/');
-    test.skip(!(await canRenderSecondFrame(page)), 'Este entorno no produce un segundo frame en un presupuesto razonable');
+    test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
+    test.skip(requiresSkipForSustainedRendering(browserName), 'Firefox/WebKit en CI: render por software no confiable para esto; Chromium cubre la aserción determinística');
+    await expect.poll(
+      () => page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0),
+      { timeout: 25000 }
+    ).toBeGreaterThan(0);
     const first = await page.evaluate(() => window.__heroSceneDebug.frameCount);
     await expect.poll(
       () => page.evaluate(() => window.__heroSceneDebug.frameCount),
@@ -205,9 +218,12 @@ test.describe('Escena del hero', () => {
   });
 
   test('la escena reacciona al cursor en dispositivos con puntero fino', async ({ page }) => {
-    test.setTimeout(60000);
+    // pointerOffset lo escribe un listener de pointermove síncrono — no
+    // depende de que el render loop produzca un segundo frame, así que
+    // (a diferencia de los tests de frames/tema) solo necesita que WebGL
+    // exista, no una medición de progresión sostenida.
     await page.goto('/');
-    test.skip(!(await canRenderSecondFrame(page)), 'Este entorno no produce un segundo frame en un presupuesto razonable');
+    test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
     await page.mouse.move(400, 300);
     await expect.poll(
       () => page.evaluate(() => window.__heroSceneDebug.pointerOffset.x !== 0 || window.__heroSceneDebug.pointerOffset.y !== 0),
@@ -248,10 +264,15 @@ test.describe('Escena del hero', () => {
     expect(running).toBe(false);
   });
 
-  test('pausar y reanudar repetidamente no duplica el loop de render', async ({ page }) => {
+  test('pausar y reanudar repetidamente no duplica el loop de render', async ({ page, browserName }) => {
     test.setTimeout(60000);
     await page.goto('/');
-    test.skip(!(await canRenderSecondFrame(page)), 'Este entorno no produce un segundo frame en un presupuesto razonable');
+    test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
+    test.skip(requiresSkipForSustainedRendering(browserName), 'Firefox/WebKit en CI: render por software no confiable para esto; Chromium cubre la aserción determinística');
+    await expect.poll(
+      () => page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0),
+      { timeout: 25000 }
+    ).toBeGreaterThan(0);
 
     const measureRate = () => page.evaluate(() => new Promise((resolve) => {
       const start = window.__heroSceneDebug.frameCount;
@@ -278,10 +299,15 @@ test.describe('Escena del hero', () => {
     expect(afterChurn).toBeLessThan(baseline * 2 + 5);
   });
 
-  test('cambiar de tema actualiza el color de la escena sin reiniciarla', async ({ page }) => {
+  test('cambiar de tema actualiza el color de la escena sin reiniciarla', async ({ page, browserName }) => {
     test.setTimeout(60000);
     await page.goto('/');
-    test.skip(!(await canRenderSecondFrame(page)), 'Este entorno no produce un segundo frame en un presupuesto razonable');
+    test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
+    test.skip(requiresSkipForSustainedRendering(browserName), 'Firefox/WebKit en CI: render por software no confiable para esto; Chromium cubre la aserción determinística');
+    await expect.poll(
+      () => page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0),
+      { timeout: 25000 }
+    ).toBeGreaterThan(0);
     const before = await page.evaluate(() => window.__heroSceneDebug.frameCount);
     const colorBefore = await page.evaluate(() => window.__heroSceneDebug.color);
     // El canvas sigue animando continuamente de fondo; en CI eso puede
