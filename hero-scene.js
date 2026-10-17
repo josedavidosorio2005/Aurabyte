@@ -308,9 +308,24 @@ class ParticleNetwork {
     this.drawPoints(projected, now);
   }
 
+  // El estado de "vertex attribute array" (enabled + puntero) es del
+  // contexto WebGL, no del programa — si el compilador asigna índices de
+  // atributo distintos entre pointProgram (3 atributos) y lineProgram (2),
+  // un atributo que quedó habilitado del draw anterior puede leerse con el
+  // layout equivocado en el siguiente ("Vertex buffer is not big enough
+  // for the draw call", confirmado en WebKit). Se deshabilitan todos antes
+  // de cada draw y solo se habilitan los que ese draw realmente usa.
+  resetAttributes() {
+    const gl = this.gl;
+    for (let location = 0; location < 4; location += 1) {
+      gl.disableVertexAttribArray(location);
+    }
+  }
+
   drawPoints(projected, now) {
     const gl = this.gl;
     gl.useProgram(this.pointProgram);
+    this.resetAttributes();
     const positions = new Float32Array(projected.length * 2);
     const sizes = new Float32Array(projected.length);
     const colors = new Float32Array(projected.length * 4);
@@ -334,6 +349,7 @@ class ParticleNetwork {
   drawLines(projected) {
     const gl = this.gl;
     gl.useProgram(this.lineProgram);
+    this.resetAttributes();
     const positions = new Float32Array(this.geometry.edges.length * 4);
     const colors = new Float32Array(this.geometry.edges.length * 8);
     this.geometry.edges.forEach(([aIndex, bIndex], i) => {
@@ -391,15 +407,15 @@ export function initHeroScene() {
   }
 
   if (!network) {
-    fallback.hidden = false;
-    canvas.hidden = true;
+    fallback.toggleAttribute('hidden', false);
+    canvas.toggleAttribute('hidden', true);
     const api = { setThemeColors() {}, pause() {}, resume() {} };
     window.AuraHeroScene = api;
     return api;
   }
 
-  fallback.hidden = true;
-  canvas.hidden = false;
+  fallback.toggleAttribute('hidden', true);
+  canvas.toggleAttribute('hidden', false);
   network.resize();
   network.start();
   window.__heroSceneDebug.running = true;

@@ -39,6 +39,16 @@
     height: 100%;
 }
 
+/* Redundante con el estilo por defecto del user-agent para [hidden], pero
+   explícito a propósito: hero-scene.js usa toggleAttribute('hidden', …)
+   en vez de la propiedad `.hidden` porque en WebKit el setter de
+   `.hidden` en SVGElement no refleja el atributo real (confirmado:
+   `.hidden` quedaba en `true` sin que `hidden` apareciera en el DOM). */
+.hero-scene-fallback[hidden],
+.hero-scene-canvas[hidden] {
+    display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .hero-scene-fallback-shape,
     .hero-scene-fallback-spark {
