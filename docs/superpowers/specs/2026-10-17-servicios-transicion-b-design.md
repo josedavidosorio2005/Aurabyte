@@ -70,7 +70,7 @@ Reemplazar la cuadrícula estática de 8 tarjetas de `#servicios` por una experi
 
 ## Continuidad con Transición A (requisito 2)
 
-El wrapper pineado de servicios empieza justo donde termina el hero (`#inicio` + `#servicios` son hermanos consecutivos, sin márgenes que creen un salto visual). El primer panel (`--panel-distance = 0` en `scrubIndex = 0`) ya está en su estado "asentado" (escala 1, sin blur) en el momento en que `--hero-scene-progress` llega a 1 — no hay un segundo fade-in independiente. Mismos tokens de color (`--primary-color`/`--primary-text`) y mismo valor de easing que el hero.
+**Corrección post-implementación:** `#inicio` y `#servicios` NO son hermanos consecutivos — `misión-visión` y `valores` quedan entre medio en el documento actual. La continuidad no es "pegado físicamente al hero" (ese supuesto era incorrecto y se descubrió al implementar, no al diseñar) sino: el primer panel (`--panel-distance = 0` en `scrubIndex = 0`) ya está en su estado "asentado" (escala 1, sin blur) desde el instante en que el riel pineado empieza su propio recorrido — no hay un segundo fade-in independiente superpuesto al de `.reveal-on-scroll`. Mismos tokens de color (`--primary-color`/`--primary-text`) y mismo valor de easing que el hero, para que la escena se sienta de la misma familia visual aunque no sea el hermano inmediato en el documento.
 
 ## Responsive, reduced-motion y fallback sin JS (requisito 7, decisión ya tomada #5)
 
