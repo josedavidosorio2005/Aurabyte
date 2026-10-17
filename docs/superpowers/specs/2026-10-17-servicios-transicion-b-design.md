@@ -106,6 +106,17 @@ Reemplazar la cuadrícula estática de 8 tarjetas de `#servicios` por una experi
 
 Script Playwright de captura (scratch, no committeado, mismo patrón que `evidence/capture-evidence.mjs` de la Fase 1): capturas en el punto de entrada desde el hero, inicio/intermedio/final del recorrido de servicios, versión móvil, y modo de movimiento reducido; grabación de video del recorrido completo si el entorno de Playwright lo permite.
 
+## Addendum post-revisión de rama completa (2026-10-17)
+
+Una revisión de rama completa (modelo más capaz, contexto fresco) encontró 3 hallazgos Críticos que los 78+ tests existentes no detectaban porque cada uno solo se manifestaba fuera de la única combinación panel/viewport/posición-de-scroll que esos tests cubrían. Correcciones reales, no cosméticas:
+
+- **El riel pineado ahora empieza debajo de la navbar fija** (`--stage-top`, medido en caliente desde la altura real de `.navbar`, no asumido en `top:0`) — a 1280×720/1024×768 el título e ícono del panel activo quedaban detrás de la navbar.
+- **La franja de indicadores se mide en caliente** (`--indicator-reserve`), no se asume una altura fija — con el título completo de cada servicio como texto del botón, la fila se partía en 3-4 líneas en viewports más angostos y tapaba el CTA del panel activo. Los indicadores ahora muestran solo la primera palabra del servicio (visualmente distinta para los 8), con el nombre completo en `aria-label`/`title`.
+- **El CTA de WhatsApp de cada panel es `position:sticky; bottom:0`** dentro del propio scroll interno del panel (que gana `max-height`/`overflow-y:auto` como red de seguridad en viewports bajos) — siempre visible y clicable sin que la persona necesite descubrir que la tarjeta se puede desplazar.
+- **Los paneles ya no llevan `.reveal-on-scroll`/`.is-visible` mientras el riel está activo.** Esa clase genérica (IntersectionObserver, `script.js`) tiene más especificidad CSS que las reglas de profundidad del riel — una vez que un panel pasaba cerca del centro durante un scroll gradual real, quedaba fijo en `opacity:1/transform:none` para siempre, incluso lejos del centro después. El riel gestiona su propia visibilidad por completo vía `--panel-distance`; `enhance()` quita esas clases, `revert()` las restaura para la lista plana.
+
+Detalle completo de cada hallazgo, su test de regresión y su commit en `.superpowers/sdd/2026-10-17-servicios-transicion-b/progress.md`.
+
 ## Fuera de alcance (Fase 3)
 
 Transición C (Idea → Diseño → Desarrollo → Solución) no se toca en este sub-proyecto.

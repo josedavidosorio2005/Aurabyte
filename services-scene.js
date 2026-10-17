@@ -57,6 +57,7 @@ export function initServicesScene() {
   let wrapper = null;
   let rail = null;
   let scrollHandle = null;
+  let hasRenderedOnce = false;
 
   function shouldEnhance() {
     return desktopQuery.matches && !reducedMotionQuery.matches;
@@ -66,13 +67,43 @@ export function initServicesScene() {
     indicatorsContainer.innerHTML = '';
     indicatorsContainer.toggleAttribute('hidden', false);
     panels.forEach((panel, index) => {
+      const heading = panel.querySelector('h3');
+      const fullName = heading ? heading.textContent.trim() : `Servicio ${index + 1}`;
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'services-indicator';
-      button.textContent = panel.querySelector('h3').textContent;
+      // Texto visible corto (primera palabra del título real — distinta
+      // para los 8 servicios) para que la fila de indicadores quepa en
+      // una sola línea; el nombre completo sigue disponible para lectores
+      // de pantalla y como tooltip. Una fila que se parte en 3-4 renglones
+      // (con el título completo) empujaba el CTA del panel activo fuera
+      // de su alcance de click — encontrado en revisión de rama completa.
+      button.textContent = fullName.split(' ')[0];
+      button.setAttribute('aria-label', fullName);
+      button.title = fullName;
       button.addEventListener('click', () => jumpToPanel(index));
       indicatorsContainer.appendChild(button);
     });
+  }
+
+  // Mide la altura real de la navbar fija y de la franja de indicadores
+  // (que varía con el ancho de viewport y el contenido) en vez de asumir
+  // valores fijos — un valor adivinado solo queda bien en el viewport
+  // donde se probó (encontrado en revisión: a 1280×768/1024×768 el título
+  // y el ícono de cada panel quedaban detrás de la navbar, y en varios
+  // anchos el CTA del panel activo quedaba tapado por los indicadores).
+  function measureStageMetrics() {
+    if (!wrapper) return;
+    const stage = wrapper.querySelector('.services-stage');
+    if (!stage) return;
+    const navEl = document.querySelector('.navbar');
+    const navHeight = navEl ? navEl.getBoundingClientRect().height : 0;
+    const progressRail = stage.querySelector('.services-progress-rail');
+    const indicatorsHeight = indicatorsContainer.getBoundingClientRect().height;
+    const progressHeight = progressRail ? progressRail.getBoundingClientRect().height : 0;
+    const reservePx = indicatorsHeight + progressHeight + 48;
+    stage.style.setProperty('--stage-top', `${navHeight}px`);
+    stage.style.setProperty('--indicator-reserve', `${reservePx}px`);
   }
 
   function jumpToPanel(index) {
@@ -84,6 +115,25 @@ export function initServicesScene() {
   }
 
   function updateScrub(rect, viewportHeight) {
+    // El spec (sección "Rendimiento") pide pausar la escritura por frame
+    // cuando la sección no está en viewport — sin esto, cada scroll en
+    // CUALQUIER parte del resto de la página (footer, contacto, etc.)
+    // seguía recalculando y escribiendo 8+ propiedades por panel para
+    // siempre, aunque el resultado ya estuviera clamped en 0 o 1 y no
+    // fuera a cambiar visualmente. rect es el del propio wrapper pineado
+    // (hasta ~485vh de alto), así que esta condición solo es cierta
+    // cuando estamos lejos de él en cualquier dirección.
+    // La primera llamada (registro inicial en registerScrollRegion) nunca
+    // se salta, aunque la sección esté lejos del viewport — es la que
+    // establece el estado de reposo correcto (rail-offset, distancias)
+    // antes de cualquier scroll real. Sin esta excepción, "centrado" y
+    // "asentado" se rompían: #servicios normalmente empieza fuera de
+    // vista al cargar la página (misión-visión y valores quedan antes),
+    // así que el guard de rendimiento saltaba también esa primera
+    // escritura necesaria.
+    if (hasRenderedOnce && (rect.bottom < 0 || rect.top > viewportHeight)) return;
+    hasRenderedOnce = true;
+    window.__servicesSceneDebug.updateScrubCalls = (window.__servicesSceneDebug.updateScrubCalls || 0) + 1;
     const progress = computeScrubProgress(rect, viewportHeight);
     const scrubIndex = computeScrubIndex(progress, count);
     section.style.setProperty('--services-progress', progress.toFixed(3));
@@ -121,7 +171,20 @@ export function initServicesScene() {
     rail = document.createElement('div');
     rail.className = 'services-rail';
 
-    panels.forEach((panel) => rail.appendChild(panel));
+    // .reveal-on-scroll.is-visible (script.js, IntersectionObserver) tiene
+    // más especificidad CSS que las reglas de profundidad del riel — una
+    // vez que un panel pasa cerca del centro y el observer lo marca
+    // .is-visible, esa clase fijaba opacity:1/transform:none PARA SIEMPRE,
+    // incluso lejos del centro después (encontrado en revisión de rama
+    // completa, confirmado con scroll gradual real — un salto instantáneo
+    // no lo revela, porque el observer nunca llega a disparar para los
+    // paneles intermedios). El riel gestiona su propia visibilidad por
+    // completo vía --panel-distance; el mecanismo genérico de
+    // reveal-on-scroll no debe competir con él mientras está pineado.
+    panels.forEach((panel) => {
+      panel.classList.remove('reveal-on-scroll', 'is-visible');
+      rail.appendChild(panel);
+    });
     stage.appendChild(rail);
 
     // Los indicadores y la barra de progreso van DENTRO de .services-stage
@@ -140,6 +203,11 @@ export function initServicesScene() {
 
     section.dataset.scene = 'rail';
     window.__servicesSceneDebug.enhanced = true;
+    // Cada ciclo enhance() es un nuevo "primer frame": si la sección se
+    // revierte (móvil/resize) y se vuelve a mejorar más tarde, su propia
+    // primera escritura tampoco debe saltarse aunque en ese momento esté
+    // lejos del viewport.
+    hasRenderedOnce = false;
     scrollHandle = registerScrollRegion(wrapper, updateScrub);
   }
 
@@ -150,8 +218,11 @@ export function initServicesScene() {
     freshPanelsContainer.className = 'services-panels';
     panels.forEach((panel) => {
       panel.style.removeProperty('--panel-distance');
+      panel.style.removeProperty('--blur-amount');
+      panel.classList.add('reveal-on-scroll');
       freshPanelsContainer.appendChild(panel);
     });
+    section.style.removeProperty('--services-progress');
     // indicatorsContainer vive dentro de .services-stage mientras está
     // mejorado — hay que sacarlo de ahí ANTES de descartar wrapper, o se
     // pierde junto con el resto del riel en vez de volver a su lugar
@@ -170,6 +241,11 @@ export function initServicesScene() {
   function sync() {
     if (shouldEnhance()) {
       enhance();
+      // Siempre, no solo la primera vez: si la ventana se redimensiona
+      // sin cruzar el breakpoint (p. ej. 1920 -> 1280), enhance() ya
+      // estaba activo y no vuelve a medir por sí solo — la franja de
+      // indicadores puede envolver distinto en el nuevo ancho.
+      measureStageMetrics();
     } else {
       revert();
     }
