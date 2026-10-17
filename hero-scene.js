@@ -450,77 +450,83 @@ export function initHeroScene() {
     network = null;
   }
 
+  const heroSection = document.getElementById('inicio');
+  let api;
+
   if (!network) {
     fallback.toggleAttribute('hidden', false);
     canvas.toggleAttribute('hidden', true);
-    const api = { setThemeColors() {}, pause() {}, resume() {} };
-    window.AuraHeroScene = api;
-    return api;
+    api = { setThemeColors() {}, pause() {}, resume() {} };
+  } else {
+    fallback.toggleAttribute('hidden', true);
+    canvas.toggleAttribute('hidden', false);
+    network.resize();
+    network.start();
+    window.__heroSceneDebug.running = true;
+    window.addEventListener('resize', () => network.resize());
+
+    window.__heroSceneDebug.color = network.color;
+    api = {
+      setThemeColors() {
+        network.setThemeColors();
+        window.__heroSceneDebug.color = network.color;
+      },
+      pause() {
+        network.pause();
+        window.__heroSceneDebug.running = false;
+      },
+      resume() {
+        network.resume();
+        window.__heroSceneDebug.running = true;
+      },
+    };
+
+    window.__heroSceneDebug.pointerOffset = { x: 0, y: 0 };
+    const canTrackPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (canTrackPointer) {
+      heroSection.addEventListener('pointermove', (event) => {
+        const bounds = heroSection.getBoundingClientRect();
+        const nx = (event.clientX - bounds.left) / bounds.width - 0.5;
+        const ny = (event.clientY - bounds.top) / bounds.height - 0.5;
+        const offset = { x: nx * 0.3, y: -ny * 0.3 };
+        network.setPointerOffset(offset.x, offset.y);
+        window.__heroSceneDebug.pointerOffset = offset;
+      }, { passive: true });
+    }
+
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? api.resume() : api.pause()),
+      { threshold: 0 }
+    );
+    visibilityObserver.observe(canvas);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        api.pause();
+      } else if (heroSection.getBoundingClientRect().bottom > 0) {
+        api.resume();
+      }
+    });
   }
-
-  fallback.toggleAttribute('hidden', true);
-  canvas.toggleAttribute('hidden', false);
-  network.resize();
-  network.start();
-  window.__heroSceneDebug.running = true;
-  window.addEventListener('resize', () => network.resize());
-
-  window.__heroSceneDebug.color = network.color;
-  const api = {
-    setThemeColors() {
-      network.setThemeColors();
-      window.__heroSceneDebug.color = network.color;
-    },
-    pause() {
-      network.pause();
-      window.__heroSceneDebug.running = false;
-    },
-    resume() {
-      network.resume();
-      window.__heroSceneDebug.running = true;
-    },
-  };
   window.AuraHeroScene = api;
 
-  const heroSection = document.getElementById('inicio');
-
-  window.__heroSceneDebug.pointerOffset = { x: 0, y: 0 };
-  const canTrackPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  if (canTrackPointer) {
-    heroSection.addEventListener('pointermove', (event) => {
-      const bounds = heroSection.getBoundingClientRect();
-      const nx = (event.clientX - bounds.left) / bounds.width - 0.5;
-      const ny = (event.clientY - bounds.top) / bounds.height - 0.5;
-      const offset = { x: nx * 0.3, y: -ny * 0.3 };
-      network.setPointerOffset(offset.x, offset.y);
-      window.__heroSceneDebug.pointerOffset = offset;
-    }, { passive: true });
-  }
-
-  const visibilityObserver = new IntersectionObserver(
-    ([entry]) => (entry.isIntersecting ? api.resume() : api.pause()),
-    { threshold: 0 }
-  );
-  visibilityObserver.observe(canvas);
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      api.pause();
-    } else if (heroSection.getBoundingClientRect().bottom > 0) {
-      api.resume();
-    }
-  });
-
+  // Transición A (el CSS var/atributo que .hero-scene y .hero-content leen
+  // para transformarse con el scroll) no depende de WebGL — es solo
+  // opacity/transform por CSS. Se agenda después de que la escena (si
+  // existe) ya quedó inicializada/arrancada, para no arrancarla antes de
+  // tiempo — pero igual corre siempre, también en el fallback.
   let scrollFrame = null;
   function updateTransition() {
     scrollFrame = null;
     const rect = heroSection.getBoundingClientRect();
     const progress = Math.min(1, Math.max(0, -rect.top / rect.height));
-    network.setTransitionProgress(progress);
-    if (progress >= 1) {
-      api.pause();
-    } else if (!window.__heroSceneDebug.running) {
-      api.resume();
+    if (network) {
+      network.setTransitionProgress(progress);
+      if (progress >= 1) {
+        api.pause();
+      } else if (!window.__heroSceneDebug.running) {
+        api.resume();
+      }
     }
     heroSection.style.setProperty('--hero-scene-progress', progress.toFixed(3));
     heroSection.dataset.transitionProgress = progress.toFixed(3);

@@ -15,6 +15,18 @@
     transition: opacity 0.1s linear, transform 0.1s linear;
 }
 
+/* El canvas WebGL queda deliberadamente detrás de .code-window (z-index
+   0 < 2, ver styles.css "body .code-window") — la red de partículas
+   enmarca el panel de código. Pero el fallback SVG no tiene ese efecto
+   de "red" que justifique esconderse detrás: sin esto, con WebGL
+   ausente (o sin JS, su estado por defecto) el fallback quedaba
+   completamente tapado por .code-window — el "hueco vacío" que este
+   fallback existe para evitar. Puro CSS (sin depender de que corra JS)
+   vía :has() sobre el propio atributo hidden del canvas. */
+.hero-scene:has(.hero-scene-canvas[hidden]) {
+    z-index: 3;
+}
+
 .hero-scene-fallback {
     width: 70%;
     max-width: 220px;

@@ -72,6 +72,50 @@ test.describe('Escena del hero', () => {
     expect(consoleErrors).toEqual([]);
   });
 
+  test('el fallback SVG es realmente visible: tamaño razonable y no tapado por el code-window', async ({ page }) => {
+    await page.addInitScript(() => {
+      HTMLCanvasElement.prototype.getContext = function (type) {
+        if (type === 'webgl') return null;
+        return null;
+      };
+    });
+    await page.goto('/');
+    const fallback = page.locator('.hero-scene-fallback');
+    await expect(fallback).toBeVisible();
+
+    const box = await fallback.boundingBox();
+    expect(box.width).toBeGreaterThan(100); // no un fragmento diminuto
+
+    // .hero-scene tiene pointer-events:none (correcto: es decorativo), así
+    // que document.elementFromPoint() no sirve para verificar el orden de
+    // pintado — el hit-testing lo atraviesa aunque pinte encima. La
+    // comprobación real es el z-index calculado: el contenedor debe subir
+    // por encima de .code-window (z-index:2) cuando el canvas está oculto.
+    const zIndexes = await page.evaluate(() => ({
+      scene: Number(getComputedStyle(document.querySelector('.hero-scene')).zIndex),
+      codeWindow: Number(getComputedStyle(document.querySelector('.code-window')).zIndex),
+    }));
+    expect(zIndexes.scene).toBeGreaterThan(zIndexes.codeWindow);
+  });
+
+  test('sin WebGL, la Transición A igual mueve la escena por scroll (solo CSS)', async ({ page }) => {
+    await page.addInitScript(() => {
+      HTMLCanvasElement.prototype.getContext = function (type) {
+        if (type === 'webgl') return null;
+        return null;
+      };
+    });
+    await page.goto('/');
+    const initial = await page.locator('#inicio').getAttribute('data-transition-progress');
+    expect(Number(initial)).toBe(0);
+    const heroHeight = await page.locator('#inicio').evaluate((el) => el.getBoundingClientRect().height);
+    await page.evaluate((y) => window.scrollTo(0, y), heroHeight * 0.6);
+    await page.waitForFunction(() => window.scrollY > 0);
+    await expect.poll(async () =>
+      Number(await page.locator('#inicio').getAttribute('data-transition-progress'))
+    ).toBeGreaterThan(0.3);
+  });
+
   test('con reduced-motion, la escena queda asentada de inmediato (sin fase de ensamblaje)', async ({ browser, page }) => {
     test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
     const context = await browser.newContext({ reducedMotion: 'reduce' });
