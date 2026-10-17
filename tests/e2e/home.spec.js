@@ -43,6 +43,36 @@ test.describe('Página principal de Aurabyte', () => {
     await expect(page.locator('nav')).toBeVisible();
   });
 
+  // Fase 4 — hallazgo de la auditoría visual: en móvil, el panel del menú
+  // hamburguesa solo medía lo que ocupaban sus propios enlaces (menos que el
+  // viewport), así que el contenido del hero se veía "transparentándose"
+  // bajo el menú abierto, debajo del último enlace (confirmado con captura
+  // real a 390x844). Se corrigió dándole altura explícita hasta el final
+  // del viewport.
+  test('el menú móvil abierto cubre todo el viewport, sin que el contenido de abajo se transparente (regresión)', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.locator('#hamburger').click();
+    await expect(page.locator('#navMenu')).toHaveClass(/active/);
+    // El panel desliza con "transition: 0.3s" (styles.css) — sin esperar a
+    // que termine, el hit-test de abajo puede correr a mitad de la
+    // animación (left todavía negativo) y golpear lo que haya detrás.
+    await expect.poll(() => page.locator('#navMenu').evaluate((el) => el.getBoundingClientRect().left)).toBe(0);
+    const coverage = await page.locator('#navMenu').evaluate((el) => {
+      const rect = el.getBoundingClientRect();
+      return { bottom: rect.bottom, viewportHeight: window.innerHeight };
+    });
+    expect(coverage.bottom).toBeGreaterThanOrEqual(coverage.viewportHeight - 1);
+    // Hit-test real en la esquina inferior del menú: debe devolver un
+    // elemento DENTRO de #navMenu, no un CTA del hero que esté por debajo.
+    const hitInsideMenu = await page.evaluate(() => {
+      const menu = document.getElementById('navMenu');
+      const el = document.elementFromPoint(window.innerWidth / 2, window.innerHeight - 5);
+      return menu.contains(el);
+    });
+    expect(hitInsideMenu).toBe(true);
+  });
+
   test('los servicios no muestran tarifas y permiten contactar por Instagram', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#precios .quote-label')).toHaveCount(3);

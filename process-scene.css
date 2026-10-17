@@ -172,26 +172,68 @@
 
     .process-dots {
         position: absolute;
-        bottom: 1.5rem;
+        bottom: 2.1rem;
         left: 50%;
         transform: translateX(-50%);
         display: flex;
         gap: 0.6rem;
     }
 
+    /* El punto visible (0.65rem ~ 10.4px) es más pequeño que el mínimo de
+       área táctil de WCAG 2.5.8 (24x24px) — confirmado por Lighthouse
+       (auditoría de la Fase 4: "target-size"). El botón real mide 24x24px
+       (hit area transparente); el punto se dibuja aparte con ::before,
+       centrado, del mismo tamaño visual que antes — no cambia cómo se ve,
+       solo agranda dónde se puede tocar/hacer click. */
     .process-dot {
-        width: 0.65rem;
-        height: 0.65rem;
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
         border-radius: 50%;
         border: none;
         padding: 0;
-        background: rgb(139 92 246 / 25%);
+        background: none;
         cursor: pointer;
     }
 
-    .process-dot[aria-current="true"] {
+    .process-dot::before {
+        content: '';
+        width: 0.65rem;
+        height: 0.65rem;
+        border-radius: 50%;
+        background: rgb(139 92 246 / 25%);
+        transition: transform 0.05s linear, background 0.05s linear;
+    }
+
+    .process-dot[aria-current="true"]::before {
         background: var(--primary-color);
         transform: scale(1.3);
+    }
+
+    /* Mismo patrón que .services-progress-rail — ver la nota en
+       process-scene.js (enhance()) sobre por qué existe: sin esta barra,
+       el tramo final del recorrido (el stage despegándose del pineado
+       antes de #tecnologias) se leía como un vacío mucho más grande que
+       el equivalente en la Transición B. */
+    .process-progress-rail {
+        position: absolute;
+        bottom: 0.9rem;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 3px;
+        width: min(50%, 22rem);
+        background: rgb(139 92 246 / 15%);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .process-progress-rail::after {
+        content: '';
+        display: block;
+        height: 100%;
+        width: calc(var(--process-progress, 0) * 100%);
+        background: var(--primary-color);
     }
 }
 

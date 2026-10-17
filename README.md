@@ -12,11 +12,16 @@ para funcionar.
 - Los precios no se publican: cada proyecto se cotiza directamente con el equipo.
 - Instagram oficial: https://www.instagram.com/aurabyte_software/
 
-- Diseño futurista responsivo con hero holográfico, tarjeta de código, progreso de lectura, halos interactivos y animaciones accesibles; modo claro/oscuro persistente
+- Diseño futurista responsivo con 3 transiciones cinematográficas de scroll
+  (red de partículas WebGL en el hero, riel de servicios pineado, escena de
+  partículas en Canvas2D para "De la idea al software"), tarjeta de código,
+  progreso de lectura, halos interactivos y animaciones accesibles; modo
+  claro/oscuro persistente — ver `CLAUDE.md`, "Transiciones cinematográficas"
 - Formulario de contacto que arma un mensaje y lo abre en WhatsApp — sin backend,
   sin email, sin almacenar datos en ningún servidor
-- Rendimiento: 90-95/100 en Lighthouse móvil, 100/100 en escritorio, accesibilidad,
-  mejores prácticas y SEO
+- Rendimiento: accesibilidad/mejores prácticas/SEO en 100/100 (Lighthouse);
+  rendimiento ~84-95/100 según dispositivo y corrida — ver la nota honesta de
+  medición en `CLAUDE.md`, sección "Rendimiento"
 - Accesible (WCAG 2.1/2.2 AA): navegación por teclado, foco visible, lectores de
   pantalla, contraste de color verificado
 - Mascota animada "Byteo" y mensajería de cotización personalizada para cada tipo de solución
@@ -27,6 +32,10 @@ para funcionar.
 
 ```
 index.html, styles.css, script.js        Sitio principal
+scroll-progress.js                       Motor de scroll compartido por las 3 transiciones
+hero-scene.js/css                        Transición A — hero WebGL
+services-scene.js/css                    Transición B — riel de servicios
+process-scene.js/css                     Transición C — "de la idea al software"
 byteo.css, byteo.js                      Mascota "Byteo"
 icons/sprite.svg                         Íconos propios (sin Font Awesome por CDN)
 fonts/*.woff2, fonts/fonts.css           Fuentes auto-alojadas (sin Google Fonts externo)
@@ -62,7 +71,7 @@ npm run build        # Regenera los *.min.css/*.min.js — necesario tras editar
 
 ```bash
 .venv\Scripts\python.exe -m pytest -q    # Backend: 10 pruebas
-npx playwright test                       # E2E + accesibilidad: 27 pruebas
+npx playwright test                       # E2E + accesibilidad: 210 pruebas (70 × 3 navegadores)
 npx eslint . && npx stylelint "**/*.css" && npm run lint:html   # Lint
 .venv\Scripts\python.exe -m bandit -r app.py   # Seguridad estática
 ```

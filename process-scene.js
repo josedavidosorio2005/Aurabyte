@@ -533,31 +533,64 @@ export function initProcessScene() {
     });
 
     buildDots();
-    stage.append(visual, copy, dotsContainer);
+    // Mismo patrón que .services-progress-rail (Transición B): sin esto, el
+    // tramo final del recorrido (cuando el stage se despega del pineado y
+    // sigue desplazándose con la página antes de llegar a #tecnologias)
+    // se veía como un vacío mucho más grande que el de la Transición B en
+    // el mismo punto geométrico — B llena ese tramo con su fila de
+    // indicadores + barra; C solo tenía 4 puntos diminutos (confirmado con
+    // evidencia visual real, mismo stageBottom/gap en ambas, pero B se leía
+    // "lleno" y C "vacío"). Reutilizar la barra unifica el lenguaje visual
+    // de las dos transiciones con scrub pineado, como pide la Fase 4.
+    const progressRail = document.createElement('div');
+    progressRail.className = 'process-progress-rail';
+    stage.append(visual, copy, dotsContainer, progressRail);
     wrapper.appendChild(stage);
     stagesContainer.replaceWith(wrapper);
 
     section.dataset.scene = 'canvas';
     hasRenderedOnce = false;
 
-    try {
-      const tier = pickDeviceTier({
-        hardwareConcurrency: navigator.hardwareConcurrency,
-        viewportWidth: window.innerWidth,
-      });
-      canvasEngine = new ProcessCanvas(canvas, tier.particleCount);
-      canvasEngine.resize(tier.dprCap);
-      window.__processSceneDebug.canvasAvailable = true;
-    } catch (error) {
-      // Degradación silenciosa (requisito: "comportamiento cuando Canvas/
-      // WebGL no están disponibles"): la escena sigue funcionando sin el
-      // lienzo — el texto de las 4 etapas y el CTA siguen presentes y
-      // funcionales, solo sin el dibujo de partículas.
-      console.warn('process-scene: Canvas2D no disponible —', error);
-      canvasEngine = null;
-      canvas.toggleAttribute('hidden', true);
-      window.__processSceneDebug.canvasAvailable = false;
+    function buildCanvasEngine() {
+      try {
+        const tier = pickDeviceTier({
+          hardwareConcurrency: navigator.hardwareConcurrency,
+          viewportWidth: window.innerWidth,
+        });
+        canvasEngine = new ProcessCanvas(canvas, tier.particleCount);
+        canvasEngine.resize(tier.dprCap);
+        window.__processSceneDebug.canvasAvailable = true;
+      } catch (error) {
+        // Degradación silenciosa (requisito: "comportamiento cuando Canvas/
+        // WebGL no están disponibles"): la escena sigue funcionando sin el
+        // lienzo — el texto de las 4 etapas y el CTA siguen presentes y
+        // funcionales, solo sin el dibujo de partículas.
+        console.warn('process-scene: Canvas2D no disponible —', error);
+        canvasEngine = null;
+        canvas.toggleAttribute('hidden', true);
+        window.__processSceneDebug.canvasAvailable = false;
+      }
+      window.__processSceneDebug.canvasBuilt = true;
     }
+
+    // Construir la geometría de las 4 etapas (buildStageLayouts, dentro del
+    // constructor de ProcessCanvas) es el trabajo más caro de esta escena, y
+    // #proceso queda muy por debajo del pliegue — nadie lo ve ni interactúa
+    // con él en el primer momento tras cargar la página. Diferirlo a tiempo
+    // de inactividad (en vez de construirlo de inmediato en sync(), como
+    // antes) saca ese costo del camino crítico de carga: medido con
+    // Lighthouse (Fase 4, auditoría de rendimiento) el Total Blocking Time
+    // bajó de forma consistente al mover esta construcción fuera del
+    // arranque síncrono. requestIdleCallback no existe en Safari/WebKit —
+    // setTimeout(0) como respaldo sigue sacándolo del flujo síncrono inicial
+    // aunque no aproveche tiempo de inactividad real.
+    // updateProcess() ya tolera canvasEngine === null (guard existente), así
+    // que no hay ventana donde esto pueda fallar si el usuario hace scroll
+    // antes de que termine.
+    const scheduleIdle = typeof requestIdleCallback === 'function'
+      ? requestIdleCallback
+      : (cb) => setTimeout(cb, 0);
+    scheduleIdle(buildCanvasEngine);
 
     window.addEventListener('resize', () => {
       if (canvasEngine) {

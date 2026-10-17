@@ -139,6 +139,34 @@ test.describe('Transición C — las 4 etapas y el recorrido de scroll', () => {
     await expect(lastDot).toHaveAttribute('aria-current', 'true');
   });
 
+  // Fase 4 — hallazgo de la auditoría visual: al pasar de largo el final del
+  // recorrido (el stage despegándose del pineado antes de #tecnologias), la
+  // zona quedaba visualmente mucho más vacía que el mismo punto en la
+  // Transición B, que llena ese tramo con su fila de indicadores + barra de
+  // progreso. Se agregó .process-progress-rail con el mismo patrón. Esta
+  // prueba verifica que existe y que su ancho sigue el progreso real, no
+  // solo que el elemento esté presente.
+  test('la barra de progreso crece con el scroll, igual que en la Transición B (regresión: zona vacía al final del recorrido)', async ({ page, browserName }) => {
+    test.skip(requiresSkipForSyntheticScrollEvents(browserName), 'WebKit en CI: scroll sintético no dispara el motor de forma confiable; Chromium/Firefox cubren la aserción real');
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await expect.poll(() => page.evaluate(() => window.__processSceneDebug?.enhanced)).toBe(true);
+    const rail = page.locator('.process-progress-rail');
+    await expect(rail).toBeVisible();
+
+    const readProgress = () => page.evaluate(() => parseFloat(document.getElementById('proceso').style.getPropertyValue('--process-progress')));
+    const readFillWidth = () => rail.evaluate((el) => parseFloat(getComputedStyle(el, '::after').width));
+    const railWidth = await rail.evaluate((el) => el.getBoundingClientRect().width);
+
+    await scrollToProcessProgress(page, 0);
+    await expect.poll(readProgress).toBeCloseTo(0, 1);
+    await expect.poll(readFillWidth).toBeLessThan(railWidth * 0.1);
+
+    await scrollToProcessProgress(page, 1);
+    await expect.poll(readProgress).toBeCloseTo(1, 1);
+    await expect.poll(readFillWidth).toBeGreaterThan(railWidth * 0.9);
+  });
+
   test('los 4 puntos de navegación son alcanzables por teclado', async ({ page, browserName }) => {
     test.skip(requiresSkipForSyntheticScrollEvents(browserName), 'WebKit en CI: scroll sintético no dispara el motor de forma confiable; Chromium/Firefox cubren la aserción real');
     await page.setViewportSize({ width: 1440, height: 900 });
