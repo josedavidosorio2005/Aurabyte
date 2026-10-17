@@ -1,0 +1,214 @@
+/* process-scene.css — Transición C (IDEA -> DISEÑO -> DESARROLLO -> SOLUCIÓN)
+   Patrón idéntico al de services-scene.css: el look base de
+   ".process-stage" (la tarjeta plana, sin JS/móvil/reduced-motion) vive
+   aquí junto con las reglas de la escena pineada bajo
+   [data-scene="canvas"] — no hay nada previo en styles.css que reutilizar
+   para esta sección, por eso el archivo es autocontenido. */
+
+.process {
+    /* Nada de overflow:hidden aquí: un ancestro con overflow != visible
+       pasa a ser el contenedor de scroll para efectos de position:sticky
+       de sus descendientes, y como esta sección en sí nunca recibe su
+       propio scrollbar (crece para contener los 370vh del scrubber, no
+       los recorta), el resultado es que .process-stage-pinned nunca se
+       fija — se comporta como position:relative (confirmado con evidencia
+       visual real: a mitad de recorrido el stage aparecía con top:-810px,
+       ya desplazado fuera del viewport en vez de pineado bajo la navbar). */
+    position: relative;
+}
+
+.process-stages {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2rem;
+    margin-top: 2.5rem;
+}
+
+.process-stage {
+    background: var(--white);
+    border: 1px solid rgb(14 165 233 / 15%);
+    border-radius: var(--radius-lg);
+    padding: 2rem 1.75rem;
+    box-shadow: var(--shadow);
+}
+
+.process-stage-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 999px;
+    background: var(--gradient-primary);
+    color: #fff;
+    margin-bottom: 1.1rem;
+}
+
+.process-stage-icon .icon {
+    font-size: 1.4rem;
+}
+
+.process-stage-label {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary-text);
+    margin-bottom: 0.4rem;
+}
+
+.process-stage h3 {
+    color: var(--text-dark);
+    margin-bottom: 0.6rem;
+}
+
+.process-stage p {
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+.process-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0.7rem 1.4rem;
+    border-radius: 8px;
+    background: var(--gradient-primary);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.process-cta:hover,
+.process-cta:focus-visible {
+    filter: brightness(1.1);
+}
+
+/* --- Escena pineada: solo escritorio (>=1024px) y sin reduced-motion ---- */
+
+@media (min-width: 1024px) {
+    .process-scrubber {
+        position: relative;
+    }
+
+    .process-stage-pinned {
+        /* --stage-top lo mide process-scene.js (measureStageMetrics) a
+           partir de la altura real de la navbar fija — un valor fijo solo
+           queda bien en el viewport donde se probó (mismo hallazgo ya
+           documentado para la Transición B en services-scene.css). */
+        position: sticky;
+        top: var(--stage-top, 92px);
+        height: calc(100vh - var(--stage-top, 92px));
+        box-sizing: border-box;
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+        align-items: center;
+        gap: 2rem;
+        padding: 2rem 0 5rem;
+    }
+
+    .process-visual {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        max-height: 70vh;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* Resplandor ambiental detrás del canvas: puro CSS (sin rAF propio),
+       cumple "sorprender visualmente" sin añadir un segundo loop de
+       animación al motor de scroll compartido (requisito 1 del usuario). */
+    .process-visual::before {
+        content: '';
+        position: absolute;
+        inset: 8%;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgb(139 92 246 / 18%), transparent 70%);
+        animation: process-glow-breathe 5s ease-in-out infinite;
+        z-index: 0;
+    }
+
+    .process-canvas {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .process-canvas[hidden] {
+        display: none;
+    }
+
+    .process-copy {
+        position: relative;
+        min-height: 16rem;
+    }
+
+    [data-scene="canvas"] .process-stage {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        opacity: clamp(0, calc(1 - var(--stage-distance, 0) * 2), 1);
+        transition: opacity 0.05s linear;
+    }
+
+    [data-scene="canvas"] .process-stage-icon {
+        display: none;
+    }
+
+    [data-scene="canvas"] .process-stage h3 {
+        font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+    }
+
+    .process-dots {
+        position: absolute;
+        bottom: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 0.6rem;
+    }
+
+    .process-dot {
+        width: 0.65rem;
+        height: 0.65rem;
+        border-radius: 50%;
+        border: none;
+        padding: 0;
+        background: rgb(139 92 246 / 25%);
+        cursor: pointer;
+    }
+
+    .process-dot[aria-current="true"] {
+        background: var(--primary-color);
+        transform: scale(1.3);
+    }
+}
+
+@keyframes process-glow-breathe {
+    0%, 100% {
+        opacity: 0.6;
+        transform: scale(0.94);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .process-visual::before {
+        animation: none;
+    }
+}
