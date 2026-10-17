@@ -65,26 +65,28 @@ test.describe('Escena del hero', () => {
   });
 
   test('la escena sigue renderizando frames mientras está en pantalla', async ({ page }) => {
+    test.setTimeout(60000);
     await page.goto('/');
     test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
     await expect.poll(
       () => page.evaluate(() => window.__heroSceneDebug?.frameCount ?? 0),
-      { timeout: 15000 }
+      { timeout: 25000 }
     ).toBeGreaterThan(0);
     const first = await page.evaluate(() => window.__heroSceneDebug.frameCount);
     await expect.poll(
       () => page.evaluate(() => window.__heroSceneDebug.frameCount),
-      { timeout: 15000 }
+      { timeout: 25000 }
     ).toBeGreaterThan(first);
   });
 
   test('la escena reacciona al cursor en dispositivos con puntero fino', async ({ page }) => {
+    test.setTimeout(60000);
     await page.goto('/');
     test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
     await page.mouse.move(400, 300);
     await expect.poll(
       () => page.evaluate(() => window.__heroSceneDebug.pointerOffset.x !== 0 || window.__heroSceneDebug.pointerOffset.y !== 0),
-      { timeout: 15000 }
+      { timeout: 25000 }
     ).toBe(true);
     const offsetAfterFirst = await page.evaluate(() => window.__heroSceneDebug.pointerOffset);
     await page.mouse.move(700, 150);
@@ -93,7 +95,7 @@ test.describe('Escena del hero', () => {
         const offset = await page.evaluate(() => window.__heroSceneDebug.pointerOffset);
         return offset.x !== offsetAfterFirst.x || offset.y !== offsetAfterFirst.y;
       },
-      { timeout: 15000 }
+      { timeout: 25000 }
     ).toBe(true);
   });
 

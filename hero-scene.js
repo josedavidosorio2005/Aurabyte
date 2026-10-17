@@ -201,7 +201,12 @@ class ParticleNetwork {
     this.canvas = canvas;
     this.geometry = geometry;
     this.tier = tier;
-    this.gl = canvas.getContext('webgl', { alpha: true, antialias: true });
+    // antialias:false — el multisampling en un rasterizador por software
+    // (WebKit/Firefox headless sin GPU) puede ser drásticamente más caro
+    // que en hardware; los puntos/líneas ya llevan su propio suavizado
+    // vía smoothstep en el fragment shader, así que MSAA no aporta mucho
+    // aquí a cambio de ese costo.
+    this.gl = canvas.getContext('webgl', { alpha: true, antialias: false });
     if (!this.gl) throw new Error('WebGL no disponible');
 
     this.pointProgram = createProgram(this.gl, VERTEX_SHADER, FRAGMENT_SHADER_POINTS);
