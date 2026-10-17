@@ -149,6 +149,7 @@ test.describe('Escena del hero', () => {
       () => normalPage.locator('.hero-scene').evaluate((el) => Number(getComputedStyle(el).opacity))
     ).toBeLessThan(0.9);
     const normalOpacity = await normalPage.locator('.hero-scene').evaluate((el) => Number(getComputedStyle(el).opacity));
+    const normalProgress = Number(await normalPage.locator('#inicio').getAttribute('data-transition-progress'));
     await normalContext.close();
 
     const reducedContext = await browser.newContext({ reducedMotion: 'reduce' });
@@ -166,13 +167,19 @@ test.describe('Escena del hero', () => {
       () => reducedPage.locator('.hero-scene').evaluate((el) => Number(getComputedStyle(el).opacity))
     ).toBeLessThan(1);
     const reducedOpacity = await reducedPage.locator('.hero-scene').evaluate((el) => Number(getComputedStyle(el).opacity));
+    const reducedProgress = Number(await reducedPage.locator('#inicio').getAttribute('data-transition-progress'));
     await reducedContext.close();
 
     // La amplitud del fade debe ser claramente menor con reduced-motion —
     // no "sin transición" (sigue atada al scroll), sino de baja amplitud.
-    const normalFade = 1 - normalOpacity;
-    const reducedFade = 1 - reducedOpacity;
-    expect(reducedFade).toBeLessThan(normalFade * 0.6);
+    // Normalizado por el progreso real alcanzado en cada página (no
+    // necesariamente idéntico entre dos instancias/contextos distintos,
+    // incluso con el mismo scroll en px — confirmado intermitente en CI
+    // sin esta normalización), para comparar el COEFICIENTE de fade
+    // (opacity perdido por unidad de progreso) y no el fade crudo.
+    const normalFadeRatio = (1 - normalOpacity) / normalProgress;
+    const reducedFadeRatio = (1 - reducedOpacity) / reducedProgress;
+    expect(reducedFadeRatio).toBeLessThan(normalFadeRatio * 0.6);
   });
 
   test('un scroll durante la secuencia de entrada la corta al estado final', async ({ page, browserName }) => {
