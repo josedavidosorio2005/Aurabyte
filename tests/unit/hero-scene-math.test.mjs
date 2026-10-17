@@ -62,6 +62,28 @@ test('pickDeviceTier reduce partículas en viewports angostos o CPUs limitadas',
   assert.ok(low.dprCap <= high.dprCap);
 });
 
+test('la geometría proyectada del monograma cabe dentro del canvas con margen (regresión: MONOGRAM_SCALE)', () => {
+  // A MONOGRAM_SCALE=1/8 (commit d463bfe), el contorno proyectado medía
+  // ~881px de alto en un canvas de ~470px — la mayoría quedaba fuera,
+  // recortada, y lo visible eran fragmentos de línea en los bordes en vez
+  // del monograma (encontrado en revisión de rama completa, no por esta
+  // suite — por eso esta prueba). Dimensiones reales observadas en
+  // evidencia visual de escritorio.
+  const canvasWidth = 556;
+  const canvasHeight = 470;
+  const geometry = buildMonogramGeometry(91);
+  const projected = geometry.points.map((p) => projectPoint(p, canvasWidth, canvasHeight));
+  const margin = 0.05; // al menos 5% de aire en cada lado
+  const minX = canvasWidth * margin;
+  const maxX = canvasWidth * (1 - margin);
+  const minY = canvasHeight * margin;
+  const maxY = canvasHeight * (1 - margin);
+  projected.forEach((p) => {
+    assert.ok(p.x >= minX && p.x <= maxX, `x proyectada fuera del canvas con margen: ${p.x}`);
+    assert.ok(p.y >= minY && p.y <= maxY, `y proyectada fuera del canvas con margen: ${p.y}`);
+  });
+});
+
 test('computeDispersedPositions devuelve un punto por cada entrada, con valores finitos', () => {
   const geometry = buildMonogramGeometry(51);
   const dispersed = computeDispersedPositions(geometry.points, { x: 2, y: 0 });

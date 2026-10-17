@@ -6,7 +6,22 @@ const MONOGRAM_OUTLINE_2D = [
   [15, 45], [30, 15], [45, 45], [38, 45], [30, 28], [22, 45],
 ];
 const MONOGRAM_SPARKLE_2D = [32, 18];
-const MONOGRAM_SCALE = 1 / 8;
+// No 1/8, como en un commit anterior de este mismo branch: a 1/8 el
+// contorno proyectado medía ~881px de alto en un canvas de ~470px — la
+// apex del monograma quedaba recortada muy por fuera del canvas, y lo
+// único visible eran fragmentos de línea en los bordes (confirmado por
+// captura y por revisión de rama completa). El spec marca la forma del
+// monograma como "Decisiones ya tomadas con el usuario (no reabrir sin
+// que él lo pida)" — 1/8 reabría esa decisión sin pedirlo.
+//
+// El valor exacto (1/30, no la estimación lineal ingenua de ~1/22) sale
+// de computar el peor caso real: la cara trasera de la extrusión
+// (z = -depth/2) se agranda por la proyección en perspectiva en vez de
+// achicarse, así que la apex del triángulo en esa cara es el punto que
+// más se acerca al borde del canvas — ver el test de regresión en
+// tests/unit/hero-scene-math.test.mjs que verifica esto directamente en
+// vez de confiar en un cálculo a mano.
+const MONOGRAM_SCALE = 1 / 30;
 
 function toLocalSpace([x, y], cx, cy) {
   // Y se invierte: en SVG crece hacia abajo, en la escena "arriba" es positivo.
