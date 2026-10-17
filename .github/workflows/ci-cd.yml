@@ -65,6 +65,9 @@ jobs:
       - name: Pruebas backend (pytest)
         run: python -m pytest -q
 
+      - name: Pruebas unitarias (node:test)
+        run: npm run test:unit
+
       - name: Auditoría de dependencias npm (producción)
         # --omit=dev: el frontend publicado no usa ninguna dependencia de
         # npm en tiempo de ejecución (es JS/CSS propio, sin librerías), así

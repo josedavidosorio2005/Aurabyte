@@ -74,13 +74,6 @@
         will-change: transform;
     }
 
-    [data-scene="rail"] .service-panel {
-        flex: 0 0 20rem;
-        transform: scale(calc(1 - min(var(--panel-distance, 0), 2) * 0.12));
-        opacity: clamp(0.3, calc(1 - var(--panel-distance, 0) * 0.35), 1);
-        transition: transform 0.05s linear, opacity 0.05s linear, filter 0.05s linear;
-    }
-
     /* --blur-amount lo calcula JS por panel (initServicesScene,
        updateScrub) en vez de derivarlo aquí con calc()/clamp(): la
        condición "solo entre distancia 1 y 2, cero fuera de ese rango"
@@ -89,7 +82,11 @@
        — JS lo hace exacto. Nunca los 8 paneles con blur a la vez
        (requisito 4 del usuario). */
     [data-scene="rail"] .service-panel {
-        filter: blur(var(--blur-amount, 0px));
+        flex: 0 0 20rem;
+        transform: scale(calc(1 - min(var(--panel-distance, 0), 2) * 0.12));
+        opacity: clamp(0.3, calc(1 - var(--panel-distance, 0) * 0.35), 1);
+        filter: blur(var(--blur-amount, 0));
+        transition: transform 0.05s linear, opacity 0.05s linear, filter 0.05s linear;
     }
 
     [data-scene="rail"] .service-panel h3 {
