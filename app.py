@@ -115,8 +115,19 @@ def set_security_headers(response):
 
 
 @app.route("/")
+@limiter.exempt
 def index():
-    """Página principal"""
+    """Página principal.
+
+    @limiter.exempt: igual trato que public_file/icons/fonts — sirve
+    siempre el mismo HTML estático, sin estado, sin el vector de abuso
+    real que default_limits busca mitigar (/api/contact ya tiene su
+    propio límite más estricto, sin tocar). Sin esto, el límite global de
+    50/hora se agota con la propia suite de Playwright (cada test carga
+    "/" al menos una vez; con reintentos en CI, una sola prueba fallida
+    en cascada por un 429 arrastra a las siguientes, exactamente lo que
+    se observó en CI al crecer la suite).
+    """
     return render_template("index.html")
 
 
