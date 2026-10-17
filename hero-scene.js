@@ -212,6 +212,35 @@ class ParticleNetwork {
     this.linePositionBuffer = this.gl.createBuffer();
     this.lineColorBuffer = this.gl.createBuffer();
 
+    // Cachear locations una sola vez: gl.getAttribLocation/getUniformLocation
+    // hacen una búsqueda por nombre en el driver — repetirlas en cada frame
+    // (antes: 7 búsquedas/frame entre ambos programas) es caro de verdad
+    // bajo un rasterizador por software, donde se confirmó frameCount
+    // atascado en 1 durante >15s en CI (WebKit sin GPU).
+    this.pointLocations = {
+      position: this.gl.getAttribLocation(this.pointProgram, 'a_position'),
+      pointSize: this.gl.getAttribLocation(this.pointProgram, 'a_pointSize'),
+      color: this.gl.getAttribLocation(this.pointProgram, 'a_color'),
+      resolution: this.gl.getUniformLocation(this.pointProgram, 'u_resolution'),
+    };
+    this.lineLocations = {
+      position: this.gl.getAttribLocation(this.lineProgram, 'a_position'),
+      color: this.gl.getAttribLocation(this.lineProgram, 'a_color'),
+      resolution: this.gl.getUniformLocation(this.lineProgram, 'u_resolution'),
+    };
+
+    // Buffers tipados reutilizables: el tamaño nunca cambia tras construir
+    // la escena (geometry.points/edges son fijos), así que se reserva una
+    // sola vez en vez de un Float32Array nuevo (con su reserva + GC) en
+    // cada uno de los dos draw calls de cada frame.
+    const pointCount = geometry.points.length;
+    const edgeCount = geometry.edges.length;
+    this.pointPositions = new Float32Array(pointCount * 2);
+    this.pointSizes = new Float32Array(pointCount);
+    this.pointColors = new Float32Array(pointCount * 4);
+    this.linePositions = new Float32Array(edgeCount * 4);
+    this.lineColors = new Float32Array(edgeCount * 8);
+
     this.color = readThemeColors();
     this.reducedMotion = false;
     this.running = false;
@@ -326,9 +355,9 @@ class ParticleNetwork {
     const gl = this.gl;
     gl.useProgram(this.pointProgram);
     this.resetAttributes();
-    const positions = new Float32Array(projected.length * 2);
-    const sizes = new Float32Array(projected.length);
-    const colors = new Float32Array(projected.length * 4);
+    const positions = this.pointPositions;
+    const sizes = this.pointSizes;
+    const colors = this.pointColors;
     projected.forEach((p, i) => {
       positions[i * 2] = p.x;
       positions[i * 2 + 1] = p.y;
@@ -339,10 +368,10 @@ class ParticleNetwork {
       colors[i * 4 + 2] = this.color.b;
       colors[i * 4 + 3] = p.isCore ? Math.min(1, p.alpha * 1.4) : p.alpha;
     });
-    this.bindAttribute(this.pointProgram, this.positionBuffer, 'a_position', positions, 2);
-    this.bindAttribute(this.pointProgram, this.pointSizeBuffer, 'a_pointSize', sizes, 1);
-    this.bindAttribute(this.pointProgram, this.colorBuffer, 'a_color', colors, 4);
-    gl.uniform2f(gl.getUniformLocation(this.pointProgram, 'u_resolution'), this.canvas.width, this.canvas.height);
+    this.bindAttribute(this.positionBuffer, this.pointLocations.position, positions, 2);
+    this.bindAttribute(this.pointSizeBuffer, this.pointLocations.pointSize, sizes, 1);
+    this.bindAttribute(this.colorBuffer, this.pointLocations.color, colors, 4);
+    gl.uniform2f(this.pointLocations.resolution, this.canvas.width, this.canvas.height);
     gl.drawArrays(gl.POINTS, 0, projected.length);
   }
 
@@ -350,8 +379,8 @@ class ParticleNetwork {
     const gl = this.gl;
     gl.useProgram(this.lineProgram);
     this.resetAttributes();
-    const positions = new Float32Array(this.geometry.edges.length * 4);
-    const colors = new Float32Array(this.geometry.edges.length * 8);
+    const positions = this.linePositions;
+    const colors = this.lineColors;
     this.geometry.edges.forEach(([aIndex, bIndex], i) => {
       const a = projected[aIndex];
       const b = projected[bIndex];
@@ -367,18 +396,17 @@ class ParticleNetwork {
         colors[i * 8 + v * 4 + 3] = alpha;
       });
     });
-    this.bindAttribute(this.lineProgram, this.linePositionBuffer, 'a_position', positions, 2);
-    this.bindAttribute(this.lineProgram, this.lineColorBuffer, 'a_color', colors, 4);
-    gl.uniform2f(gl.getUniformLocation(this.lineProgram, 'u_resolution'), this.canvas.width, this.canvas.height);
+    this.bindAttribute(this.linePositionBuffer, this.lineLocations.position, positions, 2);
+    this.bindAttribute(this.lineColorBuffer, this.lineLocations.color, colors, 4);
+    gl.uniform2f(this.lineLocations.resolution, this.canvas.width, this.canvas.height);
     gl.drawArrays(gl.LINES, 0, this.geometry.edges.length * 2);
   }
 
-  bindAttribute(program, buffer, name, data, size) {
+  bindAttribute(buffer, location, data, size) {
+    if (location === -1) return;
     const gl = this.gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
-    const location = gl.getAttribLocation(program, name);
-    if (location === -1) return;
     gl.enableVertexAttribArray(location);
     gl.vertexAttribPointer(location, size, gl.FLOAT, false, 0, 0);
   }
