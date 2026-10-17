@@ -352,8 +352,16 @@ class ParticleNetwork {
         ? 1
         : Math.min(1, Math.max(0, (elapsed - scatter.delay) / ASSEMBLE_DURATION_MS));
       const eased = easeInOutCubic(localProgress);
-      const settledX = lerp(point.x, point.x + this.transitionProgress * 1.6, this.transitionProgress);
-      const settledY = point.y - this.transitionProgress * 1.1;
+      // Spec: con reduced-motion, la Transición A es de baja amplitud —
+      // también aplica al desplazamiento de las partículas, no solo al
+      // opacity/scale por CSS.
+      const transitionAmplitude = this.reducedMotion ? 0.3 : 1;
+      const settledX = lerp(
+        point.x,
+        point.x + this.transitionProgress * 1.6 * transitionAmplitude,
+        this.transitionProgress
+      );
+      const settledY = point.y - this.transitionProgress * 1.1 * transitionAmplitude;
       const driftX = this.reducedMotion ? 0 : Math.sin(now / 1800 + index) * 0.02;
       const driftY = this.reducedMotion ? 0 : Math.cos(now / 2200 + index) * 0.02;
       const x = lerp(point.x + scatter.x, settledX, eased) + driftX + this.pointerOffset.x * (1 - point.z);

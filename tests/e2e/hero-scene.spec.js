@@ -116,6 +116,37 @@ test.describe('Escena del hero', () => {
     ).toBeGreaterThan(0.3);
   });
 
+  test('con reduced-motion, la Transición A es de baja amplitud (no el movimiento de cámara completo)', async ({ browser }) => {
+    const normalContext = await browser.newContext();
+    const normalPage = await normalContext.newPage();
+    await normalPage.goto('/');
+    const heroHeight = await normalPage.locator('#inicio').evaluate((el) => el.getBoundingClientRect().height);
+    await normalPage.evaluate((y) => window.scrollTo(0, y), heroHeight * 0.6);
+    await normalPage.waitForFunction(() => window.scrollY > 0);
+    await expect.poll(async () =>
+      Number(await normalPage.locator('#inicio').getAttribute('data-transition-progress'))
+    ).toBeGreaterThan(0.3);
+    const normalOpacity = await normalPage.locator('.hero-scene').evaluate((el) => Number(getComputedStyle(el).opacity));
+    await normalContext.close();
+
+    const reducedContext = await browser.newContext({ reducedMotion: 'reduce' });
+    const reducedPage = await reducedContext.newPage();
+    await reducedPage.goto('/');
+    await reducedPage.evaluate((y) => window.scrollTo(0, y), heroHeight * 0.6);
+    await reducedPage.waitForFunction(() => window.scrollY > 0);
+    await expect.poll(async () =>
+      Number(await reducedPage.locator('#inicio').getAttribute('data-transition-progress'))
+    ).toBeGreaterThan(0.3);
+    const reducedOpacity = await reducedPage.locator('.hero-scene').evaluate((el) => Number(getComputedStyle(el).opacity));
+    await reducedContext.close();
+
+    // La amplitud del fade debe ser claramente menor con reduced-motion —
+    // no "sin transición" (sigue atada al scroll), sino de baja amplitud.
+    const normalFade = 1 - normalOpacity;
+    const reducedFade = 1 - reducedOpacity;
+    expect(reducedFade).toBeLessThan(normalFade * 0.6);
+  });
+
   test('con reduced-motion, la escena queda asentada de inmediato (sin fase de ensamblaje)', async ({ browser, page }) => {
     test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
     const context = await browser.newContext({ reducedMotion: 'reduce' });

@@ -76,4 +76,16 @@
     .hero-content {
         transition: none;
     }
+
+    /* Spec: con reduced-motion, la Transición A pasa a un cross-fade de
+       baja amplitud en vez del movimiento de cámara completo — sigue
+       atada al scroll (no "sin transición"), solo con menos recorrido. */
+    .hero-scene {
+        opacity: calc(1 - var(--hero-scene-progress, 0) * 0.3);
+        transform: scale(calc(1 - var(--hero-scene-progress, 0) * 0.06));
+    }
+
+    .hero-content {
+        transform: translateY(calc(var(--hero-scene-progress, 0) * -10px));
+    }
 }
