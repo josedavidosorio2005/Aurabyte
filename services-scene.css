@@ -63,6 +63,7 @@
         overflow: hidden;
         display: flex;
         align-items: center;
+
         /* Deja libre la franja inferior donde viven los indicadores y la
            barra de progreso (position:absolute dentro de este stage) —
            sin este espacio reservado, los paneles más altos (más
