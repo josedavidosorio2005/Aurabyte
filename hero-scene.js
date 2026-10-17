@@ -275,6 +275,18 @@ class ParticleNetwork {
     }));
     this.rafId = null;
     this.frame = this.frame.bind(this);
+    // Punto hacia el que migra la red en la Transición A — por defecto el
+    // mismo vector que antes (abajo a la derecha) hasta que
+    // setDispersedTarget() lo reemplace con la posición real de
+    // #servicios; computeDispersedPositions() reparte cada partícula en
+    // un anillo alrededor de ese punto en vez de desplazarlas todas por
+    // el mismo delta uniforme.
+    this.setDispersedTarget({ x: 1.6, y: -1.1 });
+  }
+
+  setDispersedTarget(target) {
+    this.dispersedTarget = target;
+    this.dispersedPositions = computeDispersedPositions(this.geometry.points, target);
   }
 
   resize() {
@@ -365,12 +377,16 @@ class ParticleNetwork {
       // también aplica al desplazamiento de las partículas, no solo al
       // opacity/scale por CSS.
       const transitionAmplitude = this.reducedMotion ? 0.3 : 1;
-      const settledX = lerp(
-        point.x,
-        point.x + this.transitionProgress * 1.6 * transitionAmplitude,
-        this.transitionProgress
-      );
-      const settledY = point.y - this.transitionProgress * 1.1 * transitionAmplitude;
+      // Migra hacia la posición real de #servicios (ver
+      // setDispersedTarget(), llamado desde initHeroScene) en vez de un
+      // delta uniforme — cada partícula se abre hacia su propio punto en
+      // el anillo que computeDispersedPositions() reparte alrededor del
+      // objetivo, así que la red se "dispersa hacia" el área de
+      // servicios en vez de solo desplazarse en bloque.
+      const dispersed = this.dispersedPositions[index];
+      const dispersedProgress = this.transitionProgress * transitionAmplitude;
+      const settledX = lerp(point.x, dispersed.x, dispersedProgress);
+      const settledY = lerp(point.y, dispersed.y, dispersedProgress);
       const driftX = this.reducedMotion ? 0 : Math.sin(now / 1800 + index) * 0.02;
       const driftY = this.reducedMotion ? 0 : Math.cos(now / 2200 + index) * 0.02;
       const x = lerp(point.x + scatter.x, settledX, eased) + driftX + this.pointerOffset.x * (1 - point.z);
@@ -496,6 +512,24 @@ export function initHeroScene() {
     network.start();
     window.__heroSceneDebug.running = true;
     window.addEventListener('resize', () => network.resize());
+
+    // Hacia dónde migra la red en la Transición A: la posición real de
+    // #servicios relativa al hero (horizontal normalizado por el ancho
+    // del hero; vertical siempre hacia abajo, el flujo normal de la
+    // página) — no un delta inventado. Se recalcula en resize porque el
+    // layout (y por tanto esa relación) puede cambiar.
+    function computeServicesTarget() {
+      const servicios = document.getElementById('servicios');
+      if (!servicios) return { x: 1.6, y: -1.1 };
+      const heroRect = heroSection.getBoundingClientRect();
+      const svcRect = servicios.getBoundingClientRect();
+      const heroCenterX = heroRect.left + heroRect.width / 2;
+      const svcCenterX = svcRect.left + svcRect.width / 2;
+      const x = ((svcCenterX - heroCenterX) / heroRect.width) * 3.2;
+      return { x, y: -1.1 };
+    }
+    network.setDispersedTarget(computeServicesTarget());
+    window.addEventListener('resize', () => network.setDispersedTarget(computeServicesTarget()));
 
     // Spec: "cualquier scroll o click durante la secuencia la corta al
     // estado final de inmediato" — no bloquea nada (pointer-events:none
