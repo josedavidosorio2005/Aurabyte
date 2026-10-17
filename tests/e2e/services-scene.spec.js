@@ -49,6 +49,33 @@ test.describe('Transición B — profundidad y rendimiento', () => {
     expect(blurredCount).toBeGreaterThan(0);
     expect(blurredCount).toBeLessThanOrEqual(2);
   });
+
+  test('el panel en scrubIndex=0 es el visualmente centrado, no un panel intermedio', async ({ page }) => {
+    // Regresión: justify-content:center centra la fila sin desplazar
+    // (translateX=0 natural = panel del medio), así que a scrubIndex=0
+    // sin el offset correcto se veía centrado el panel 3, no el 0
+    // (confirmado con evidencia visual real antes de este fix).
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const readClosestIndex = () =>
+      page.evaluate(() => {
+        const viewportCenter = window.innerWidth / 2;
+        const panels = Array.from(document.querySelectorAll('.service-panel'));
+        let closest = -1;
+        let closestDistance = Infinity;
+        panels.forEach((panel, index) => {
+          const rect = panel.getBoundingClientRect();
+          const panelCenter = rect.left + rect.width / 2;
+          const distance = Math.abs(panelCenter - viewportCenter);
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closest = index;
+          }
+        });
+        return closest;
+      });
+    await expect.poll(readClosestIndex).toBe(0);
+  });
 });
 
 function readScrubIndex(page) {
@@ -166,5 +193,22 @@ test.describe('Transición B — navegación y accesibilidad', () => {
     });
     expect(firstPanel.distance).toBe('0.000');
     expect(firstPanel.opacity).toBeGreaterThan(0.9);
+  });
+
+  test('los indicadores no tapan el CTA del panel activo (regresión: franja inferior reservada)', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await expect.poll(() => page.evaluate(() => window.__servicesSceneDebug?.enhanced)).toBe(true);
+    const overlap = await page.evaluate(() => {
+      const indicators = document.querySelector('.services-indicators').getBoundingClientRect();
+      const activeCta = document.querySelector('.service-panel[data-service-index="0"] .service-panel-cta').getBoundingClientRect();
+      return !(
+        indicators.right < activeCta.left ||
+        indicators.left > activeCta.right ||
+        indicators.bottom < activeCta.top ||
+        indicators.top > activeCta.bottom
+      );
+    });
+    expect(overlap).toBe(false);
   });
 });

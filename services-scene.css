@@ -59,9 +59,16 @@
         position: sticky;
         top: 0;
         height: 100vh;
+        box-sizing: border-box;
         overflow: hidden;
         display: flex;
         align-items: center;
+        /* Deja libre la franja inferior donde viven los indicadores y la
+           barra de progreso (position:absolute dentro de este stage) —
+           sin este espacio reservado, los paneles más altos (más
+           features/tech chips) empujan su CTA justo detrás de esa
+           franja y queda tapado (confirmado con evidencia visual). */
+        padding-bottom: 7rem;
     }
 
     .services-rail {
@@ -69,7 +76,7 @@
         gap: 3rem;
         width: 100%;
         justify-content: center;
-        transform: translateX(calc(var(--services-scrub-index, 0) * -22rem));
+        transform: translateX(var(--rail-offset, 0));
         transition: transform 0.05s linear;
         will-change: transform;
     }
@@ -95,10 +102,40 @@
         transition: clip-path 0.05s linear, letter-spacing 0.05s linear;
     }
 
-    .services-progress-rail {
+    /* Dentro de .services-stage (sticky, por eso sirve de contenedor para
+       position:absolute) para que queden visibles TODO el recorrido, no
+       solo al final de las ~5 pantallas de scroll del riel completo. */
+    [data-scene="rail"] .services-indicators {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        justify-content: center;
+        max-width: 90%;
+        background: var(--bg-light);
+        padding: 0.5rem 1rem;
+        border-radius: 999px;
+        box-shadow: 0 8px 28px rgb(15 23 42 / 10%);
+        margin-top: 0;
+    }
+
+    [data-scene="rail"] .services-progress-rail {
+        position: absolute;
+        bottom: 1.1rem;
+        left: 50%;
+        transform: translateX(-50%);
         height: 3px;
-        background: var(--primary-color);
+        width: min(60%, 30rem);
+        background: rgba(14, 165, 233, 0.15);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    [data-scene="rail"] .services-progress-rail::after {
+        content: '';
+        display: block;
+        height: 100%;
         width: calc(var(--services-progress, 0) * 100%);
-        margin-top: 0.75rem;
+        background: var(--primary-color);
     }
 }

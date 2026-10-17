@@ -5,6 +5,7 @@ import {
   computeScrubIndex,
   computePanelDistance,
   computeTargetScrollTop,
+  computeRailOffsetRem,
 } from '../../services-scene.js';
 
 test('computeScrubProgress es 0 antes de entrar y 1 al terminar el recorrido', () => {
@@ -24,6 +25,19 @@ test('computePanelDistance es simétrica y cero en el propio índice', () => {
   assert.equal(computePanelDistance(3, 3), 0);
   assert.equal(computePanelDistance(3, 5), 2);
   assert.equal(computePanelDistance(5, 3), 2);
+});
+
+test('computeRailOffsetRem trae el panel en scrubIndex al centro visual, no al índice 0 (regresión: el riel arranca centrado por justify-content:center)', () => {
+  // Con 8 paneles, el centro natural de la fila (translateX=0, sin
+  // offset) es el panel 3.5 — a scrubIndex=0 el offset debe desplazar
+  // la fila hacia la derecha exactamente 3.5 pasos para traer el panel
+  // 0 al centro, no dejarla en su posición natural (que mostraría el
+  // panel ~3-4 centrado, confirmado por evidencia visual real antes de
+  // este fix).
+  const panelStepRem = 23;
+  assert.equal(computeRailOffsetRem(0, 8, panelStepRem), 3.5 * panelStepRem);
+  assert.equal(computeRailOffsetRem(3.5, 8, panelStepRem), 0);
+  assert.equal(computeRailOffsetRem(7, 8, panelStepRem), -3.5 * panelStepRem);
 });
 
 test('computeTargetScrollTop ubica el primer y último panel en los extremos del recorrido', () => {

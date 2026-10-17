@@ -18,8 +18,23 @@ export function computeTargetScrollTop(index, wrapperTop, wrapperHeight, viewpor
   return wrapperTop + progress * (wrapperHeight - viewportHeight);
 }
 
+// El riel arranca centrado por justify-content:center — su centro natural
+// (sin ningún translateX) es el panel del medio, (count-1)/2, no el
+// panel 0. El offset necesario para traer el panel en scrubIndex al
+// centro se mide desde ESE centro natural, en pasos de panelStepRem
+// (ancho de panel + gap entre paneles, ver services-scene.css).
+export function computeRailOffsetRem(scrubIndex, count, panelStepRem) {
+  const centerIndex = (count - 1) / 2;
+  return (centerIndex - scrubIndex) * panelStepRem;
+}
+
 const DESKTOP_QUERY = '(min-width: 1024px)';
 const SCRUB_VH_PER_PANEL = 55;
+// Debe coincidir con services-scene.css: flex: 0 0 20rem (ancho) + gap:
+// 3rem entre paneles consecutivos = 23rem de centro a centro.
+const PANEL_WIDTH_REM = 20;
+const PANEL_GAP_REM = 3;
+const PANEL_STEP_REM = PANEL_WIDTH_REM + PANEL_GAP_REM;
 
 // La Transición B solo se construye en escritorio y sin movimiento
 // reducido (ver spec: "reduced-motion y móvil = bypass completo"). El
@@ -73,6 +88,8 @@ export function initServicesScene() {
     const scrubIndex = computeScrubIndex(progress, count);
     section.style.setProperty('--services-progress', progress.toFixed(3));
     rail.style.setProperty('--services-scrub-index', scrubIndex.toFixed(3));
+    const railOffsetRem = computeRailOffsetRem(scrubIndex, count, PANEL_STEP_REM);
+    rail.style.setProperty('--rail-offset', `${railOffsetRem.toFixed(3)}rem`);
     panels.forEach((panel, index) => {
       const distance = computePanelDistance(index, scrubIndex);
       panel.style.setProperty('--panel-distance', distance.toFixed(3));
@@ -106,13 +123,21 @@ export function initServicesScene() {
 
     panels.forEach((panel) => rail.appendChild(panel));
     stage.appendChild(rail);
+
+    // Los indicadores y la barra de progreso van DENTRO de .services-stage
+    // (position:sticky, height:100vh), no como hermanos del scrubber
+    // completo (que mide 100vh + 7*55vh) — si quedaran fuera, solo serían
+    // visibles después de scrollear las casi 5 pantallas del recorrido
+    // completo, inútiles como navegación mientras se hace scrub.
+    buildIndicators();
+    stage.appendChild(indicatorsContainer);
+    const progressRail = document.createElement('div');
+    progressRail.className = 'services-progress-rail';
+    stage.appendChild(progressRail);
+
     wrapper.appendChild(stage);
     panelsContainer.replaceWith(wrapper);
 
-    buildIndicators();
-    const progressRail = document.createElement('div');
-    progressRail.className = 'services-progress-rail';
-    indicatorsContainer.insertAdjacentElement('afterend', progressRail);
     section.dataset.scene = 'rail';
     window.__servicesSceneDebug.enhanced = true;
     scrollHandle = registerScrollRegion(wrapper, updateScrub);
@@ -127,12 +152,15 @@ export function initServicesScene() {
       panel.style.removeProperty('--panel-distance');
       freshPanelsContainer.appendChild(panel);
     });
-    wrapper.replaceWith(freshPanelsContainer);
-    panelsContainer = freshPanelsContainer;
+    // indicatorsContainer vive dentro de .services-stage mientras está
+    // mejorado — hay que sacarlo de ahí ANTES de descartar wrapper, o se
+    // pierde junto con el resto del riel en vez de volver a su lugar
+    // original (hermano de .services-panels).
     indicatorsContainer.innerHTML = '';
     indicatorsContainer.toggleAttribute('hidden', true);
-    const progressRail = section.querySelector('.services-progress-rail');
-    if (progressRail) progressRail.remove();
+    wrapper.replaceWith(freshPanelsContainer);
+    freshPanelsContainer.insertAdjacentElement('afterend', indicatorsContainer);
+    panelsContainer = freshPanelsContainer;
     delete section.dataset.scene;
     wrapper = null;
     rail = null;
