@@ -6,7 +6,22 @@ const MONOGRAM_OUTLINE_2D = [
   [15, 45], [30, 15], [45, 45], [38, 45], [30, 28], [22, 45],
 ];
 const MONOGRAM_SPARKLE_2D = [32, 18];
-const MONOGRAM_SCALE = 1 / 8;
+// No 1/8, como en un commit anterior de este mismo branch: a 1/8 el
+// contorno proyectado medía ~881px de alto en un canvas de ~470px — la
+// apex del monograma quedaba recortada muy por fuera del canvas, y lo
+// único visible eran fragmentos de línea en los bordes (confirmado por
+// captura y por revisión de rama completa). El spec marca la forma del
+// monograma como "Decisiones ya tomadas con el usuario (no reabrir sin
+// que él lo pida)" — 1/8 reabría esa decisión sin pedirlo.
+//
+// El valor exacto (1/30, no la estimación lineal ingenua de ~1/22) sale
+// de computar el peor caso real: la cara trasera de la extrusión
+// (z = -depth/2) se agranda por la proyección en perspectiva en vez de
+// achicarse, así que la apex del triángulo en esa cara es el punto que
+// más se acerca al borde del canvas — ver el test de regresión en
+// tests/unit/hero-scene-math.test.mjs que verifica esto directamente en
+// vez de confiar en un cálculo a mano.
+const MONOGRAM_SCALE = 1 / 30;
 
 function toLocalSpace([x, y], cx, cy) {
   // Y se invierte: en SVG crece hacia abajo, en la escena "arriba" es positivo.
@@ -258,6 +273,20 @@ class ParticleNetwork {
       z: (Math.random() - 0.5) * 2,
       delay: Math.random() * 400,
     }));
+    this.rafId = null;
+    this.frame = this.frame.bind(this);
+    // Punto hacia el que migra la red en la Transición A — por defecto el
+    // mismo vector que antes (abajo a la derecha) hasta que
+    // setDispersedTarget() lo reemplace con la posición real de
+    // #servicios; computeDispersedPositions() reparte cada partícula en
+    // un anillo alrededor de ese punto en vez de desplazarlas todas por
+    // el mismo delta uniforme.
+    this.setDispersedTarget({ x: 1.6, y: -1.1 });
+  }
+
+  setDispersedTarget(target) {
+    this.dispersedTarget = target;
+    this.dispersedPositions = computeDispersedPositions(this.geometry.points, target);
   }
 
   resize() {
@@ -272,12 +301,20 @@ class ParticleNetwork {
     if (this.running) return;
     this.running = true;
     this.startTime = this.startTime ?? performance.now();
-    this.frame = this.frame.bind(this);
-    requestAnimationFrame(this.frame);
+    // Puede haber un rAF ya agendado (p. ej. pause() seguido de resume()
+    // en el mismo tick, antes de que el callback anterior corriera) — sin
+    // cancelarlo primero, ambas cadenas quedan vivas y cada una se
+    // reagenda sola para siempre, multiplicando el frame rate real.
+    if (this.rafId !== null) cancelAnimationFrame(this.rafId);
+    this.rafId = requestAnimationFrame(this.frame);
   }
 
   pause() {
     this.running = false;
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
   }
 
   resume() {
@@ -287,6 +324,15 @@ class ParticleNetwork {
 
   snapToSettled() {
     this.reducedMotion = true;
+    this.startTime = performance.now() - ASSEMBLE_DURATION_MS - 1;
+  }
+
+  // Distinto de snapToSettled(): esto solo corta la animación de
+  // ensamblaje en curso al estado final (spec: "cualquier scroll o click
+  // durante la secuencia la corta al estado final de inmediato"), sin
+  // activar reducedMotion — el drift ambiental y la reacción al puntero
+  // siguen funcionando después, a diferencia de snapToSettled().
+  skipIntro() {
     this.startTime = performance.now() - ASSEMBLE_DURATION_MS - 1;
   }
 
@@ -303,10 +349,11 @@ class ParticleNetwork {
   }
 
   frame(now) {
+    this.rafId = null;
     if (!this.running) return;
     this.render(now);
     window.__heroSceneDebug.frameCount += 1;
-    requestAnimationFrame(this.frame);
+    this.rafId = requestAnimationFrame(this.frame);
   }
 
   render(now) {
@@ -326,8 +373,20 @@ class ParticleNetwork {
         ? 1
         : Math.min(1, Math.max(0, (elapsed - scatter.delay) / ASSEMBLE_DURATION_MS));
       const eased = easeInOutCubic(localProgress);
-      const settledX = lerp(point.x, point.x + this.transitionProgress * 1.6, this.transitionProgress);
-      const settledY = point.y - this.transitionProgress * 1.1;
+      // Spec: con reduced-motion, la Transición A es de baja amplitud —
+      // también aplica al desplazamiento de las partículas, no solo al
+      // opacity/scale por CSS.
+      const transitionAmplitude = this.reducedMotion ? 0.3 : 1;
+      // Migra hacia la posición real de #servicios (ver
+      // setDispersedTarget(), llamado desde initHeroScene) en vez de un
+      // delta uniforme — cada partícula se abre hacia su propio punto en
+      // el anillo que computeDispersedPositions() reparte alrededor del
+      // objetivo, así que la red se "dispersa hacia" el área de
+      // servicios en vez de solo desplazarse en bloque.
+      const dispersed = this.dispersedPositions[index];
+      const dispersedProgress = this.transitionProgress * transitionAmplitude;
+      const settledX = lerp(point.x, dispersed.x, dispersedProgress);
+      const settledY = lerp(point.y, dispersed.y, dispersedProgress);
       const driftX = this.reducedMotion ? 0 : Math.sin(now / 1800 + index) * 0.02;
       const driftY = this.reducedMotion ? 0 : Math.cos(now / 2200 + index) * 0.02;
       const x = lerp(point.x + scatter.x, settledX, eased) + driftX + this.pointerOffset.x * (1 - point.z);
@@ -439,77 +498,133 @@ export function initHeroScene() {
     network = null;
   }
 
+  const heroSection = document.getElementById('inicio');
+  let api;
+
   if (!network) {
     fallback.toggleAttribute('hidden', false);
     canvas.toggleAttribute('hidden', true);
-    const api = { setThemeColors() {}, pause() {}, resume() {} };
-    window.AuraHeroScene = api;
-    return api;
-  }
+    api = { setThemeColors() {}, pause() {}, resume() {} };
+  } else {
+    fallback.toggleAttribute('hidden', true);
+    canvas.toggleAttribute('hidden', false);
+    network.resize();
+    network.start();
+    window.__heroSceneDebug.running = true;
+    window.addEventListener('resize', () => network.resize());
 
-  fallback.toggleAttribute('hidden', true);
-  canvas.toggleAttribute('hidden', false);
-  network.resize();
-  network.start();
-  window.__heroSceneDebug.running = true;
-  window.addEventListener('resize', () => network.resize());
-
-  window.__heroSceneDebug.color = network.color;
-  const api = {
-    setThemeColors() {
-      network.setThemeColors();
-      window.__heroSceneDebug.color = network.color;
-    },
-    pause() {
+    // Un contexto WebGL puede perderse en cualquier momento (frecuente en
+    // Safari/Chrome móvil al volver de una pestaña en segundo plano) —
+    // sin esto, el canvas queda en blanco para siempre: sigue sin
+    // "hidden" pero ya no dibuja nada, y el fallback sigue oculto.
+    // Se degrada al mismo fallback SVG que el caso "WebGL nunca estuvo
+    // disponible" — no se intenta reconstruir shaders/buffers en caliente
+    // (riesgo/complejidad real para una escena decorativa), pero nunca
+    // deja un hueco vacío.
+    canvas.addEventListener('webglcontextlost', (event) => {
+      event.preventDefault();
       network.pause();
       window.__heroSceneDebug.running = false;
-    },
-    resume() {
-      network.resume();
-      window.__heroSceneDebug.running = true;
-    },
-  };
+      fallback.toggleAttribute('hidden', false);
+      canvas.toggleAttribute('hidden', true);
+    }, false);
+
+    // Hacia dónde migra la red en la Transición A: la posición real de
+    // #servicios relativa al hero (horizontal normalizado por el ancho
+    // del hero; vertical siempre hacia abajo, el flujo normal de la
+    // página) — no un delta inventado. Se recalcula en resize porque el
+    // layout (y por tanto esa relación) puede cambiar.
+    function computeServicesTarget() {
+      const servicios = document.getElementById('servicios');
+      if (!servicios) return { x: 1.6, y: -1.1 };
+      const heroRect = heroSection.getBoundingClientRect();
+      const svcRect = servicios.getBoundingClientRect();
+      const heroCenterX = heroRect.left + heroRect.width / 2;
+      const svcCenterX = svcRect.left + svcRect.width / 2;
+      const x = ((svcCenterX - heroCenterX) / heroRect.width) * 3.2;
+      return { x, y: -1.1 };
+    }
+    network.setDispersedTarget(computeServicesTarget());
+    window.addEventListener('resize', () => network.setDispersedTarget(computeServicesTarget()));
+
+    // Spec: "cualquier scroll o click durante la secuencia la corta al
+    // estado final de inmediato" — no bloquea nada (pointer-events:none
+    // ya evita que la escena tape los CTAs), solo evita que el usuario
+    // vea partículas todavía volando si interactúa antes de que termine.
+    window.__heroSceneDebug.introSkipped = false;
+    if (!reducedMotion) {
+      const skipIntroOnInteraction = () => {
+        network.skipIntro();
+        window.__heroSceneDebug.introSkipped = true;
+        window.removeEventListener('scroll', skipIntroOnInteraction);
+        document.removeEventListener('pointerdown', skipIntroOnInteraction);
+      };
+      window.addEventListener('scroll', skipIntroOnInteraction, { passive: true, once: true });
+      document.addEventListener('pointerdown', skipIntroOnInteraction, { once: true });
+    }
+
+    window.__heroSceneDebug.color = network.color;
+    api = {
+      setThemeColors() {
+        network.setThemeColors();
+        window.__heroSceneDebug.color = network.color;
+      },
+      pause() {
+        network.pause();
+        window.__heroSceneDebug.running = false;
+      },
+      resume() {
+        network.resume();
+        window.__heroSceneDebug.running = true;
+      },
+    };
+
+    window.__heroSceneDebug.pointerOffset = { x: 0, y: 0 };
+    const canTrackPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (canTrackPointer) {
+      heroSection.addEventListener('pointermove', (event) => {
+        const bounds = heroSection.getBoundingClientRect();
+        const nx = (event.clientX - bounds.left) / bounds.width - 0.5;
+        const ny = (event.clientY - bounds.top) / bounds.height - 0.5;
+        const offset = { x: nx * 0.3, y: -ny * 0.3 };
+        network.setPointerOffset(offset.x, offset.y);
+        window.__heroSceneDebug.pointerOffset = offset;
+      }, { passive: true });
+    }
+
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? api.resume() : api.pause()),
+      { threshold: 0 }
+    );
+    visibilityObserver.observe(canvas);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        api.pause();
+      } else if (heroSection.getBoundingClientRect().bottom > 0) {
+        api.resume();
+      }
+    });
+  }
   window.AuraHeroScene = api;
 
-  const heroSection = document.getElementById('inicio');
-
-  window.__heroSceneDebug.pointerOffset = { x: 0, y: 0 };
-  const canTrackPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  if (canTrackPointer) {
-    heroSection.addEventListener('pointermove', (event) => {
-      const bounds = heroSection.getBoundingClientRect();
-      const nx = (event.clientX - bounds.left) / bounds.width - 0.5;
-      const ny = (event.clientY - bounds.top) / bounds.height - 0.5;
-      const offset = { x: nx * 0.3, y: -ny * 0.3 };
-      network.setPointerOffset(offset.x, offset.y);
-      window.__heroSceneDebug.pointerOffset = offset;
-    }, { passive: true });
-  }
-
-  const visibilityObserver = new IntersectionObserver(
-    ([entry]) => (entry.isIntersecting ? api.resume() : api.pause()),
-    { threshold: 0 }
-  );
-  visibilityObserver.observe(canvas);
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      api.pause();
-    } else if (heroSection.getBoundingClientRect().bottom > 0) {
-      api.resume();
-    }
-  });
-
+  // Transición A (el CSS var/atributo que .hero-scene y .hero-content leen
+  // para transformarse con el scroll) no depende de WebGL — es solo
+  // opacity/transform por CSS. Se agenda después de que la escena (si
+  // existe) ya quedó inicializada/arrancada, para no arrancarla antes de
+  // tiempo — pero igual corre siempre, también en el fallback.
   let scrollFrame = null;
   function updateTransition() {
     scrollFrame = null;
     const rect = heroSection.getBoundingClientRect();
     const progress = Math.min(1, Math.max(0, -rect.top / rect.height));
-    network.setTransitionProgress(progress);
-    if (progress >= 1) {
-      api.pause();
-    } else if (!window.__heroSceneDebug.running) {
-      api.resume();
+    if (network) {
+      network.setTransitionProgress(progress);
+      if (progress >= 1) {
+        api.pause();
+      } else if (!window.__heroSceneDebug.running) {
+        api.resume();
+      }
     }
     heroSection.style.setProperty('--hero-scene-progress', progress.toFixed(3));
     heroSection.dataset.transitionProgress = progress.toFixed(3);
