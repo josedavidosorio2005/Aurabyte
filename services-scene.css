@@ -51,7 +51,57 @@
 }
 
 @media (min-width: 1024px) {
-    /* Nada se activa aquí todavía sin [data-scene="rail"] — Task 6 añade
-       las reglas de riel pineado bajo ese selector. Este bloque queda
-       deliberadamente vacío como punto de anclaje documentado. */
+    .services-scrubber {
+        position: relative;
+    }
+
+    .services-stage {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+    }
+
+    .services-rail {
+        display: flex;
+        gap: 3rem;
+        width: 100%;
+        justify-content: center;
+        transform: translateX(calc(var(--services-scrub-index, 0) * -22rem));
+        transition: transform 0.05s linear;
+        will-change: transform;
+    }
+
+    [data-scene="rail"] .service-panel {
+        flex: 0 0 20rem;
+        transform: scale(calc(1 - min(var(--panel-distance, 0), 2) * 0.12));
+        opacity: clamp(0.3, calc(1 - var(--panel-distance, 0) * 0.35), 1);
+        transition: transform 0.05s linear, opacity 0.05s linear, filter 0.05s linear;
+    }
+
+    /* --blur-amount lo calcula JS por panel (initServicesScene,
+       updateScrub) en vez de derivarlo aquí con calc()/clamp(): la
+       condición "solo entre distancia 1 y 2, cero fuera de ese rango"
+       no es expresable con un solo clamp() sin que el blur sobre
+       distancias > 2 se quede pegado en su tope en vez de caer a cero
+       — JS lo hace exacto. Nunca los 8 paneles con blur a la vez
+       (requisito 4 del usuario). */
+    [data-scene="rail"] .service-panel {
+        filter: blur(var(--blur-amount, 0px));
+    }
+
+    [data-scene="rail"] .service-panel h3 {
+        clip-path: inset(0 calc(min(var(--panel-distance, 0), 1) * 60%) 0 0);
+        letter-spacing: calc(0.02em + min(var(--panel-distance, 0), 1) * 0.08em);
+        transition: clip-path 0.05s linear, letter-spacing 0.05s linear;
+    }
+
+    .services-progress-rail {
+        height: 3px;
+        background: var(--primary-color);
+        width: calc(var(--services-progress, 0) * 100%);
+        margin-top: 0.75rem;
+    }
 }

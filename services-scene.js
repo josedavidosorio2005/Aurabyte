@@ -74,7 +74,13 @@ export function initServicesScene() {
     section.style.setProperty('--services-progress', progress.toFixed(3));
     rail.style.setProperty('--services-scrub-index', scrubIndex.toFixed(3));
     panels.forEach((panel, index) => {
-      panel.style.setProperty('--panel-distance', computePanelDistance(index, scrubIndex).toFixed(3));
+      const distance = computePanelDistance(index, scrubIndex);
+      panel.style.setProperty('--panel-distance', distance.toFixed(3));
+      // Blur acotado a los vecinos inmediatos (distancia 1-2): fuera de
+      // ese rango el panel nunca paga el costo de un filtro — ni el
+      // activo (distancia 0) ni los paneles lejanos (distancia > 2).
+      const blur = distance >= 1 && distance <= 2 ? (distance - 1) * 6 : 0;
+      panel.style.setProperty('--blur-amount', `${blur.toFixed(2)}px`);
     });
     const activeIndex = Math.round(scrubIndex);
     Array.from(indicatorsContainer.children).forEach((button, index) => {
@@ -104,6 +110,9 @@ export function initServicesScene() {
     panelsContainer.replaceWith(wrapper);
 
     buildIndicators();
+    const progressRail = document.createElement('div');
+    progressRail.className = 'services-progress-rail';
+    indicatorsContainer.insertAdjacentElement('afterend', progressRail);
     section.dataset.scene = 'rail';
     window.__servicesSceneDebug.enhanced = true;
     scrollHandle = registerScrollRegion(wrapper, updateScrub);
@@ -122,6 +131,8 @@ export function initServicesScene() {
     panelsContainer = freshPanelsContainer;
     indicatorsContainer.innerHTML = '';
     indicatorsContainer.toggleAttribute('hidden', true);
+    const progressRail = section.querySelector('.services-progress-rail');
+    if (progressRail) progressRail.remove();
     delete section.dataset.scene;
     wrapper = null;
     rail = null;
