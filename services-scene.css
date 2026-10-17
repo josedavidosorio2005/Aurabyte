@@ -1,0 +1,172 @@
+/* El look base de .service-panel (tarjeta, halo de puntero, hover,
+   modo oscuro) vive en styles.css — es el mismo que .service-card ya
+   tenía antes de la Fase 2, solo renombrado junto con el marcado (ver
+   Task 4 del plan). Este archivo solo añade lo nuevo: el CTA por
+   panel, los indicadores, y (Task 6) las reglas de riel pineado bajo
+   [data-scene="rail"], que no se activan sin ese atributo. */
+
+.service-panel-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    background: var(--primary-color);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.service-panel-cta:hover,
+.service-panel-cta:focus-visible {
+    filter: brightness(1.1);
+}
+
+.services-indicators {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.services-indicators[hidden] {
+    display: none;
+}
+
+.services-indicator {
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    background: transparent;
+    color: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.services-indicator[aria-current="true"] {
+    border-color: var(--primary-color);
+    color: var(--primary-text);
+    font-weight: 600;
+}
+
+@media (min-width: 1024px) {
+    .services-scrubber {
+        position: relative;
+    }
+
+    .services-stage {
+        /* --stage-top y --indicator-reserve los mide JS en caliente
+           (initServicesScene, measureStageMetrics) a partir de la altura
+           real de la navbar fija y de la franja de indicadores — ambas
+           varían con el ancho de viewport (la navbar puede envolver en
+           dos líneas en pantallas angostas; los indicadores, según
+           cuántas palabras entren por fila). Un valor fijo solo quedaba
+           bien en el viewport donde se probó: a 1280×768/1024×768 el
+           título y el ícono de cada panel quedaban detrás de la navbar
+           con top:0 fijo (encontrado en revisión de rama completa). */
+        position: sticky;
+        top: var(--stage-top, 92px);
+        height: calc(100vh - var(--stage-top, 92px));
+        box-sizing: border-box;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        padding-bottom: var(--indicator-reserve, 7rem);
+    }
+
+    .services-rail {
+        display: flex;
+        gap: 3rem;
+        width: 100%;
+        justify-content: center;
+        transform: translateX(var(--rail-offset, 0));
+        transition: transform 0.05s linear;
+        will-change: transform;
+    }
+
+    /* --blur-amount lo calcula JS por panel (initServicesScene,
+       updateScrub) en vez de derivarlo aquí con calc()/clamp(): la
+       condición "solo entre distancia 1 y 2, cero fuera de ese rango"
+       no es expresable con un solo clamp() sin que el blur sobre
+       distancias > 2 se quede pegado en su tope en vez de caer a cero
+       — JS lo hace exacto. Nunca los 8 paneles con blur a la vez
+       (requisito 4 del usuario). */
+    [data-scene="rail"] .service-panel {
+        flex: 0 0 20rem;
+        transform: scale(calc(1 - min(var(--panel-distance, 0), 2) * 0.12));
+        opacity: clamp(0.3, calc(1 - var(--panel-distance, 0) * 0.35), 1);
+        filter: blur(var(--blur-amount, 0));
+        transition: transform 0.05s linear, opacity 0.05s linear, filter 0.05s linear;
+
+        /* Red de seguridad para viewports bajos (1024-1280 de alto
+           reducido): el panel nunca excede el espacio real disponible
+           del stage (altura del stage menos la franja de indicadores) —
+           si el contenido no cabe, se desplaza dentro del propio panel
+           en vez de quedar recortado por overflow:hidden del stage (que
+           antes tapaba el CTA en pantallas bajas). */
+        max-height: calc(100vh - var(--stage-top, 92px) - var(--indicator-reserve, 7rem));
+        overflow-y: auto;
+    }
+
+    /* El CTA de WhatsApp queda pegado (sticky) al fondo del propio
+       scroll interno del panel en vez de solo "estar más abajo en el
+       contenido" — así sigue siempre visible y clicable sin que la
+       persona necesite descubrir que la tarjeta se puede desplazar
+       (confirmado necesario con evidencia visual a 1280×720/1024×768:
+       incluso con la franja de indicadores dimensionada bien, un panel
+       con 4 features + 3 chips de tecnología no entra completo en el
+       alto disponible). */
+    [data-scene="rail"] .service-panel-cta {
+        position: sticky;
+        bottom: 0;
+        display: flex;
+        width: 100%;
+        box-sizing: border-box;
+        justify-content: center;
+        margin-top: 0;
+    }
+
+    [data-scene="rail"] .service-panel h3 {
+        clip-path: inset(0 calc(min(var(--panel-distance, 0), 1) * 60%) 0 0);
+        letter-spacing: calc(0.02em + min(var(--panel-distance, 0), 1) * 0.08em);
+        transition: clip-path 0.05s linear, letter-spacing 0.05s linear;
+    }
+
+    /* Dentro de .services-stage (sticky, por eso sirve de contenedor para
+       position:absolute) para que queden visibles TODO el recorrido, no
+       solo al final de las ~5 pantallas de scroll del riel completo. */
+    [data-scene="rail"] .services-indicators {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        justify-content: center;
+        max-width: 90%;
+        background: var(--bg-light);
+        padding: 0.5rem 1rem;
+        border-radius: 999px;
+        box-shadow: 0 8px 28px rgb(15 23 42 / 10%);
+        margin-top: 0;
+    }
+
+    [data-scene="rail"] .services-progress-rail {
+        position: absolute;
+        bottom: 1.1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 3px;
+        width: min(60%, 30rem);
+        background: rgba(14, 165, 233, 0.15);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    [data-scene="rail"] .services-progress-rail::after {
+        content: '';
+        display: block;
+        height: 100%;
+        width: calc(var(--services-progress, 0) * 100%);
+        background: var(--primary-color);
+    }
+}
