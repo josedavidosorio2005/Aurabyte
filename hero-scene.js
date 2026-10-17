@@ -492,130 +492,154 @@ export function initHeroScene() {
   const canvas = container.querySelector('.hero-scene-canvas');
   const fallback = container.querySelector('.hero-scene-fallback');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const heroSection = document.getElementById('inicio');
 
   let network = null;
-  try {
-    const tier = pickDeviceTier({
-      hardwareConcurrency: navigator.hardwareConcurrency,
-      viewportWidth: window.innerWidth,
-    });
-    const geometry = buildMonogramGeometry(tier.particleCount);
-    network = new ParticleNetwork(canvas, geometry, tier);
-    if (reducedMotion) network.snapToSettled();
-  } catch (error) {
-    console.warn('hero-scene: fallback a SVG —', error);
-    network = null;
+  let api = { setThemeColors() {}, pause() {}, resume() {} };
+
+  // Listeners de interacción (scroll/click para saltar la intro, cursor,
+  // visibilidad de pestaña/viewport) se adjuntan YA, sin esperar a que
+  // termine de compilar WebGL — usan `network?.` porque puede que `network`
+  // todavía sea null cuando el usuario interactúa (ver setupNetwork() más
+  // abajo). Separarlos así no es cosmético: la primera versión de este
+  // diferido los dejaba dentro de setupNetwork() y dos pruebas de WebKit
+  // empezaron a fallar de forma reproducible (no solo intermitente) porque
+  // requestAnimationFrame puede tardar más de lo esperado en WebKit sin GPU
+  // — confirmado comparando contra el código antes de este cambio, que
+  // pasaba las mismas pruebas de forma estable. Estos listeners no hacen
+  // trabajo caro (son los mismos de antes, intactos), así que no hay razón
+  // real para diferirlos — solo la construcción de WebGL en sí lo es.
+  window.__heroSceneDebug.introSkipped = false;
+  if (!reducedMotion) {
+    const skipIntroOnInteraction = () => {
+      network?.skipIntro();
+      window.__heroSceneDebug.introSkipped = true;
+      window.removeEventListener('scroll', skipIntroOnInteraction);
+      document.removeEventListener('pointerdown', skipIntroOnInteraction);
+    };
+    window.addEventListener('scroll', skipIntroOnInteraction, { passive: true, once: true });
+    document.addEventListener('pointerdown', skipIntroOnInteraction, { once: true });
   }
 
-  const heroSection = document.getElementById('inicio');
-  let api;
+  window.__heroSceneDebug.pointerOffset = { x: 0, y: 0 };
+  const canTrackPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (canTrackPointer) {
+    heroSection.addEventListener('pointermove', (event) => {
+      const bounds = heroSection.getBoundingClientRect();
+      const nx = (event.clientX - bounds.left) / bounds.width - 0.5;
+      const ny = (event.clientY - bounds.top) / bounds.height - 0.5;
+      const offset = { x: nx * 0.3, y: -ny * 0.3 };
+      network?.setPointerOffset(offset.x, offset.y);
+      window.__heroSceneDebug.pointerOffset = offset;
+    }, { passive: true });
+  }
 
-  if (!network) {
-    fallback.toggleAttribute('hidden', false);
-    canvas.toggleAttribute('hidden', true);
-    api = { setThemeColors() {}, pause() {}, resume() {} };
-  } else {
-    fallback.toggleAttribute('hidden', true);
-    canvas.toggleAttribute('hidden', false);
-    network.resize();
-    network.start();
-    window.__heroSceneDebug.running = true;
-    window.addEventListener('resize', () => network.resize());
+  const visibilityObserver = new IntersectionObserver(
+    ([entry]) => (entry.isIntersecting ? api.resume() : api.pause()),
+    { threshold: 0 }
+  );
+  visibilityObserver.observe(canvas);
 
-    // Un contexto WebGL puede perderse en cualquier momento (frecuente en
-    // Safari/Chrome móvil al volver de una pestaña en segundo plano) —
-    // sin esto, el canvas queda en blanco para siempre: sigue sin
-    // "hidden" pero ya no dibuja nada, y el fallback sigue oculto.
-    // Se degrada al mismo fallback SVG que el caso "WebGL nunca estuvo
-    // disponible" — no se intenta reconstruir shaders/buffers en caliente
-    // (riesgo/complejidad real para una escena decorativa), pero nunca
-    // deja un hueco vacío.
-    canvas.addEventListener('webglcontextlost', (event) => {
-      event.preventDefault();
-      network.pause();
-      window.__heroSceneDebug.running = false;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      api.pause();
+    } else if (heroSection.getBoundingClientRect().bottom > 0) {
+      api.resume();
+    }
+  });
+
+  // Compilar los 2 shaders de ParticleNetwork + crear sus 5 buffers + el
+  // primer draw call puede bloquear el hilo principal casi 1 segundo de
+  // una sola tarea síncrona bajo rasterización por software (medido con
+  // Lighthouse --headless=new, Fase 5: 860ms+63ms, por lejos el mayor
+  // "long task" de toda la carga — services-scene/process-scene ni
+  // aparecían en el perfil). Ceder un solo frame con requestAnimationFrame
+  // (NO requestIdleCallback, a diferencia de process-scene: el hero debe
+  // conservar su impacto visual desde la entrada) deja que el navegador
+  // pinte primero el texto del hero y el fallback SVG — que ya es el
+  // estado por defecto del propio HTML sin JS (<canvas ... hidden>,
+  // <svg class="hero-scene-fallback"> sin hidden) — antes de pagar ese
+  // costo. La diferencia visible para la persona es de un frame (~16ms),
+  // imperceptible; la escena sigue "desde la entrada" como pide el spec.
+  function setupNetwork() {
+    try {
+      const tier = pickDeviceTier({
+        hardwareConcurrency: navigator.hardwareConcurrency,
+        viewportWidth: window.innerWidth,
+      });
+      const geometry = buildMonogramGeometry(tier.particleCount);
+      network = new ParticleNetwork(canvas, geometry, tier);
+      if (reducedMotion) network.snapToSettled();
+    } catch (error) {
+      console.warn('hero-scene: fallback a SVG —', error);
+      network = null;
+    }
+
+    if (!network) {
       fallback.toggleAttribute('hidden', false);
       canvas.toggleAttribute('hidden', true);
-    }, false);
+    } else {
+      fallback.toggleAttribute('hidden', true);
+      canvas.toggleAttribute('hidden', false);
+      network.resize();
+      network.start();
+      window.__heroSceneDebug.running = true;
+      window.addEventListener('resize', () => network.resize());
 
-    // Hacia dónde migra la red en la Transición A: la posición real de
-    // #servicios relativa al hero (horizontal normalizado por el ancho
-    // del hero; vertical siempre hacia abajo, el flujo normal de la
-    // página) — no un delta inventado. Se recalcula en resize porque el
-    // layout (y por tanto esa relación) puede cambiar.
-    function computeServicesTarget() {
-      const servicios = document.getElementById('servicios');
-      if (!servicios) return { x: 1.6, y: -1.1 };
-      const heroRect = heroSection.getBoundingClientRect();
-      const svcRect = servicios.getBoundingClientRect();
-      const heroCenterX = heroRect.left + heroRect.width / 2;
-      const svcCenterX = svcRect.left + svcRect.width / 2;
-      const x = ((svcCenterX - heroCenterX) / heroRect.width) * 3.2;
-      return { x, y: -1.1 };
-    }
-    network.setDispersedTarget(computeServicesTarget());
-    window.addEventListener('resize', () => network.setDispersedTarget(computeServicesTarget()));
-
-    // Spec: "cualquier scroll o click durante la secuencia la corta al
-    // estado final de inmediato" — no bloquea nada (pointer-events:none
-    // ya evita que la escena tape los CTAs), solo evita que el usuario
-    // vea partículas todavía volando si interactúa antes de que termine.
-    window.__heroSceneDebug.introSkipped = false;
-    if (!reducedMotion) {
-      const skipIntroOnInteraction = () => {
-        network.skipIntro();
-        window.__heroSceneDebug.introSkipped = true;
-        window.removeEventListener('scroll', skipIntroOnInteraction);
-        document.removeEventListener('pointerdown', skipIntroOnInteraction);
-      };
-      window.addEventListener('scroll', skipIntroOnInteraction, { passive: true, once: true });
-      document.addEventListener('pointerdown', skipIntroOnInteraction, { once: true });
-    }
-
-    window.__heroSceneDebug.color = network.color;
-    api = {
-      setThemeColors() {
-        network.setThemeColors();
-        window.__heroSceneDebug.color = network.color;
-      },
-      pause() {
+      // Un contexto WebGL puede perderse en cualquier momento (frecuente en
+      // Safari/Chrome móvil al volver de una pestaña en segundo plano) —
+      // sin esto, el canvas queda en blanco para siempre: sigue sin
+      // "hidden" pero ya no dibuja nada, y el fallback sigue oculto.
+      // Se degrada al mismo fallback SVG que el caso "WebGL nunca estuvo
+      // disponible" — no se intenta reconstruir shaders/buffers en caliente
+      // (riesgo/complejidad real para una escena decorativa), pero nunca
+      // deja un hueco vacío.
+      canvas.addEventListener('webglcontextlost', (event) => {
+        event.preventDefault();
         network.pause();
         window.__heroSceneDebug.running = false;
-      },
-      resume() {
-        network.resume();
-        window.__heroSceneDebug.running = true;
-      },
-    };
+        fallback.toggleAttribute('hidden', false);
+        canvas.toggleAttribute('hidden', true);
+      }, false);
 
-    window.__heroSceneDebug.pointerOffset = { x: 0, y: 0 };
-    const canTrackPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    if (canTrackPointer) {
-      heroSection.addEventListener('pointermove', (event) => {
-        const bounds = heroSection.getBoundingClientRect();
-        const nx = (event.clientX - bounds.left) / bounds.width - 0.5;
-        const ny = (event.clientY - bounds.top) / bounds.height - 0.5;
-        const offset = { x: nx * 0.3, y: -ny * 0.3 };
-        network.setPointerOffset(offset.x, offset.y);
-        window.__heroSceneDebug.pointerOffset = offset;
-      }, { passive: true });
+      // Hacia dónde migra la red en la Transición A: la posición real de
+      // #servicios relativa al hero (horizontal normalizado por el ancho
+      // del hero; vertical siempre hacia abajo, el flujo normal de la
+      // página) — no un delta inventado. Se recalcula en resize porque el
+      // layout (y por tanto esa relación) puede cambiar.
+      const computeServicesTarget = () => {
+        const servicios = document.getElementById('servicios');
+        if (!servicios) return { x: 1.6, y: -1.1 };
+        const heroRect = heroSection.getBoundingClientRect();
+        const svcRect = servicios.getBoundingClientRect();
+        const heroCenterX = heroRect.left + heroRect.width / 2;
+        const svcCenterX = svcRect.left + svcRect.width / 2;
+        const x = ((svcCenterX - heroCenterX) / heroRect.width) * 3.2;
+        return { x, y: -1.1 };
+      };
+      network.setDispersedTarget(computeServicesTarget());
+      window.addEventListener('resize', () => network.setDispersedTarget(computeServicesTarget()));
+
+      window.__heroSceneDebug.color = network.color;
+      api = {
+        setThemeColors() {
+          network.setThemeColors();
+          window.__heroSceneDebug.color = network.color;
+        },
+        pause() {
+          network.pause();
+          window.__heroSceneDebug.running = false;
+        },
+        resume() {
+          network.resume();
+          window.__heroSceneDebug.running = true;
+        },
+      };
     }
-
-    const visibilityObserver = new IntersectionObserver(
-      ([entry]) => (entry.isIntersecting ? api.resume() : api.pause()),
-      { threshold: 0 }
-    );
-    visibilityObserver.observe(canvas);
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        api.pause();
-      } else if (heroSection.getBoundingClientRect().bottom > 0) {
-        api.resume();
-      }
-    });
+    window.AuraHeroScene = api;
   }
-  window.AuraHeroScene = api;
+
+  requestAnimationFrame(setupNetwork);
 
   // Transición A (el CSS var/atributo que .hero-scene y .hero-content leen
   // para transformarse con el scroll) no depende de WebGL — es solo
