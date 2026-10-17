@@ -513,6 +513,22 @@ export function initHeroScene() {
     window.__heroSceneDebug.running = true;
     window.addEventListener('resize', () => network.resize());
 
+    // Un contexto WebGL puede perderse en cualquier momento (frecuente en
+    // Safari/Chrome móvil al volver de una pestaña en segundo plano) —
+    // sin esto, el canvas queda en blanco para siempre: sigue sin
+    // "hidden" pero ya no dibuja nada, y el fallback sigue oculto.
+    // Se degrada al mismo fallback SVG que el caso "WebGL nunca estuvo
+    // disponible" — no se intenta reconstruir shaders/buffers en caliente
+    // (riesgo/complejidad real para una escena decorativa), pero nunca
+    // deja un hueco vacío.
+    canvas.addEventListener('webglcontextlost', (event) => {
+      event.preventDefault();
+      network.pause();
+      window.__heroSceneDebug.running = false;
+      fallback.toggleAttribute('hidden', false);
+      canvas.toggleAttribute('hidden', true);
+    }, false);
+
     // Hacia dónde migra la red en la Transición A: la posición real de
     // #servicios relativa al hero (horizontal normalizado por el ancho
     // del hero; vertical siempre hacia abajo, el flujo normal de la

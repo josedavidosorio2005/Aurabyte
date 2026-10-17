@@ -72,6 +72,27 @@ test.describe('Escena del hero', () => {
     expect(consoleErrors).toEqual([]);
   });
 
+  test('si se pierde el contexto WebGL en caliente, degrada al fallback en vez de quedar en blanco', async ({ page }) => {
+    await page.goto('/');
+    test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
+    // Pérdida de contexto real (no simulada por mock) vía la extensión
+    // estándar WEBGL_lose_context — frecuente en móviles al volver de
+    // una pestaña en segundo plano.
+    const lostContext = await page.evaluate(() => {
+      const canvas = document.querySelector('.hero-scene-canvas');
+      const gl = canvas.getContext('webgl');
+      const ext = gl.getExtension('WEBGL_lose_context');
+      if (!ext) return false;
+      ext.loseContext();
+      return true;
+    });
+    test.skip(!lostContext, 'WEBGL_lose_context no disponible en este navegador');
+
+    await expect(page.locator('.hero-scene-fallback')).toBeVisible();
+    await expect(page.locator('.hero-scene-canvas')).toBeHidden();
+    await expect.poll(() => page.evaluate(() => window.__heroSceneDebug.running)).toBe(false);
+  });
+
   test('el fallback SVG es realmente visible: tamaño razonable y no tapado por el code-window', async ({ page }) => {
     await page.addInitScript(() => {
       HTMLCanvasElement.prototype.getContext = function (type) {
