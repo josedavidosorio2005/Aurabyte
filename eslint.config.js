@@ -43,7 +43,7 @@ export default [
     // Scripts del sitio cargados como <script type="module"> (ver
     // index.html) — necesitan su propio sourceType, a diferencia de
     // script.js/byteo.js que son scripts clásicos.
-    files: ['hero-scene.js', 'scroll-progress.js', 'services-scene.js'],
+    files: ['hero-scene.js', 'scroll-progress.js', 'services-scene.js', 'process-scene.js'],
     languageOptions: {
       sourceType: 'module',
     },

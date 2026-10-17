@@ -13,8 +13,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:unit": "node --test tests/unit/*.test.mjs",
-    "build:css": "lightningcss --minify --output-file=styles.min.css styles.css && lightningcss --minify --output-file=byteo.min.css byteo.css && lightningcss --minify --output-file=hero-scene.min.css hero-scene.css && lightningcss --minify --output-file=services-scene.min.css services-scene.css",
-    "build:js": "terser script.js -c -m -o script.min.js && terser byteo.js -c -m -o byteo.min.js && terser scroll-progress.js -c -m -o scroll-progress.min.js --module && terser hero-scene.js -c -m -o hero-scene.min.js --module && terser services-scene.js -c -m -o services-scene.min.js --module",
+    "build:css": "lightningcss --minify --output-file=styles.min.css styles.css && lightningcss --minify --output-file=byteo.min.css byteo.css && lightningcss --minify --output-file=hero-scene.min.css hero-scene.css && lightningcss --minify --output-file=services-scene.min.css services-scene.css && lightningcss --minify --output-file=process-scene.min.css process-scene.css",
+    "build:js": "terser script.js -c -m -o script.min.js && terser byteo.js -c -m -o byteo.min.js && terser scroll-progress.js -c -m -o scroll-progress.min.js --module && terser hero-scene.js -c -m -o hero-scene.min.js --module && terser services-scene.js -c -m -o services-scene.min.js --module && terser process-scene.js -c -m -o process-scene.min.js --module",
     "build": "npm run build:css && npm run build:js"
   },
   "devDependencies": {
