@@ -5,6 +5,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: calc(1 - var(--hero-scene-progress, 0) * 0.85);
+    transform: scale(calc(1 - var(--hero-scene-progress, 0) * 0.18));
+    transition: opacity 0.1s linear, transform 0.1s linear;
 }
 
 .hero-scene-fallback {
@@ -34,12 +37,6 @@
 .hero-scene-canvas {
     width: 100%;
     height: 100%;
-}
-
-.hero-scene {
-    opacity: calc(1 - var(--hero-scene-progress, 0) * 0.85);
-    transform: scale(calc(1 - var(--hero-scene-progress, 0) * 0.18));
-    transition: opacity 0.1s linear, transform 0.1s linear;
 }
 
 @media (prefers-reduced-motion: reduce) {
