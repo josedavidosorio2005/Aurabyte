@@ -315,6 +315,15 @@ class ParticleNetwork {
     this.startTime = performance.now() - ASSEMBLE_DURATION_MS - 1;
   }
 
+  // Distinto de snapToSettled(): esto solo corta la animación de
+  // ensamblaje en curso al estado final (spec: "cualquier scroll o click
+  // durante la secuencia la corta al estado final de inmediato"), sin
+  // activar reducedMotion — el drift ambiental y la reacción al puntero
+  // siguen funcionando después, a diferencia de snapToSettled().
+  skipIntro() {
+    this.startTime = performance.now() - ASSEMBLE_DURATION_MS - 1;
+  }
+
   setPointerOffset(x, y) {
     this.pointerOffset = { x, y };
   }
@@ -487,6 +496,22 @@ export function initHeroScene() {
     network.start();
     window.__heroSceneDebug.running = true;
     window.addEventListener('resize', () => network.resize());
+
+    // Spec: "cualquier scroll o click durante la secuencia la corta al
+    // estado final de inmediato" — no bloquea nada (pointer-events:none
+    // ya evita que la escena tape los CTAs), solo evita que el usuario
+    // vea partículas todavía volando si interactúa antes de que termine.
+    window.__heroSceneDebug.introSkipped = false;
+    if (!reducedMotion) {
+      const skipIntroOnInteraction = () => {
+        network.skipIntro();
+        window.__heroSceneDebug.introSkipped = true;
+        window.removeEventListener('scroll', skipIntroOnInteraction);
+        document.removeEventListener('pointerdown', skipIntroOnInteraction);
+      };
+      window.addEventListener('scroll', skipIntroOnInteraction, { passive: true, once: true });
+      document.addEventListener('pointerdown', skipIntroOnInteraction, { once: true });
+    }
 
     window.__heroSceneDebug.color = network.color;
     api = {

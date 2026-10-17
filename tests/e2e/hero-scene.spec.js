@@ -147,6 +147,16 @@ test.describe('Escena del hero', () => {
     expect(reducedFade).toBeLessThan(normalFade * 0.6);
   });
 
+  test('un scroll durante la secuencia de entrada la corta al estado final', async ({ page }) => {
+    await page.goto('/');
+    test.skip(!(await canRenderSecondFrame(page)), 'Este entorno no produce un segundo frame en un presupuesto razonable');
+    // Antes de que termine la animación de ensamblaje (~1.6s) — interrumpe.
+    await page.evaluate(() => window.dispatchEvent(new Event('scroll')));
+    await expect.poll(
+      () => page.evaluate(() => window.__heroSceneDebug?.introSkipped ?? false)
+    ).toBe(true);
+  });
+
   test('con reduced-motion, la escena queda asentada de inmediato (sin fase de ensamblaje)', async ({ browser, page }) => {
     test.skip(!(await hasWorkingWebGL(page)), 'WebGL no disponible en este navegador/entorno');
     const context = await browser.newContext({ reducedMotion: 'reduce' });
