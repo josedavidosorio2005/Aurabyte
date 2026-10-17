@@ -1168,6 +1168,15 @@ section {
         flex-direction: column;
         background: var(--white);
         width: 100%;
+
+        /* Sin esto, el panel solo medía lo que ocupaban sus propios enlaces
+           (bastante menos que el viewport en móvil) — el contenido del hero
+           se veía "transparentándose" bajo el menú abierto, debajo del
+           último enlace (confirmado con captura real a 390x844). overflow-y
+           es la red de seguridad para pantallas muy bajas donde los 9
+           enlaces + padding sí superan el alto disponible. */
+        height: calc(100vh - 70px);
+        overflow-y: auto;
         text-align: center;
         transition: 0.3s;
         box-shadow: var(--shadow);
@@ -1710,6 +1719,22 @@ section {
     text-align: center;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* .team-grid nunca cabe más de 3 columnas (minmax(280px,1fr) contra un
+   .container de 1200px, ver styles.css ".container") — con 4 integrantes
+   reales (Fase 4, auditoría visual), el 4° queda solo en una fila nueva,
+   pegado a la izquierda con dos huecos vacíos al lado (confirmado con
+   captura real: se lee como una tarjeta "rota", no como diseño
+   intencional). nth-child(3n+1) solo coincide cuando el último elemento
+   es justo el primero de una fila incompleta de un grid de 3 columnas —
+   si el equipo crece a un múltiplo de 3 (o a 3n+2), la regla deja de
+   aplicarse sola, sin tocar este CSS de nuevo. */
+.team-member:last-child:nth-child(3n+1) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 100%;
+    max-width: 360px;
 }
 
 .team-member:hover {
@@ -2561,63 +2586,6 @@ body .hero-code::before {
     filter: blur(28px);
 }
 
-.hero-hologram {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    pointer-events: none;
-}
-
-.hero-hologram-ring {
-    position: absolute;
-    width: 90%;
-    aspect-ratio: 1;
-    border: 1px solid rgb(125 211 252 / 18%);
-    border-radius: 50%;
-    box-shadow: 0 0 0 29px rgb(56 189 248 / 4%), 0 0 0 63px rgb(139 92 246 / 3%);
-    animation: aura-orbit 24s linear infinite;
-}
-
-.hero-hologram-ring::before,
-.hero-hologram-ring::after {
-    content: '';
-    position: absolute;
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background: #67e8f9;
-    box-shadow: 0 0 25px #38bdf8;
-}
-
-.hero-hologram-ring::before {
-    top: 14%;
-    left: 14%;
-}
-
-.hero-hologram-ring::after {
-    right: 14%;
-    bottom: 14%;
-    background: #a78bfa;
-    box-shadow: 0 0 25px #a78bfa;
-}
-
-.hero-hologram-core {
-    width: 190px;
-    height: 190px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgb(56 189 248 / 12%), transparent 75%);
-    filter: drop-shadow(0 0 22px rgb(56 189 248 / 25%));
-}
-
-.hero-hologram-core img {
-    width: 115px;
-    height: auto;
-    opacity: 0.18;
-}
-
 body .code-window {
     max-width: 510px;
     z-index: 2;
@@ -2893,12 +2861,6 @@ body .footer {
     }
 }
 
-@keyframes aura-orbit {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
 @keyframes aura-scan {
     60%, 100% {
         transform: translateY(480%);
@@ -2988,10 +2950,6 @@ body .footer {
         display: none;
     }
 
-    .hero-hologram-ring {
-        width: min(92%, 340px);
-    }
-
     body .code-content {
         font-size: clamp(0.63rem, 2.25vw, 0.82rem);
         padding: 1rem;
@@ -3029,17 +2987,8 @@ body .footer {
         margin-top: 0;
     }
 
-    .hero-hologram-ring {
-        width: 215px;
-    }
-
     body .code-window {
         display: none;
-    }
-
-    .hero-hologram-core img {
-        width: 110px;
-        opacity: 0.8;
     }
 
     .hero .btn {

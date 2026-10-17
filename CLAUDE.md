@@ -33,6 +33,60 @@ Lo único "build" en este proyecto es la minificación CSS/JS (ver abajo) — no
 es un paso de compilación, no cambia el lenguaje ni la arquitectura. No migres
 a un framework sin discutirlo antes: es una decisión de alcance, no un olvido.
 
+## Transiciones cinematográficas (scroll) — Transición A/B/C
+
+El sitio tiene 3 escenas de scroll encadenadas, cada una en su propio par de
+archivos, todas montadas sobre el mismo motor de scroll compartido
+(`scroll-progress.js`: un único listener de `scroll`/`resize` y un único
+`requestAnimationFrame` en vuelo para toda la página vía
+`registerScrollRegion(element, onProgress)` — no crees un segundo motor ni un
+rAF propio para una escena nueva, regístrate en este).
+
+| Transición | Dónde | Archivos | Qué hace |
+|---|---|---|---|
+| A | `#inicio` (hero) | `hero-scene.js/css` | Red de partículas WebGL (fallback SVG si no hay WebGL) que se dispersa hacia `#servicios` según el scroll del hero. |
+| B | `#servicios` | `services-scene.js/css` | 8 paneles de servicio en un riel horizontal pineado (`position: sticky`) que se desplaza con el scroll vertical; en escritorio sin reduced-motion. |
+| C | `#proceso` (entre Servicios y Tecnologías) | `process-scene.js/css` | Red de partículas en Canvas2D que se reorganiza en 4 geometrías (IDEA → DISEÑO → DESARROLLO → SOLUCIÓN) según el scroll; en escritorio sin reduced-motion. |
+
+Patrones que las 3 comparten (cópialos si agregas una Transición D, no
+reinventes):
+
+- **`enhance()`/`revert()`/`sync()`**: `sync()` decide mejora vs. bypass según
+  `matchMedia` (`min-width:1024px` y `!prefers-reduced-motion`) y corre en el
+  evento inicial más `resize`/`change` de esos media queries — nunca solo una
+  vez al cargar. `enhance()` MUEVE los nodos reales del DOM a la estructura
+  pineada (no los clona — nunca hay dos copias del contenido). `revert()`
+  deshace exactamente eso, limpiando estilos inline y el `scrollHandle` del
+  motor compartido.
+- **Bypass = contenido plano accesible, no una versión degradada**: en móvil
+  y con reduced-motion, cada transición cae a su marcado original (tarjetas
+  en flujo normal, sin canvas/riel) — el contenido real siempre existe en el
+  DOM, incluso sin JS. No "ocultes" la versión simple pensando que es solo
+  para desktop.
+- **Companions MINIFICADOS, no la fuente**: cada `*-scene.js` importa de
+  `./otro-archivo.min.js`, no `./otro-archivo.js` — no hay bundler que
+  reescriba specifiers entre fuente y build, así que los `.min.js` ya
+  commiteados son lo que de verdad se ejecuta/importa (ver "Build de
+  producción"). Esto también es lo que permite reutilizar matemática ya
+  probada entre escenas sin duplicarla: p. ej. `process-scene.js` importa
+  `lerp`/`easeInOutCubic`/`pickDeviceTier` de `hero-scene.min.js` y
+  `computeScrubIndex`/`computePanelDistance`/`computeTargetScrollTop` de
+  `services-scene.min.js`. Si cambias la firma de una función exportada por
+  una escena, revisa qué otra escena la importa antes de romperla.
+- **`pickDeviceTier()`** (definida en `hero-scene.js`, reutilizada por las
+  demás): reduce el conteo de partículas/el cap de DPR en viewports angostos
+  o con `hardwareConcurrency` bajo — no inventes un segundo esquema de tiers.
+- **`[data-scene="..."]`**: cada sección mejorada marca
+  `section.dataset.scene` (`"rail"` en B, `"canvas"` en C) — úsalo para
+  reglas CSS que solo deben aplicar mientras la escena está pineada, en vez
+  de depender de clases que también existen en el estado plano.
+- **Guard de rendimiento fuera de viewport**: el callback de
+  `registerScrollRegion` corta temprano si `rect.bottom < 0 || rect.top >
+  viewportHeight` (excepto la primera llamada, que nunca se salta — fija el
+  estado de reposo correcto) — sin esto, cualquier scroll en el RESTO de la
+  página sigue recalculando y escribiendo estilos de una escena que ni
+  siquiera está a la vista.
+
 ## Entorno de desarrollo
 
 ```powershell
@@ -130,8 +184,8 @@ deshacerlo sin querer:
 5. **`theme-toggle`/spinner/notificaciones dinámicas**: ya no togglean
    clases `fa-moon`/`fa-sun` (no existen más) — cambian el atributo `href`
    del `<use>` del ícono. Ver `script.js`, función `setThemeIcon`.
-6. **Rediseño futurista (hero holográfico, `.scroll-progress`, `.reveal-on-scroll`
-   en tarjetas de precios/equipo/destacados, halo de puntero en `.service-card`/
+6. **Rediseño futurista (`.scroll-progress`, `.reveal-on-scroll`
+   en tarjetas de precios/equipo/destacados, halo de puntero en `.service-panel`/
    `.pricing-card`/`.value-card`)**: mismo patrón de arriba, con una regla
    extra. `.js .reveal-on-scroll` usa **`opacity: 0` Y `visibility: hidden`**
    en su estado inicial, no opacity sola — axe-core mide el contraste real
@@ -148,6 +202,24 @@ deshacerlo sin querer:
 No se desactivó ni manipuló ninguna categoría de Lighthouse para subir el
 número — los cambios son reducciones reales de payload (505KB → 265KB) y de
 trabajo en el hilo principal.
+
+**Actualización Fase 4 (auditoría de acabado premium, tras sumar la
+Transición C):** remedido con `npx lighthouse` contra el servidor local.
+Accesibilidad/mejores prácticas/SEO siguen en 100/100 (2 hallazgos reales de
+accesibilidad corregidos en esta fase: `aria-label` de Instagram sin el texto
+visible, y los puntos de navegación de `.process-dot` por debajo del tamaño
+táctil mínimo de 24×24px — ver git log). Rendimiento móvil bajó a un rango
+~84-87/100 (varias corridas, TBT 170-350ms según la corrida — hay ruido real
+de laboratorio en esta máquina, documentado también antes en "Pruebas
+intermitentes" para Playwright). El costo real es el de inicializar 3 escenas
+de scroll en vez de 2 (WebGL del hero + dos escenas Canvas2D/DOM) durante la
+carga — se intentó diferir la construcción de la geometría de
+`process-scene.js` a `requestIdleCallback` (no bloquea FCP/LCP, que siguen
+≤0.8s/≤2.9s), pero el TBT medido no mejoró de forma concluyente bajo el ruido
+de esta máquina. **No se manipuló la auditoría para subir el número** — este
+es el estado real. Queda como candidato razonable para una fase futura:
+inicializar escenas fuera de viewport solo cuando se acercan (p. ej. con
+`IntersectionObserver`) en vez de las 3 al cargar la página.
 
 ## Canal de contacto — WhatsApp (sin backend), no email
 
@@ -302,6 +374,16 @@ MCP: `context7` (docs de librerías actualizadas), `playwright`, `context-mode`.
 
 Herramientas de build añadidas en la Fase 3: `lightningcss-cli` (minifica
 CSS), `terser` (minifica JS) — ambas devDependencies, ver `package.json`.
+
+Auditoría de rendimiento real (no está en `package.json`, se resuelve vía
+`npx` bajo demanda — no hace falta instalarla a propósito):
+`npx lighthouse http://127.0.0.1:5000/ --preset=desktop --chrome-flags="--headless=new" --output=json --output=html --output-path=evidence/lighthouse/desktop`
+(quita `--preset=desktop` para la corrida móvil por defecto, que es la que
+importa para el número histórico de esta sección). El servidor Flask debe
+estar corriendo antes. Cierra cualquier navegador Playwright/MCP abierto
+antes de medir — compartir CPU con un Chromium en segundo plano infla el
+Total Blocking Time y hace que el número no sea comparable (confirmado en
+la Fase 4: la misma página midió 85-95 en escritorio solo por eso).
 
 ## Próximos pasos sugeridos (crecimiento razonable, no una reescritura)
 
