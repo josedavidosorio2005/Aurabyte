@@ -255,8 +255,7 @@ class Byteo {
     
     setEmotion(emotion) {
         const mouth = this.robot.querySelector('.byteo-mouth');
-        const eyes = this.robot.querySelectorAll('.byteo-eye');
-        
+
         this.robot.className = 'byteo-robot ' + emotion;
         
         switch(emotion) {

@@ -37,6 +37,15 @@ export default [
     },
   },
   {
+    // Único script del sitio cargado como <script type="module"> (ver
+    // index.html) — necesita su propio sourceType, a diferencia de
+    // script.js/byteo.js que son scripts clásicos.
+    files: ['hero-scene.js'],
+    languageOptions: {
+      sourceType: 'module',
+    },
+  },
+  {
     files: ['.github/scripts/**/*.mjs'],
     languageOptions: {
       sourceType: 'module',
