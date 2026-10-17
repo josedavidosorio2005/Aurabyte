@@ -83,9 +83,13 @@ class Byteo {
         document.body.appendChild(this.container);
         this.robot = document.getElementById('byteo');
         
-        // Posición inicial (abajo derecha)
-        this.currentX = window.innerWidth - 100;
-        this.currentY = window.innerHeight - 100;
+        // Posición inicial (abajo derecha, salvo que eso solape el botón de
+        // WhatsApp/la navbar/las CTAs del hero — pickSafePoint ya está
+        // disponible aquí porque solo depende de selectores del DOM, no de
+        // this.walkingPath).
+        const initial = this.pickSafePoint(20, window.innerWidth - 20, 20, window.innerHeight - 20);
+        this.currentX = initial.x;
+        this.currentY = initial.y;
         this.updatePosition();
         
         this.setupEventListeners();
@@ -295,33 +299,70 @@ class Byteo {
         }, 2000);
     }
     
+    // Rects (con margen) que Byteo nunca debe cubrir: el botón de WhatsApp,
+    // la navbar y las CTAs del hero. Se recalculan en cada llamada (no se
+    // cachean) porque su posición cambia con el scroll/resize.
+    getProtectedRects() {
+        const selectors = ['.whatsapp-float', '.navbar', '.cta-buttons'];
+        const margin = 24;
+        return selectors
+            .map(selector => document.querySelector(selector)?.getBoundingClientRect())
+            .filter(Boolean)
+            .map(rect => ({
+                left: rect.left - margin,
+                top: rect.top - margin,
+                right: rect.right + margin,
+                bottom: rect.bottom + margin,
+            }));
+    }
+
+    isPositionSafe(x, y) {
+        const size = 80; // ancho/alto aproximado del robot con margen
+        const target = { left: x, top: y, right: x + size, bottom: y + size };
+        return this.getProtectedRects().every(rect =>
+            target.right <= rect.left || target.left >= rect.right ||
+            target.bottom <= rect.top || target.top >= rect.bottom
+        );
+    }
+
+    // Reintenta un punto aleatorio hasta encontrar uno fuera de las zonas
+    // protegidas; si 8 intentos no bastan (viewport muy pequeño/saturado),
+    // cae al centro de la pantalla, que nunca está protegido.
+    pickSafePoint(minX, maxX, minY, maxY) {
+        for (let attempt = 0; attempt < 8; attempt += 1) {
+            const x = minX + Math.random() * (maxX - minX);
+            const y = minY + Math.random() * (maxY - minY);
+            if (this.isPositionSafe(x, y)) return { x, y };
+        }
+        return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    }
+
     generateWalkingPath() {
         this.walkingPath = [];
         const margin = 100;
         const maxX = window.innerWidth - margin;
         const maxY = window.innerHeight - margin;
-        
+
         // Crear un recorrido aleatorio por diferentes puntos de la pantalla
         const numPoints = 8 + Math.floor(Math.random() * 5);
-        
+
         for (let i = 0; i < numPoints; i++) {
-            this.walkingPath.push({
-                x: margin + Math.random() * (maxX - margin),
-                y: margin + Math.random() * (maxY - margin)
-            });
+            this.walkingPath.push(this.pickSafePoint(margin, maxX, margin, maxY));
         }
-        
+
         // Agregar algunos puntos específicos interesantes
         const interestingPoints = [
             { x: window.innerWidth / 2, y: 100 }, // Centro arriba
             { x: 100, y: window.innerHeight / 2 }, // Izquierda
             { x: window.innerWidth - 100, y: window.innerHeight / 2 }, // Derecha
             { x: window.innerWidth / 2, y: window.innerHeight - 100 } // Centro abajo
-        ];
-        
-        // Mezclar algunos puntos interesantes
-        const randomInteresting = interestingPoints[Math.floor(Math.random() * interestingPoints.length)];
-        this.walkingPath.splice(Math.floor(this.walkingPath.length / 2), 0, randomInteresting);
+        ].filter(point => this.isPositionSafe(point.x, point.y));
+
+        // Mezclar algunos puntos interesantes (si queda alguno seguro)
+        if (interestingPoints.length > 0) {
+            const randomInteresting = interestingPoints[Math.floor(Math.random() * interestingPoints.length)];
+            this.walkingPath.splice(Math.floor(this.walkingPath.length / 2), 0, randomInteresting);
+        }
     }
     
     faceDirection(dx) {
